@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Yörünge — Tek Dokunuşla Gezegen Atla</title>
+<meta name="description" content="Gezegenlerin etrafında dön, doğru anda dokun ve bir sonraki yörüngeye fırla. Tek dokunuşluk uzay oyunu.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{--a:hsl(186 100% 60%);--b:hsl(300 90% 65%);--bg:hsl(240 40% 5%)}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;height:100dvh;background:var(--bg);overflow:hidden;font-family:Outfit,sans-serif;color:#fff;user-select:none;touch-action:none}
+  canvas{display:block;width:100%;height:100%}
+  #hud{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 22px 14px;pointer-events:none}
+  #score{font-size:44px;font-weight:800;text-shadow:0 0 20px var(--a)}
+  #best{font-size:14px;opacity:.6;letter-spacing:2px;text-align:right}
+  .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;
+    background:radial-gradient(circle at 50% 40%,hsla(260,80%,30%,.35),hsla(240,40%,5%,.85));backdrop-filter:blur(6px);transition:opacity .4s}
+  .screen.hide{opacity:0;pointer-events:none}
+  h1{font-size:clamp(52px,14vw,96px);font-weight:800;letter-spacing:4px;
+    background:linear-gradient(120deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 25px hsla(186,100%,60%,.4))}
+  p{font-weight:300;opacity:.8;text-align:center;max-width:300px;line-height:1.5}
+  button{font:600 18px Outfit;color:#fff;padding:14px 44px;border:none;border-radius:999px;cursor:pointer;
+    background:linear-gradient(120deg,var(--a),var(--b));box-shadow:0 0 30px hsla(300,90%,65%,.45);transition:transform .2s}
+  button:hover{transform:scale(1.07)}
+  .big{font-size:72px;font-weight:800}
+  .pulse{animation:p 1.6s infinite}@keyframes p{50%{opacity:.4}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud"><div id="score">0</div><div id="best">EN İYİ<br><b id="bestV">0</b></div></div>
+<section class="screen" id="start">
+  <h1>YÖRÜNGE</h1>
+  <p>Gezegenin etrafında dönüyorsun. Doğru anda <b>dokun</b>, fırla ve bir sonraki gezegenin yörüngesine yakalan.</p>
+  <button id="startBtn">OYNA</button>
+  <p class="pulse" style="font-size:13px">Merkeze yakın yakalanırsan ✦ PERFECT = +2</p>
+</section>
+<section class="screen hide" id="over">
+  <p>KAYBOLDUN UZAYDA</p>
+  <div class="big" id="final">0</div>
+  <p id="overBest"></p>
+  <button id="againBtn">TEKRAR</button>
+</section>
+<script>
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+let W,H,DPR,S=1,overTimer;
+function resize(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;
+  S=Math.max(.75,Math.min(1.35,Math.min(W,H*.62)/420)); // ekran boyutuna gore olcek
+  cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)}
+addEventListener('resize',resize);resize();
+
+const $=id=>document.getElementById(id);
+let best=+localStorage.getItem('yorunge_best')||0;$('bestV').textContent=best;
+
+// background stars (parallax)
+const stars=Array.from({length:140},()=>({x:Math.random(),y:Math.random()*3000,z:Math.random()*.8+.2}));
+
+let planets,player,camY,score,state='menu',particles,popups,shake,hue,deathT=0;
+
+function newPlanet(prev){
+  const gap=(170+Math.random()*80+Math.min(score,30)*2)*S;
+  const r=(14+Math.random()*16)*S;
+  const R=r+(38+Math.random()*22)*S;
+  const p={x:R+Math.random()*Math.max(1,W-2*R),y:prev.y-gap,r,R,
+    hue:(prev.hue+40+Math.random()*60)%360,vx:0,ph:Math.random()*6};
+  if(planets.length>8&&Math.random()<.5)p.vx=30+Math.random()*Math.min(planets.length*3,70);
+  return p;
+}
+function reset(){
+  score=0;shake=0;particles=[];popups=[];hue=200;
+  const first={x:W/2,y:0,r:26*S,R:70*S,hue:190,vx:0,ph:0,visited:true};
+  planets=[first];
+  for(let i=0;i<6;i++)planets.push(newPlanet(planets[planets.length-1]));
+  player={planet:first,ang:Math.PI/2,rad:first.R*.8,dir:1,x:0,y:0,vx:0,vy:0,fly:0,trail:[]};
+  camY=first.y-H*.7;$('score').textContent=0;
+}
+const SPEED=()=>(360+Math.min(score,40)*5)*S;
+
+function tap(){
+  if(state!=='play'||!player.planet)return;
+  const p=player.planet,s=SPEED();
+  // tangent velocity
+  player.vx=-Math.sin(player.ang)*s*player.dir;
+  player.vy= Math.cos(player.ang)*s*player.dir;
+  player.last=p;player.planet=null;player.fly=0;
+  burst(player.x,player.y,8,p.hue);
+}
+addEventListener('pointerdown',e=>{if(e.target.tagName!=='BUTTON')tap()});
+addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();state==='play'?tap():start()}});
+
+function burst(x,y,n,h){for(let i=0;i<n;i++){const a=Math.random()*6.28,v=40+Math.random()*160;
+  particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:1,h})}}
+
+function update(dt){
+  planets.forEach(p=>{if(p.vx){p.ph+=dt;p.x=W/2+Math.sin(p.ph*p.vx/60)*(W/2-p.R-10)}});
+  if(player.planet){
+    const p=player.planet;
+    player.rad+=(Math.max(p.r+16*S,Math.min(player.rad,p.R))-player.rad)*dt*4;
+    player.ang+=player.dir*SPEED()/player.rad*dt;
+    player.x=p.x+Math.cos(player.ang)*player.rad;
+    player.y=p.y+Math.sin(player.ang)*player.rad;
+    camY+=((p.y-H*.68)-camY)*dt*3;
+  }else{
+    player.x+=player.vx*dt;player.y+=player.vy*dt;player.fly+=dt;
+    camY+=((player.y-H*.6)-camY)*dt*1.5;
+    for(const p of planets){
+      if(p.visited)continue; // eski gezegenlere geri donulemez
+      const dx=player.x-p.x,dy=player.y-p.y,d=Math.hypot(dx,dy);
+      if(d<p.R){
+        p.visited=true;player.planet=p;player.ang=Math.atan2(dy,dx);player.rad=d;
+        player.dir=Math.sign(dx*player.vy-dy*player.vx)||1;
+        const perfect=d<p.r+(p.R-p.r)*.4;
+        const add=perfect?2:1;score+=add;$('score').textContent=score;
+        popups.push({x:player.x,y:player.y,t:perfect?'✦ PERFECT +2':'+1',life:1,h:p.hue});
+        burst(player.x,player.y,perfect?26:12,p.hue);shake=perfect?8:3;
+        // spawn ahead / cull behind
+        while(planets.length<planets.indexOf(p)+6)planets.push(newPlanet(planets[planets.length-1]));
+        planets=planets.filter(q=>q.y<camY+H+300);
+        break;
+      }
+    }
+    const sy=player.y-camY;
+    if(state==='play'&&(player.x<-30||player.x>W+30||sy>H+40||player.fly>2.4))die();
+  }
+  if(state==='over'&&deathT>0){deathT-=dt;burst(player.x,player.y,40,0);shake=14}
+  player.trail.push({x:player.x,y:player.y});if(player.trail.length>22)player.trail.shift();
+  particles.forEach(q=>{q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=.96;q.vy*=.96;q.life-=dt*1.4});
+  particles=particles.filter(q=>q.life>0);
+  popups.forEach(q=>{q.y-=40*dt;q.life-=dt});popups=popups.filter(q=>q.life>0);
+  shake*=.88;hue+=dt*6;
+}
+
+function die(){
+  state='over';deathT=.6;burst(player.x,player.y,40,0);shake=14;
+  if(score>best){best=score;localStorage.setItem('yorunge_best',best);$('bestV').textContent=best}
+  $('final').textContent=score;$('overBest').textContent='En iyi: '+best;
+  clearTimeout(overTimer);overTimer=setTimeout(()=>$('over').classList.remove('hide'),600);
+}
+
+function draw(){
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,`hsl(${hue%360} 60% 8%)`);g.addColorStop(1,'hsl(240 40% 4%)');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  ctx.save();
+  ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
+  // stars
+  for(const s of stars){const y=((s.y-camY*s.z*.3)%3000+3000)%3000;if(y>H)continue;
+    ctx.globalAlpha=s.z*.8;ctx.fillStyle='#fff';ctx.fillRect(s.x*W,y,s.z*2,s.z*2)}
+  ctx.globalAlpha=1;
+  ctx.translate(0,-camY);
+  // planets
+  const t=performance.now()/1000;
+  for(const p of planets){
+    ctx.strokeStyle=`hsla(${p.hue},100%,70%,${p===player.planet?.5:.22})`;
+    ctx.setLineDash([4,8]);ctx.lineDashOffset=-t*20;ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.R,0,6.28);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=`hsla(${p.hue},100%,70%,.07)`;ctx.beginPath();ctx.arc(p.x,p.y,p.r+(p.R-p.r)*.4,0,6.28);ctx.fill();
+    const pg=ctx.createRadialGradient(p.x-p.r*.4,p.y-p.r*.4,2,p.x,p.y,p.r);
+    pg.addColorStop(0,`hsl(${p.hue} 100% 80%)`);pg.addColorStop(1,`hsl(${p.hue+30} 80% 35%)`);
+    ctx.shadowColor=`hsl(${p.hue} 100% 60%)`;ctx.shadowBlur=30;
+    ctx.fillStyle=pg;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.28);ctx.fill();ctx.shadowBlur=0;
+  }
+  // trail
+  if(state!=='over'||player.trail.length){
+    player.trail.forEach((q,i)=>{const k=i/player.trail.length;
+      ctx.fillStyle=`hsla(186,100%,70%,${k*.6})`;ctx.beginPath();ctx.arc(q.x,q.y,6*k,0,6.28);ctx.fill()});
+    if(state!=='over'){ctx.shadowColor='#7ff';ctx.shadowBlur=20;ctx.fillStyle='#fff';
+      ctx.beginPath();ctx.arc(player.x,player.y,7,0,6.28);ctx.fill();ctx.shadowBlur=0}
+  }
+  particles.forEach(q=>{ctx.globalAlpha=q.life;ctx.fillStyle=`hsl(${q.h} 100% 70%)`;ctx.fillRect(q.x-2,q.y-2,4,4)});
+  ctx.globalAlpha=1;
+  popups.forEach(q=>{ctx.globalAlpha=q.life;ctx.fillStyle=`hsl(${q.h} 100% 80%)`;ctx.font='800 18px Outfit';
+    ctx.textAlign='center';ctx.fillText(q.t,q.x,q.y-18)});
+  ctx.globalAlpha=1;ctx.restore();
+}
+
+let lt=performance.now();
+function loop(n){const dt=Math.min((n-lt)/1000,.033);lt=n;
+  if(state==='play'||state==='over')update(dt);draw();requestAnimationFrame(loop)}
+function start(){clearTimeout(overTimer);$('start').classList.add('hide');$('over').classList.add('hide');reset();state='play'}
+$('startBtn').onclick=start;$('againBtn').onclick=start;
+reset();requestAnimationFrame(loop);
+</script>
+</body>
+</html>
