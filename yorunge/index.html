@@ -46,9 +46,10 @@
 </section>
 <script>
 const cv=document.getElementById('c'),ctx=cv.getContext('2d');
-let W,H,DPR,S=1,overTimer;
+let W,H,DPR,S=1,overTimer,K=1,GW=420,GH=750,OX=0;
+// Sabit sanal oyun alani: her cihazda ayni zorluk. GW=420 birim genislik, ekrana sigacak sekilde olceklenir.
 function resize(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;
-  S=Math.max(.75,Math.min(1.35,Math.min(W,H*.62)/420)); // ekran boyutuna gore olcek
+  K=Math.min(W/420,H/750);GH=H/K;OX=(W-GW*K)/2;
   cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)}
 addEventListener('resize',resize);resize();
 
@@ -61,21 +62,21 @@ const stars=Array.from({length:140},()=>({x:Math.random(),y:Math.random()*3000,z
 let planets,player,camY,score,state='menu',particles,popups,shake,hue,deathT=0;
 
 function newPlanet(prev){
-  const gap=(170+Math.random()*80+Math.min(score,30)*2)*S;
-  const r=(14+Math.random()*16)*S;
-  const R=r+(38+Math.random()*22)*S;
-  const p={x:R+Math.random()*Math.max(1,W-2*R),y:prev.y-gap,r,R,
+  const gap=200+Math.random()*90+Math.min(score,30)*2.5;
+  const r=14+Math.random()*14;
+  const R=r+32+Math.random()*20;
+  const p={x:R+Math.random()*(GW-2*R),y:prev.y-gap,r,R,
     hue:(prev.hue+40+Math.random()*60)%360,vx:0,ph:Math.random()*6};
   if(planets.length>8&&Math.random()<.5)p.vx=30+Math.random()*Math.min(planets.length*3,70);
   return p;
 }
 function reset(){
   score=0;shake=0;particles=[];popups=[];hue=200;
-  const first={x:W/2,y:0,r:26*S,R:70*S,hue:190,vx:0,ph:0,visited:true};
+  const first={x:GW/2,y:0,r:26,R:70,hue:190,vx:0,ph:0,visited:true};
   planets=[first];
   for(let i=0;i<6;i++)planets.push(newPlanet(planets[planets.length-1]));
   player={planet:first,ang:Math.PI/2,rad:first.R*.8,dir:1,x:0,y:0,vx:0,vy:0,fly:0,trail:[]};
-  camY=first.y-H*.7;$('score').textContent=0;
+  camY=first.y-GH*.7;$('score').textContent=0;
 }
 const SPEED=()=>(360+Math.min(score,40)*5)*S;
 
@@ -95,17 +96,17 @@ function burst(x,y,n,h){for(let i=0;i<n;i++){const a=Math.random()*6.28,v=40+Mat
   particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:1,h})}}
 
 function update(dt){
-  planets.forEach(p=>{if(p.vx){p.ph+=dt;p.x=W/2+Math.sin(p.ph*p.vx/60)*(W/2-p.R-10)}});
+  planets.forEach(p=>{if(p.vx){p.ph+=dt;p.x=GW/2+Math.sin(p.ph*p.vx/60)*(GW/2-p.R-10)}});
   if(player.planet){
     const p=player.planet;
-    player.rad+=(Math.max(p.r+16*S,Math.min(player.rad,p.R))-player.rad)*dt*4;
+    player.rad+=(Math.max(p.r+16,Math.min(player.rad,p.R))-player.rad)*dt*4;
     player.ang+=player.dir*SPEED()/player.rad*dt;
     player.x=p.x+Math.cos(player.ang)*player.rad;
     player.y=p.y+Math.sin(player.ang)*player.rad;
-    camY+=((p.y-H*.68)-camY)*dt*3;
+    camY+=((p.y-GH*.68)-camY)*dt*3;
   }else{
     player.x+=player.vx*dt;player.y+=player.vy*dt;player.fly+=dt;
-    camY+=((player.y-H*.6)-camY)*dt*1.5;
+    camY+=((player.y-GH*.6)-camY)*dt*1.5;
     for(const p of planets){
       if(p.visited)continue; // eski gezegenlere geri donulemez
       const dx=player.x-p.x,dy=player.y-p.y,d=Math.hypot(dx,dy);
@@ -118,12 +119,12 @@ function update(dt){
         burst(player.x,player.y,perfect?26:12,p.hue);shake=perfect?8:3;
         // spawn ahead / cull behind
         while(planets.length<planets.indexOf(p)+6)planets.push(newPlanet(planets[planets.length-1]));
-        planets=planets.filter(q=>q.y<camY+H+300);
+        planets=planets.filter(q=>q.y<camY+GH+300);
         break;
       }
     }
     const sy=player.y-camY;
-    if(state==='play'&&(player.x<-30||player.x>W+30||sy>H+40||player.fly>2.4))die();
+    if(state==='play'&&(player.x<-30||player.x>GW+30||sy>GH+40||player.fly>2.4))die();
   }
   if(state==='over'&&deathT>0){deathT-=dt;burst(player.x,player.y,40,0);shake=14}
   player.trail.push({x:player.x,y:player.y});if(player.trail.length>22)player.trail.shift();
@@ -150,6 +151,9 @@ function draw(){
   for(const s of stars){const y=((s.y-camY*s.z*.3)%3000+3000)%3000;if(y>H)continue;
     ctx.globalAlpha=s.z*.8;ctx.fillStyle='#fff';ctx.fillRect(s.x*W,y,s.z*2,s.z*2)}
   ctx.globalAlpha=1;
+  // oyun alani kenarlari (genis ekranlarda)
+  if(OX>4){ctx.fillStyle='hsla(186,100%,60%,.12)';ctx.fillRect(OX-1,0,1,H);ctx.fillRect(OX+GW*K,0,1,H)}
+  ctx.translate(OX,0);ctx.scale(K,K);
   ctx.translate(0,-camY);
   // planets
   const t=performance.now()/1000;
