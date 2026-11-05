@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Yörünge – Tek dokunuşluk oyun</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; height: 100%; height: 100dvh; background: #0d0b1e; overflow: hidden; touch-action: none; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+  body { position: fixed; inset: 0; }
+  body { font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif; color: #f4efe6; -webkit-user-select: none; user-select: none; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  #ui { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none; padding: 24px; box-sizing: border-box; }
+  #ui h1 { font-size: clamp(40px, 11vw, 76px); margin: 0 0 8px; letter-spacing: 2px; color: #ffd166; text-shadow: 0 0 24px rgba(255,209,102,.45); }
+  #ui p { margin: 4px 0; font-size: clamp(15px, 4vw, 19px); line-height: 1.5; max-width: 340px; color: #cfc8e8; }
+  #ui .big { font-size: clamp(54px, 16vw, 96px); font-weight: 700; color: #fff; margin: 0; text-shadow: 0 0 24px rgba(125,249,255,.5); }
+  #ui .go { margin-top: 18px; font-size: 18px; color: #7df9ff; animation: nabiz 1.4s ease-in-out infinite; }
+  #hud { position: fixed; top: calc(14px + env(safe-area-inset-top, 0px)); left: 0; right: 0; display: flex; justify-content: space-between; padding: 0 20px; font-size: 20px; pointer-events: none; }
+  #hud b { color: #ffd166; }
+  @keyframes nabiz { 50% { opacity: .35; } }
+  @media (prefers-reduced-motion: reduce) { #ui .go { animation: none; } }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud" hidden><span>⭐ <b id="sc">0</b></span><span>En iyi: <b id="bs">0</b></span></div>
+<div id="ui"></div>
+
+<script>
+(() => {
+  const cv = document.getElementById('c'), cx = cv.getContext('2d');
+  const ui = document.getElementById('ui'), hud = document.getElementById('hud');
+  const scEl = document.getElementById('sc'), bsEl = document.getElementById('bs');
+  let W, H, S, DPR, CX, CY;
+  let state = 'menu', t = 0, score = 0, best = 0, overAt = 0;
+  let angle = 0, ring = 0, ringPos = 0, meteors = [], stars = [], parts = [], trail = [];
+  let spawnM = 0, spawnS = 0, shake = 0, bg = [];
+
+  try { best = +localStorage.getItem('yorunge-best') || 0; } catch (e) {}
+  bsEl.textContent = best;
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight; S = Math.min(W, H);
+    cv.width = W * DPR; cv.height = H * DPR;
+    cx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    CX = W / 2; CY = H / 2;
+    bg = Array.from({ length: 70 }, () => ({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.4 + .3, a: Math.random() }));
+  }
+  addEventListener('resize', resize); addEventListener('orientationchange', () => setTimeout(resize, 200));
+  if (window.visualViewport) visualViewport.addEventListener('resize', resize);
+  addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('visibilitychange', () => { last = performance.now(); });
+  resize();
+
+  const R = () => [S * .26, S * .42];
+  const pr = () => S * .028;
+
+  function menu() {
+    state = 'menu'; hud.hidden = true;
+    ui.innerHTML = '<h1>YÖRÜNGE</h1><p>Yıldızları topla, meteorlardan kaç.</p><p>Dokununca iç ve dış halka arasında geçersin.</p><p class="go">Başlamak için dokun</p>';
+  }
+  function start() {
+    state = 'play'; t = 0; score = 0; angle = -Math.PI / 2; ring = 1; ringPos = 1;
+    meteors = []; stars = []; parts = []; trail = []; spawnM = 1; spawnS = .5; shake = 0;
+    scEl.textContent = 0; hud.hidden = false; ui.innerHTML = '';
+  }
+  function over() {
+    state = 'over'; overAt = performance.now(); shake = 14;
+    burst(playerXY().x, playerXY().y, '#ff5d73', 30);
+    if (score > best) { best = score; try { localStorage.setItem('yorunge-best', best); } catch (e) {} }
+    bsEl.textContent = best;
+    ui.innerHTML = '<p>Düştün!</p><p class="big">' + score + '</p><p>' + (score >= best && score > 0 ? 'Yeni rekor! 🏆' : 'En iyi: ' + best) + '</p><p class="go">Tekrar denemek için dokun</p>';
+  }
+  function burst(x, y, col, n) {
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * 6.283, v = (Math.random() * .6 + .2) * S;
+      parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, l: 1, col });
+    }
+  }
+  function playerXY() {
+    const r = R(), rad = r[0] + (r[1] - r[0]) * ringPos;
+    return { x: CX + Math.cos(angle) * rad, y: CY + Math.sin(angle) * rad };
+  }
+
+  function tap() {
+    if (state === 'menu') start();
+    else if (state === 'play') ring = 1 - ring;
+    else if (state === 'over' && performance.now() - overAt > 500) start();
+  }
+  addEventListener('pointerdown', e => { e.preventDefault(); tap(); }, { passive: false });
+  addEventListener('keydown', e => { if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); if (!e.repeat) tap(); } });
+
+  function update(dt) {
+    t += dt;
+    ringPos += (ring - ringPos) * Math.min(1, dt * 14);
+    angle += (2.1 + Math.min(t * .02, .9)) * dt;
+    const p = playerXY();
+    trail.push({ x: p.x, y: p.y, l: 1 }); if (trail.length > 22) trail.shift();
+
+    spawnM -= dt;
+    if (spawnM <= 0) {
+      spawnM = Math.max(.32, 1.05 - t * .012);
+      const a = Math.random() * 6.283, d = Math.hypot(W, H) / 2 + 30;
+      meteors.push({ a, d, v: S * (.38 + Math.min(t * .006, .35)) });
+    }
+    spawnS -= dt;
+    if (spawnS <= 0) {
+      spawnS = 1.1;
+      const r = R();
+      stars.push({ a: Math.random() * 6.283, rad: r[Math.random() < .5 ? 0 : 1], l: 4.5, ph: Math.random() * 6 });
+    }
+    const sunR = S * .055;
+    for (const m of meteors) {
+      m.d -= m.v * dt;
+      m.x = CX + Math.cos(m.a) * m.d; m.y = CY + Math.sin(m.a) * m.d;
+      if (Math.hypot(m.x - p.x, m.y - p.y) < pr() + S * .02) { over(); return; }
+    }
+    meteors = meteors.filter(m => m.d > sunR);
+    for (const s of stars) {
+      s.l -= dt; s.x = CX + Math.cos(s.a) * s.rad; s.y = CY + Math.sin(s.a) * s.rad;
+      if (Math.hypot(s.x - p.x, s.y - p.y) < pr() + S * .03) {
+        s.l = 0; score++; scEl.textContent = score; burst(s.x, s.y, '#ffd166', 10);
+      }
+    }
+    stars = stars.filter(s => s.l > 0);
+  }
+
+  function draw(dt) {
+    cx.save();
+    cx.fillStyle = '#0d0b1e'; cx.fillRect(0, 0, W, H);
+    for (const b of bg) { cx.globalAlpha = .25 + .5 * Math.abs(Math.sin(performance.now() / 1500 + b.a * 9)); cx.fillStyle = '#fff'; cx.fillRect(b.x, b.y, b.r, b.r); }
+    cx.globalAlpha = 1;
+    if (shake > 0) { cx.translate((Math.random() - .5) * shake, (Math.random() - .5) * shake); shake = Math.max(0, shake - dt * 40); }
+
+    const r = R();
+    cx.lineWidth = 2; cx.setLineDash([4, 10]);
+    r.forEach((rad, i) => {
+      cx.strokeStyle = i === ring && state === 'play' ? 'rgba(125,249,255,.55)' : 'rgba(207,200,232,.2)';
+      cx.beginPath(); cx.arc(CX, CY, rad, 0, 6.283); cx.stroke();
+    });
+    cx.setLineDash([]);
+
+    const g = cx.createRadialGradient(CX, CY, 0, CX, CY, S * .12);
+    g.addColorStop(0, '#fff3c4'); g.addColorStop(.35, '#ffd166'); g.addColorStop(1, 'rgba(255,209,102,0)');
+    cx.fillStyle = g; cx.beginPath(); cx.arc(CX, CY, S * .12, 0, 6.283); cx.fill();
+
+    for (const s of stars) {
+      const k = s.l < 1.2 ? (Math.sin(s.l * 20) > 0 ? 1 : .3) : 1;
+      cx.globalAlpha = k; cx.fillStyle = '#ffd166'; cx.shadowColor = '#ffd166'; cx.shadowBlur = 14;
+      star(s.x, s.y, S * .03, s.ph + performance.now() / 700); cx.shadowBlur = 0;
+    }
+    cx.globalAlpha = 1;
+    for (const m of meteors) {
+      const tx = CX + Math.cos(m.a) * (m.d + S * .09), ty = CY + Math.sin(m.a) * (m.d + S * .09);
+      const lg = cx.createLinearGradient(m.x, m.y, tx, ty);
+      lg.addColorStop(0, 'rgba(255,93,115,.8)'); lg.addColorStop(1, 'rgba(255,93,115,0)');
+      cx.strokeStyle = lg; cx.lineWidth = S * .026; cx.lineCap = 'round';
+      cx.beginPath(); cx.moveTo(m.x, m.y); cx.lineTo(tx, ty); cx.stroke();
+      cx.fillStyle = '#ff5d73'; cx.shadowColor = '#ff5d73'; cx.shadowBlur = 14;
+      cx.beginPath(); cx.arc(m.x, m.y, S * .02, 0, 6.283); cx.fill(); cx.shadowBlur = 0;
+    }
+    if (state !== 'over') {
+      trail.forEach((q, i) => { cx.globalAlpha = i / trail.length * .5; cx.fillStyle = '#7df9ff'; cx.beginPath(); cx.arc(q.x, q.y, pr() * i / trail.length, 0, 6.283); cx.fill(); });
+      cx.globalAlpha = 1;
+      const p = playerXY();
+      cx.fillStyle = '#7df9ff'; cx.shadowColor = '#7df9ff'; cx.shadowBlur = 18;
+      cx.beginPath(); cx.arc(p.x, p.y, pr(), 0, 6.283); cx.fill(); cx.shadowBlur = 0;
+    }
+    for (const q of parts) {
+      q.x += q.vx * dt; q.y += q.vy * dt; q.l -= dt * 1.8;
+      cx.globalAlpha = Math.max(q.l, 0); cx.fillStyle = q.col; cx.fillRect(q.x, q.y, 4, 4);
+    }
+    parts = parts.filter(q => q.l > 0);
+    cx.restore();
+  }
+  function star(x, y, rad, rot) {
+    cx.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const a = rot + i * Math.PI / 5, d = i % 2 ? rad * .45 : rad;
+      cx.lineTo(x + Math.cos(a) * d, y + Math.sin(a) * d);
+    }
+    cx.closePath(); cx.fill();
+  }
+
+  var last = performance.now();
+  function loop(now) {
+    const dt = Math.min((now - last) / 1000, .05); last = now;
+    if (state === 'play') update(dt);
+    draw(dt);
+    requestAnimationFrame(loop);
+  }
+  menu(); requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
