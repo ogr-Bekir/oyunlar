@@ -1,10 +1,274 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Oyunlar</title>
-<meta http-equiv="refresh" content="0; url=yorunge/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mini Oyunlar · Tek dokunuşla oyna</title>
+<meta name="description" content="Tarayıcıda açılan, tek dokunuşluk kısa oyunlar. Ayna, Meteordan Kaç ve Yörünge’de Kal.">
+<meta name="theme-color" content="#070714">
+<meta property="og:title" content="Mini Oyunlar · Tek dokunuşla oyna">
+<meta property="og:description" content="Kurulum yok, kayıt yok. Bir karta dokun ve oyna.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #070714; --card: #11112a; --line: #2a2a52; --text: #f4efe6; --muted: #aab0d6;
+    --cyan: #3ef0ff; --pink: #f06cf0; --gold: #ffd166; --red: #ff5d73;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+    font-family: Outfit, "Trebuchet MS", system-ui, sans-serif;
+    padding: calc(28px + env(safe-area-inset-top, 0px)) 18px calc(36px + env(safe-area-inset-bottom, 0px));
+    background-image: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(120, 90, 255, .22), transparent 70%);
+    background-repeat: no-repeat;
+  }
+  main { max-width: 1000px; margin: 0 auto; }
+  header { text-align: center; margin: 12px 0 34px; }
+  h1 {
+    margin: 0; font-weight: 800; font-size: clamp(40px, 10vw, 68px); letter-spacing: 1px;
+    background: linear-gradient(120deg, var(--cyan), var(--pink)); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  header p { margin: 10px auto 0; max-width: 460px; color: var(--muted); font-weight: 300; font-size: clamp(17px, 4.4vw, 21px); line-height: 1.5; }
+  .grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+  .card { display: block; text-decoration: none; color: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; transition: transform .25s, box-shadow .25s, border-color .25s; -webkit-tap-highlight-color: transparent; }
+  .card:hover, .card:focus-visible { transform: translateY(-6px); border-color: var(--c); box-shadow: 0 14px 44px -10px var(--c); outline: none; }
+  .card:active { transform: scale(.98); }
+  .art { display: block; width: 100%; aspect-ratio: 16 / 9; }
+  .body { padding: 18px 20px 22px; }
+  .body h2 { margin: 0 0 6px; font-size: 26px; font-weight: 800; }
+  .body p { margin: 0 0 16px; color: var(--muted); font-size: 16px; line-height: 1.5; font-weight: 300; min-height: 48px; }
+  .tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tags span { font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: rgba(255, 255, 255, .07); color: var(--text); }
+  .btn { display: block; text-align: center; font-weight: 800; font-size: 18px; letter-spacing: .5px; padding: 13px; border-radius: 999px; color: #07070f; background: var(--c); }
+  .c1 { --c: #7df9ff; } .c2 { --c: #ff7d8f; } .c3 { --c: #d98cff; }
+  footer { text-align: center; margin-top: 34px; color: #7e84ad; font-size: 14px; font-weight: 300; }
+
+  /* kart görselleri */
+  .spin { transform-origin: var(--o); animation: spin var(--d, 6s) linear infinite; }
+  .fall { animation: fall 4.4s linear infinite; }
+  .blink { animation: blink 1.8s ease-in-out infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fall { 0% { transform: translate(0, 0); opacity: 0; } 4% { opacity: 1; } 45% { transform: translate(var(--dx), var(--dy)); opacity: 1; } 50% { transform: translate(var(--dx), var(--dy)); opacity: 0; } 50.1%, 100% { transform: translate(0, 0); opacity: 0; } }
+  @keyframes blink { 50% { opacity: .35; } }
+  .swing { transform-origin: var(--o); animation: swing 6s ease-in-out infinite; }
+  .swing2 { transform-origin: var(--o); animation: swing2 6s ease-in-out infinite; }
+  .halo { transform-origin: var(--o); opacity: 0; animation: halo 3s ease-out infinite; }
+  @keyframes swing { 0%, 50%, 100% { transform: rotate(0); } 25% { transform: rotate(9deg); } 75% { transform: rotate(-9deg); } }
+  @keyframes swing2 { 0%, 50%, 100% { transform: rotate(0); } 25% { transform: rotate(18deg); } 75% { transform: rotate(-18deg); } }
+  @keyframes halo { 0% { opacity: .9; transform: scale(1); } 30% { opacity: 0; transform: scale(1.6); } 100% { opacity: 0; transform: scale(1.6); } }
+  @media (prefers-reduced-motion: reduce) { .spin, .fall, .blink, .swing, .swing2, .halo { animation: none; } .card { transition: none; } }
+
+  /* dokunmatik cihazlarda hover kaldirma efekti olmasin */
+  @media (hover: none) { .card:hover { transform: none; box-shadow: none; border-color: var(--line); } }
+
+  /* telefon: 2 sutunlu kompakt kartlar (20-30 oyunda bile kolay gezinme) */
+  @media (max-width: 600px) {
+    body { padding: calc(20px + env(safe-area-inset-top, 0px)) 12px calc(28px + env(safe-area-inset-bottom, 0px)); }
+    header { margin: 6px 0 22px; }
+    header p { font-size: 16px; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .card { border-radius: 16px; }
+    .art { aspect-ratio: 4 / 3; object-fit: cover; }
+    .body { padding: 10px 12px 12px; }
+    .body h2 { font-size: 16px; margin-bottom: 8px; line-height: 1.2; }
+    .body p, .tags { display: none; }
+    .btn { font-size: 14px; padding: 9px; }
+  }
+  @media (max-width: 330px) { .grid { grid-template-columns: 1fr; } }
+</style>
 </head>
-<body style="background:#0a0a14"><a href="yorunge/" style="color:#7ff">Yörünge'ye git</a></body>
+<body>
+<main>
+  <header>
+    <h1>Mini Oyunlar</h1>
+    <p>Kurulum yok, kayıt yok. Bir karta dokun ve hemen oyna.</p>
+  </header>
+
+  <section class="grid" aria-label="Oyunlar">
+
+    <!-- AYNA -->
+    <a class="card c1" href="ayna/" rel="noopener">
+      <svg class="art" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Ayna oyunu görseli: lazer aynadan yansıyıp hedefe gidiyor">
+        <defs>
+          <radialGradient id="ga" cx="50%" cy="40%" r="80%"><stop offset="0" stop-color="#18204a"/><stop offset="1" stop-color="#0a0d22"/></radialGradient>
+          <filter id="glowA" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3"/></filter>
+        </defs>
+        <rect width="320" height="180" fill="url(#ga)"/>
+        <g fill="rgba(160,180,255,.15)"><circle cx="30" cy="150" r="1.5"/><circle cx="90" cy="20" r="1.5"/><circle cx="220" cy="150" r="1.5"/><circle cx="300" cy="110" r="1.5"/><circle cx="20" cy="90" r="1.5"/></g>
+        <circle cx="160" cy="120" r="46" fill="none" stroke="rgba(125,249,255,.25)" stroke-dasharray="3 6"/>
+        <line x1="50" y1="45" x2="160" y2="120" stroke="#ff5d73" stroke-width="8" opacity=".5" filter="url(#glowA)"/>
+        <line x1="50" y1="45" x2="160" y2="120" stroke="#ff9aa8" stroke-width="2.4" stroke-linecap="round"/>
+        <g class="swing2" style="--o:160px 120px">
+          <line x1="160" y1="120" x2="347" y2="-8" stroke="#ff5d73" stroke-width="8" opacity=".5" filter="url(#glowA)"/>
+          <line x1="160" y1="120" x2="347" y2="-8" stroke="#ff9aa8" stroke-width="2.4" stroke-linecap="round"/>
+        </g>
+        <g class="swing" style="--o:160px 120px">
+          <line x1="125" y1="120" x2="195" y2="120" stroke="#7df9ff" stroke-width="5" stroke-linecap="round"/>
+        </g>
+        <circle cx="160" cy="120" r="3.5" fill="#fff"/>
+        <circle cx="50" cy="45" r="11" fill="#2a1020" stroke="#ff5d73" stroke-width="3"/>
+        <circle cx="270" cy="45" r="19" fill="#ffd166"/><circle cx="270" cy="45" r="12.5" fill="#fff3c4"/><circle cx="270" cy="45" r="6" fill="#ffd166"/>
+        <circle class="halo" style="--o:270px 45px" cx="270" cy="45" r="19" fill="none" stroke="#fff" stroke-width="3"/>
+      </svg>
+      <div class="body">
+        <h2>🎯 Ayna</h2>
+        <p>Lazer görünmez. Aynayı göz kararı çevir, ateş et, hedefi vur.</p>
+        <div class="tags"><span>Tek parmak</span><span>Zeka</span><span>Hassasiyet</span></div>
+        <span class="btn">Oyna ▶</span>
+      </div>
+    </a>
+
+    <!-- METEORDAN KAÇ -->
+    <a class="card c2" href="halka/" rel="noopener">
+      <svg class="art" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Meteordan Kaç oyunu görseli: iki halka, dönen top ve gelen meteorlar">
+        <defs>
+          <radialGradient id="gb" cx="50%" cy="50%" r="75%"><stop offset="0" stop-color="#1a1740"/><stop offset="1" stop-color="#0d0b1e"/></radialGradient>
+          <radialGradient id="sun"><stop offset="0" stop-color="#fff3c4"/><stop offset=".4" stop-color="#ffd166"/><stop offset="1" stop-color="#ffd166" stop-opacity="0"/></radialGradient>
+              </defs>
+        <rect width="320" height="180" fill="url(#gb)"/>
+        <g fill="rgba(255,255,255,.35)"><circle cx="40" cy="30" r="1.2"/><circle cx="280" cy="150" r="1.2"/><circle cx="250" cy="25" r="1.2"/><circle cx="60" cy="150" r="1.2"/></g>
+        <circle cx="160" cy="90" r="40" fill="none" stroke="rgba(207,200,232,.3)" stroke-dasharray="3 7"/>
+        <circle cx="160" cy="90" r="72" fill="none" stroke="rgba(125,249,255,.5)" stroke-dasharray="3 7"/>
+        <circle cx="160" cy="90" r="34" fill="url(#sun)"/>
+        
+        <g id="mStar"><polygon points="0.0,-9.0 2.4,-3.2 8.6,-2.8 3.8,1.2 5.3,7.3 0.0,4.0 -5.3,7.3 -3.8,1.2 -8.6,-2.8 -2.4,-3.2" fill="#ffd166"/></g>
+        <g id="mPlayer">
+          <circle class="mt" r="5.5" fill="#7df9ff" opacity=".4"/><circle class="mt" r="4.6" fill="#7df9ff" opacity=".32"/><circle class="mt" r="3.8" fill="#7df9ff" opacity=".25"/><circle class="mt" r="3" fill="#7df9ff" opacity=".18"/><circle class="mt" r="2.2" fill="#7df9ff" opacity=".1"/>
+          <circle class="md" r="8" fill="#7df9ff"/>
+        </g>
+        <g id="mFx"><circle class="mp" r="2.3" fill="#ffd166" opacity="0"/><circle class="mp" r="2.3" fill="#ffd166" opacity="0"/><circle class="mp" r="2.3" fill="#ffd166" opacity="0"/><circle class="mp" r="2.3" fill="#ffd166" opacity="0"/><circle class="mp" r="2.3" fill="#fff3c4" opacity="0"/><circle class="mp" r="2.3" fill="#fff3c4" opacity="0"/><circle class="mp" r="2.3" fill="#fff3c4" opacity="0"/><circle class="mp" r="2.3" fill="#fff3c4" opacity="0"/></g>
+        <text id="mPlus" font-size="14" font-weight="800" fill="#ffd166" text-anchor="middle" opacity="0">+1</text>
+        <g class="fall" style="--dx:-117px;--dy:58px;animation-delay:0s"><line x1="300" y1="20" x2="323" y2="8" stroke="#ff5d73" stroke-opacity=".5" stroke-width="6" stroke-linecap="round"/><circle cx="300" cy="20" r="5.5" fill="#ff5d73"/></g>
+        <g class="fall" style="--dx:112px;--dy:46px;animation-delay:-3.4s"><line x1="24" y1="34" x2="0" y2="24" stroke="#ff5d73" stroke-opacity=".5" stroke-width="6" stroke-linecap="round"/><circle cx="24" cy="34" r="5.5" fill="#ff5d73"/></g>
+        <g class="fall" style="--dx:94px;--dy:-57px;animation-delay:-2.2s"><line x1="44" y1="160" x2="22" y2="173" stroke="#ff5d73" stroke-opacity=".5" stroke-width="6" stroke-linecap="round"/><circle cx="44" cy="160" r="5.5" fill="#ff5d73"/></g>
+        <g class="fall" style="--dx:-107px;--dy:-56px;animation-delay:-1.3s"><line x1="290" y1="158" x2="313" y2="170" stroke="#ff5d73" stroke-opacity=".5" stroke-width="6" stroke-linecap="round"/><circle cx="290" cy="158" r="5.5" fill="#ff5d73"/></g>
+      </svg>
+      <div class="body">
+        <h2>🌀 Meteordan Kaç</h2>
+        <p>Halkalar arasında geç, yıldızları topla, meteorlara çarpma.</p>
+        <div class="tags"><span>Tek dokunuş</span><span>Refleks</span><span>Hızlanan tempo</span></div>
+        <span class="btn">Oyna ▶</span>
+      </div>
+    </a>
+
+    <!-- YÖRÜNGE'DE KAL -->
+    <a class="card c3" href="yorunge/" rel="noopener">
+      <svg class="art" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Yörünge’de Kal oyunu görseli: gezegenler ve etraflarında dönen top">
+        <defs>
+          <linearGradient id="gc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16103a"/><stop offset="1" stop-color="#07071a"/></linearGradient>
+          <radialGradient id="p1" cx="35%" cy="35%"><stop offset="0" stop-color="#a8fbff"/><stop offset="1" stop-color="#1f9bb0"/></radialGradient>
+          <radialGradient id="p2" cx="35%" cy="35%"><stop offset="0" stop-color="#ffc0ff"/><stop offset="1" stop-color="#a02fb4"/></radialGradient>
+          <radialGradient id="p3" cx="35%" cy="35%"><stop offset="0" stop-color="#ffe9a8"/><stop offset="1" stop-color="#c47a12"/></radialGradient>
+        </defs>
+        <rect width="320" height="180" fill="url(#gc)"/>
+        <g fill="rgba(255,255,255,.4)"><circle cx="30" cy="25" r="1.2"/><circle cx="290" cy="30" r="1.2"/><circle cx="170" cy="12" r="1"/><circle cx="20" cy="120" r="1"/><circle cx="300" cy="150" r="1.2"/></g>
+        <path d="M82 138 Q 150 120 205 72 T 262 36" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-dasharray="2 7" stroke-linecap="round"/>
+        <circle cx="75" cy="138" r="40" fill="none" stroke="rgba(62,240,255,.45)" stroke-dasharray="3 7"/>
+        <circle cx="75" cy="138" r="19" fill="url(#p1)"/>
+        <circle cx="205" cy="82" r="34" fill="none" stroke="rgba(240,108,240,.45)" stroke-dasharray="3 7"/>
+        <circle cx="205" cy="82" r="15" fill="url(#p2)"/>
+        <circle cx="262" cy="36" r="26" fill="none" stroke="rgba(255,209,102,.45)" stroke-dasharray="3 7"/>
+        <circle cx="262" cy="36" r="11" fill="url(#p3)"/>
+        <g id="hopper">
+          <circle class="ht" r="4.5" fill="#7df9ff" opacity=".5"/><circle class="ht" r="4" fill="#7df9ff" opacity=".42"/><circle class="ht" r="3.5" fill="#7df9ff" opacity=".34"/><circle class="ht" r="3" fill="#7df9ff" opacity=".26"/><circle class="ht" r="2.4" fill="#7df9ff" opacity=".18"/><circle class="ht" r="1.8" fill="#7df9ff" opacity=".1"/>
+          <g class="hd"><circle r="10" fill="#7df9ff" opacity=".25"/><circle r="6" fill="#fff"/></g>
+        </g>
+      </svg>
+      <div class="body">
+        <h2>🪐 Yörünge’de Kal</h2>
+        <p>Gezegenden gezegene sıçra, doğru anda dokun ve yörüngeye yakalan.</p>
+        <div class="tags"><span>Tek dokunuş</span><span>Zamanlama</span><span>Sonsuz</span></div>
+        <span class="btn">Oyna ▶</span>
+      </div>
+    </a>
+
+  </section>
+
+  <footer>Yeni oyunlar eklenecek. Takipte kal ✨</footer>
+</main>
+<script>
+(() => {
+  // Yörünge’de Kal kartı: top gezegenin etrafında döner, teğet doğrultusu bir sonraki gezegene bakınca fırlar
+  const dot = document.querySelector('#hopper .hd'); if (!dot) return;
+  const trail = [...document.querySelectorAll('#hopper .ht')];
+  const P = [{ x: 75, y: 138, R: 40 }, { x: 205, y: 82, R: 34 }, { x: 262, y: 36, R: 26 }], seq = [0, 1, 2, 1];
+  let si = 0, cur = P[0], a = Math.PI, dir = 1, mode = 'orbit', ot = 0, x = 0, y = 0, vx = 0, vy = 0, hist = [];
+  const place = () => { x = cur.x + Math.cos(a) * cur.R; y = cur.y + Math.sin(a) * cur.R; };
+  const draw = () => {
+    dot.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+    hist.unshift([x, y]); if (hist.length > trail.length * 3 + 1) hist.pop();
+    trail.forEach((c, i) => { const h = hist[(i + 1) * 3]; if (h) { c.setAttribute('cx', h[0].toFixed(1)); c.setAttribute('cy', h[1].toFixed(1)); } });
+  };
+  place(); draw();
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let last = performance.now();
+  (function frame(now) {
+    const dt = Math.min((now - last) / 1000, .05); last = now;
+    const nxt = P[seq[(si + 1) % seq.length]];
+    if (mode === 'orbit') {
+      a += dir * 3.4 * dt; ot += dt; place();
+      const vxx = -Math.sin(a) * dir, vyy = Math.cos(a) * dir, tx = nxt.x - x, ty = nxt.y - y;
+      if (ot > .9 && (vxx * tx + vyy * ty) / Math.hypot(tx, ty) > .99) { mode = 'leap'; vx = vxx * 220; vy = vyy * 220; ot = 0; }
+    } else {
+      x += vx * dt; y += vy * dt;
+      const dx = x - nxt.x, dy = y - nxt.y;
+      if (Math.hypot(dx, dy) <= nxt.R) { si = (si + 1) % seq.length; cur = nxt; a = Math.atan2(dy, dx); dir = Math.sign(dx * vy - dy * vx) || 1; mode = 'orbit'; }
+    }
+    draw(); requestAnimationFrame(frame);
+  })(last);
+})();
+</script>
+<script>
+(() => {
+  // Meteordan Kaç kartı: top 1,5 sn'de bir halka değiştirir, yıldıza değince patlar, yeni yıldız doğar
+  const gP = document.getElementById('mPlayer'); if (!gP) return;
+  const dot = gP.querySelector('.md'), trail = [...gP.querySelectorAll('.mt')], starG = document.getElementById('mStar');
+  const fx = [...document.querySelectorAll('#mFx .mp')], plus = document.getElementById('mPlus');
+  const CX = 160, CY = 90, OUT = 72, IN = 40, OM = 2 * Math.PI / 5;
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ss = k => k * k * (3 - 2 * k);
+  const radiusAt = tm => {
+    const m = ((tm % 3) + 3) % 3;
+    if (m < 1.35) return OUT; if (m < 1.5) return OUT + (IN - OUT) * ss((m - 1.35) / .15);
+    if (m < 2.85) return IN; return IN + (OUT - IN) * ss((m - 2.85) / .15);
+  };
+  let t = 0, a = -.6, star = null, hist = [], parts = [], plusLife = 0, px = 0, py = 0;
+  function spawn() { // topun varacağı halkada, ona yetişecek bir noktaya yeni yıldız
+    const base = t - (((t % 3) + 3) % 3); let best = null;
+    for (let k = 0; k < 3; k++) for (const [m, r] of [[.675, OUT], [2.175, IN]]) {
+      const c = base + m + 3 * k; if (c >= t + .8 && (!best || c < best.c)) best = { c, r };
+    }
+    const ang = a + OM * (best.c - t);
+    star = { x: CX + Math.cos(ang) * best.r, y: CY + Math.sin(ang) * best.r, born: t };
+  }
+  function burst(x, y) {
+    parts = fx.map((c, i) => { const an = i / fx.length * 6.283 + Math.random() * .5, v = 40 + Math.random() * 40; return { c, x, y, vx: Math.cos(an) * v, vy: Math.sin(an) * v, life: 1 }; });
+    plus.setAttribute('x', x); plusLife = 1; plus.dataset.y = y - 12;
+  }
+  function render(dt) {
+    const r = radiusAt(t); px = CX + Math.cos(a) * r; py = CY + Math.sin(a) * r;
+    dot.setAttribute('cx', px.toFixed(1)); dot.setAttribute('cy', py.toFixed(1));
+    hist.unshift([px, py]); if (hist.length > trail.length * 3 + 1) hist.pop();
+    trail.forEach((c, i) => { const h = hist[(i + 1) * 3]; if (h) { c.setAttribute('cx', h[0].toFixed(1)); c.setAttribute('cy', h[1].toFixed(1)); } });
+    const age = t - star.born, sc = age < .25 ? ss(age / .25) : 1 + .07 * Math.sin(t * 5);
+    starG.setAttribute('transform', `translate(${star.x.toFixed(1)} ${star.y.toFixed(1)}) scale(${sc.toFixed(2)})`);
+    for (const q of parts) { q.x += q.vx * dt; q.y += q.vy * dt; q.life -= dt * 2.2; q.c.setAttribute('cx', q.x.toFixed(1)); q.c.setAttribute('cy', q.y.toFixed(1)); q.c.setAttribute('opacity', Math.max(q.life, 0).toFixed(2)); }
+    if (plusLife > 0) { plusLife -= dt * 1.6; plus.dataset.y = +plus.dataset.y - 16 * dt; plus.setAttribute('y', (+plus.dataset.y).toFixed(1)); plus.setAttribute('opacity', Math.max(plusLife, 0).toFixed(2)); }
+  }
+  spawn(); render(0);
+  if (still) return;
+  let last = performance.now();
+  (function frame(now) {
+    const dt = Math.min((now - last) / 1000, .05); last = now;
+    t += dt; a += OM * dt;
+    render(dt);
+    if (Math.hypot(px - star.x, py - star.y) < 13) { burst(star.x, star.y); spawn(); }
+    requestAnimationFrame(frame);
+  })(last);
+})();
+</script>
+</body>
 </html>

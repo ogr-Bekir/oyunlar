@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Yörünge – Tek dokunuşluk oyun</title>
+<title>Meteordan Kaç – Tek dokunuşluk oyun</title>
 <style>
   :root { color-scheme: dark; }
   html, body { margin: 0; height: 100%; height: 100dvh; background: #0d0b1e; overflow: hidden; touch-action: none; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
@@ -58,7 +58,7 @@
 
   function menu() {
     state = 'menu'; hud.hidden = true;
-    ui.innerHTML = '<h1>YÖRÜNGE</h1><p>Yıldızları topla, meteorlardan kaç.</p><p>Dokununca iç ve dış halka arasında geçersin.</p><p class="go">Başlamak için dokun</p>';
+    ui.innerHTML = '<h1>METEORDAN<br>KAÇ</h1><p>Yıldızları topla, meteorlardan kaç.</p><p>Dokununca iç ve dış halka arasında geçersin.</p><p class="go">Başlamak için dokun</p>';
   }
   function start() {
     state = 'play'; t = 0; score = 0; angle = -Math.PI / 2; ring = 1; ringPos = 1;
