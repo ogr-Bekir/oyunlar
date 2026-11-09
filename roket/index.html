@@ -645,7 +645,7 @@ function showSuccessBanner(pts) {
   }, 1300);
 }
 
-// --- GİRDİ YÖNETİMİ ---
+// --- GİRDİ YÖNETİMİ (TAM ÇOKLU DOKUNMATİK / MULTI-TOUCH DESTEĞİ) ---
 function updateInputHints() {
   if (inputLeft) hintLeft.classList.add('active');
   else hintLeft.classList.remove('active');
@@ -654,48 +654,82 @@ function updateInputHints() {
   else hintRight.classList.remove('active');
 }
 
-function handlePointer(clientX, isDown) {
+// 1. MOBİL / DOKUNMATİK: Native Touch Events (İki parmakla aynı anda basmayı eksiksiz destekler)
+function processTouches(touchList) {
+  if (state !== 'play') return;
   initAudio();
-  if (!isDown) {
-    inputLeft = false;
-    inputRight = false;
-  } else {
-    const rect = cv.getBoundingClientRect();
-    const localX = clientX - rect.left;
-    if (localX < W / 2) {
-      inputLeft = true;
-      inputRight = false;
-    } else {
-      inputRight = true;
-      inputLeft = false;
+
+  const rect = cv.getBoundingClientRect();
+  let leftPressed = false;
+  let rightPressed = false;
+
+  for (let i = 0; i < touchList.length; i++) {
+    const t = touchList[i];
+    const localX = t.clientX - rect.left;
+    const localY = t.clientY - rect.top;
+
+    // Dokunma ekran çerçevesi içindeyse
+    if (localX >= 0 && localX <= W && localY >= 0 && localY <= H) {
+      if (localX < W / 2) {
+        leftPressed = true;
+      } else {
+        rightPressed = true;
+      }
     }
   }
+
+  inputLeft = leftPressed;
+  inputRight = rightPressed;
   updateInputHints();
 }
 
-frame.addEventListener('pointerdown', (e) => {
+function onTouch(e) {
+  if (state !== 'play') {
+    inputLeft = false;
+    inputRight = false;
+    updateInputHints();
+    return;
+  }
+  if (e.target.closest('#modal')) return;
+  if (e.cancelable) e.preventDefault();
+  processTouches(e.touches);
+}
+
+frame.addEventListener('touchstart', onTouch, { passive: false });
+frame.addEventListener('touchmove', onTouch, { passive: false });
+frame.addEventListener('touchend', onTouch, { passive: false });
+frame.addEventListener('touchcancel', onTouch, { passive: false });
+
+// 2. MASAÜSTÜ / FARE DESTEĞİ
+let isMouseDown = false;
+frame.addEventListener('mousedown', (e) => {
   if (state !== 'play') return;
   if (e.target.closest('#modal')) return;
-  handlePointer(e.clientX, true);
+  initAudio();
+  isMouseDown = true;
+  const rect = cv.getBoundingClientRect();
+  const localX = e.clientX - rect.left;
+  inputLeft = (localX < W / 2);
+  inputRight = (localX >= W / 2);
+  updateInputHints();
 });
 
-window.addEventListener('pointermove', (e) => {
-  if (state !== 'play') return;
-  if (e.buttons > 0) {
-    handlePointer(e.clientX, true);
+window.addEventListener('mousemove', (e) => {
+  if (state !== 'play' || !isMouseDown) return;
+  const rect = cv.getBoundingClientRect();
+  const localX = e.clientX - rect.left;
+  inputLeft = (localX < W / 2);
+  inputRight = (localX >= W / 2);
+  updateInputHints();
+});
+
+window.addEventListener('mouseup', () => {
+  if (isMouseDown) {
+    isMouseDown = false;
+    inputLeft = false;
+    inputRight = false;
+    updateInputHints();
   }
-});
-
-window.addEventListener('pointerup', () => {
-  inputLeft = false;
-  inputRight = false;
-  updateInputHints();
-});
-
-window.addEventListener('pointercancel', () => {
-  inputLeft = false;
-  inputRight = false;
-  updateInputHints();
 });
 
 window.addEventListener('keydown', (e) => {
