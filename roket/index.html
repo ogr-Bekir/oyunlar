@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Roketi İndir – Hassas roket indirme oyunu</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #020409;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 9:16 Mobil Ekran Çerçevesi */
+  #phone-frame {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    max-width: calc(100vh * (9 / 16));
+    aspect-ratio: 9 / 16;
+    overflow: hidden;
+    background: #040612;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.9), 0 0 25px rgba(56, 189, 248, 0.2);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Geniş masaüstü ekranlarında zarif telefon kasası efekti */
+  @media (min-aspect-ratio: 9/16) {
+    #phone-frame {
+      height: 96vh;
+      border-radius: 28px;
+      border: 3px solid rgba(255, 255, 255, 0.12);
+    }
+  }
+
+  canvas {
+    display: block;
+    width: 100%; height: 100%;
+  }
+
+  /* ÜST HUD & TELEMETRİ ALANI */
+  #hud {
+    position: absolute;
+    top: calc(10px + env(safe-area-inset-top, 0px)); left: 10px; right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .hud-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .hud-badge {
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  }
+  .hud-badge span { color: #38bdf8; font-weight: 700; font-size: 15px; }
+  .badge-level { border-color: rgba(250, 204, 21, 0.4); }
+  .badge-level span { color: #facc15; }
+
+  /* ÜST KÖŞE / ŞERİT TELEMETRİ GÖSTERGESİ */
+  #telemetry {
+    background: rgba(10, 15, 30, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 14px;
+    padding: 7px 10px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  }
+  .telem-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.25;
+  }
+  .telem-lbl {
+    font-size: 9px;
+    color: #94a3b8;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .telem-val {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    font-weight: bold;
+  }
+  .safe { color: #4ade80; }
+  .danger { color: #f87171; }
+  .warn { color: #facc15; }
+
+  /* MOBİL DOKUNMA BÖLGELERİ (ALT ALAN) */
+  #touch-hints {
+    position: absolute;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px)); left: 12px; right: 12px;
+    height: 56px;
+    display: flex;
+    gap: 10px;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .hint-zone {
+    flex: 1;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px dashed rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 13px;
+    font-weight: 700;
+    transition: all 0.1s ease;
+  }
+  .hint-zone small {
+    font-size: 10px;
+    opacity: 0.75;
+    font-weight: normal;
+  }
+  .hint-zone.active {
+    background: rgba(56, 189, 248, 0.3);
+    border-color: #38bdf8;
+    color: #fff;
+    transform: scale(0.97);
+  }
+
+  /* Seviye Geçiş Banner'ı */
+  #levelBanner {
+    position: absolute;
+    top: 32%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    background: rgba(15, 23, 42, 0.95);
+    border: 2px solid #4ade80;
+    box-shadow: 0 0 35px rgba(74, 222, 128, 0.45);
+    padding: 14px 26px;
+    border-radius: 16px;
+    color: #fff;
+    text-align: center;
+    z-index: 30;
+    pointer-events: none;
+    opacity: 0;
+    width: 80%;
+    transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  }
+  #levelBanner.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  #levelBanner h2 { font-size: 21px; color: #4ade80; margin-bottom: 4px; }
+  #levelBanner p { font-size: 13px; color: #cbd5e1; }
+
+  /* Modallar */
+  .modal-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(5, 7, 22, 0.88);
+    backdrop-filter: blur(8px);
+    z-index: 50;
+    padding: 16px;
+  }
+  .modal-card {
+    background: linear-gradient(145deg, #131c31, #0c1222);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 30px rgba(56, 189, 248, 0.15);
+    border-radius: 20px;
+    padding: 24px 20px;
+    max-width: 360px;
+    width: 100%;
+    color: #fff;
+    text-align: center;
+    animation: popIn 0.25s ease-out;
+  }
+  @keyframes popIn {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .modal-card h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    background: linear-gradient(90deg, #38bdf8, #818cf8, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .modal-card p {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #cbd5e1;
+    margin-bottom: 12px;
+  }
+  .instructions {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 10px;
+    margin: 12px 0;
+    text-align: left;
+    font-size: 12px;
+  }
+  .instructions div { margin: 6px 0; display: flex; align-items: center; gap: 8px; }
+  .key-badge {
+    background: #1e293b;
+    border: 1px solid #475569;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 11px;
+    color: #38bdf8;
+    white-space: nowrap;
+  }
+  .btn-action {
+    display: inline-block;
+    width: 100%;
+    padding: 13px 18px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #050716;
+    background: linear-gradient(90deg, #38bdf8, #60a5fa);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+    transition: transform 0.1s, box-shadow 0.1s;
+    margin-top: 6px;
+  }
+  .btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(56, 189, 248, 0.6);
+  }
+  .btn-action:active {
+    transform: translateY(1px);
+  }
+</style>
+</head>
+<body>
+
+<!-- 9:16 Mobil Oyun Çerçevesi -->
+<div id="phone-frame">
+  <canvas id="c"></canvas>
+
+  <!-- Üst HUD ve Göstergeler -->
+  <div id="hud">
+    <div class="hud-top-row">
+      <div class="hud-badge badge-level">BÖLÜM: <span id="levelVal">1</span></div>
+      <div class="hud-badge">Puan: <span id="scoreVal">0</span></div>
+      <div class="hud-badge">En İyi: <span id="bestVal">0</span></div>
+    </div>
+
+    <!-- Üst Köşede Kompakt Telemetri Barı -->
+    <div id="telemetry">
+      <div class="telem-item">
+        <span class="telem-lbl">Düşüş</span>
+        <span id="telVy" class="telem-val safe">0 m/s</span>
+      </div>
+      <div class="telem-item">
+        <span class="telem-lbl">Yatay</span>
+        <span id="telVx" class="telem-val safe">0 m/s</span>
+      </div>
+      <div class="telem-item">
+        <span class="telem-lbl">Eğim</span>
+        <span id="telAng" class="telem-val safe">0°</span>
+      </div>
+      <div class="telem-item">
+        <span class="telem-lbl">Park Hizası</span>
+        <span id="telAlign" class="telem-val warn">ORTALA</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seviye Başarı Banner'ı -->
+  <div id="levelBanner">
+    <h2 id="bannerTitle">PARK EDİLDİ! ✓</h2>
+    <p id="bannerDesc">+500 Hassas İniş Bonusu</p>
+  </div>
+
+  <!-- Dokunma Alanı Görsel İpuçları -->
+  <div id="touch-hints">
+    <div id="hintLeft" class="hint-zone">
+      <span>◀ SOL DOKUNUŞ</span>
+      <small>Sağ-Yukarı İtki</small>
+    </div>
+    <div id="hintRight" class="hint-zone">
+      <span>SAĞ DOKUNUŞ ▶</span>
+      <small>Sol-Yukarı İtki</small>
+    </div>
+  </div>
+
+  <!-- Başlangıç / Bitiş Modalı -->
+  <div id="modal" class="modal-overlay">
+    <div class="modal-card">
+      <h1 id="modalTitle">🚀 Roketi İndir</h1>
+      <p id="modalDesc">Yerde duran diğer roketlere çarpmadan aralarındaki dar park alanına güvenle iniş yapın!</p>
+      
+      <div class="instructions">
+        <div><span class="key-badge">Sağ Yarım / D / →</span> <span>Sol-Yukarı iter (Denge ve sola yönelme)</span></div>
+        <div><span class="key-badge">Sol Yarım / A / ←</span> <span>Sağ-Yukarı iter (Denge ve sağa yönelme)</span></div>
+        <div><span class="key-badge">İki Taraf</span> <span>Güçlü dikey fren itkisi verir</span></div>
+        <div style="margin-top:6px; font-size:11px; color:#94a3b8;">* Yandaki roketlere ve kulelere çarpmayın!</div>
+      </div>
+
+      <button id="btnStart" class="btn-action">BAŞLAT</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// --- OYUN DURUM DEĞİŞKENLERİ ---
+let state = 'menu'; // 'menu' | 'play' | 'over'
+let level = 1;
+let score = 0;
+let bestScore = 0;
+let currentRocket = null;
+let spawnTimeout = null;
+let particles = [];
+let stars = [];
+let parkedRockets = [];    // Yerdeki engeller / park etmiş roketler
+let parkingBay = null;      // Hedef park yuvası { x, y, width }
+let wind = 0;
+let windTimer = 0;
+let beaconPulse = 0;
+
+// Girdi durumu
+let inputLeft = false;
+let inputRight = false;
+let soundTimer = 0;
+
+// Güvenli depolama
+try {
+  const s = localStorage.getItem('rocket_parking_916_best');
+  if (s) bestScore = parseInt(s, 10) || 0;
+} catch (e) {
+  bestScore = 0;
+}
+function saveBestScore(val) {
+  try {
+    localStorage.setItem('rocket_parking_916_best', val);
+  } catch (e) {}
+}
+
+// --- CANVAS VE ÇERÇEVE BOYUTLANDIRMA ---
+const frame = document.getElementById('phone-frame');
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+let W = 0, H = 0;
+
+function resize() {
+  const rect = frame.getBoundingClientRect();
+  W = cv.width = Math.round(rect.width);
+  H = cv.height = Math.round(rect.height);
+  if (state === 'play' && parkingBay) {
+    setupLevel(level, false);
+  }
+}
+resize();
+window.addEventListener('resize', resize);
+
+// --- OYUN SABİTLERİ (9:16 MOBİLE UYARLANMIŞ) ---
+const RW = 24;             // Roket genişliği (mobilde zarif)
+const RH = 74;             // Roket yüksekliği
+const G = 118;             // Yerçekimi ivmesi
+const THRUST_UP = 230;     // Dikey itki
+const THRUST_SIDE = 138;   // Yatay itki
+const TORQUE = 2.4;        // Tork gücü
+const ANGULAR_DAMP = 0.94; // Açısal sürtünme
+const DAMP_X = 0.99;       // Yatay hava sürtünmesi
+
+// Güvenli iniş limitleri
+const SAFE_MAX_VY = 86;    // Maksimum dikey hız
+const SAFE_MAX_VX = 45;    // Maksimum yatay hız
+const SAFE_MAX_ANG = 0.25; // Maksimum eğim açısı (~14 derece)
+
+// Ses sentezleyici
+let audioCtx = null;
+function initAudio() {
+  if (!audioCtx) {
+    const AudioCtor = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtor) audioCtx = new AudioCtor();
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+function playSound(type) {
+  if (!audioCtx) return;
+  try {
+    const now = audioCtx.currentTime;
+    if (type === 'thrust') {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(65, now);
+      osc.frequency.exponentialRampToValueAtTime(35, now + 0.12);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.12);
+    } else if (type === 'land') {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.setValueAtTime(554.37, now + 0.1);
+      osc.frequency.setValueAtTime(659.25, now + 0.2);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } else if (type === 'explode') {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(160, now);
+      osc.frequency.exponentialRampToValueAtTime(20, now + 0.5);
+      gain.gain.setValueAtTime(0.35, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.5);
+    }
+  } catch (err) {}
+}
+
+// Yıldızlar
+for (let i = 0; i < 120; i++) {
+  stars.push({
+    x: Math.random(),
+    y: Math.random(),
+    r: Math.random() * 1.6 + 0.4,
+    alpha: Math.random() * 0.7 + 0.3,
+    twinkle: Math.random() * 0.03
+  });
+}
+
+// DOM Elemanları
+const elLevel = document.getElementById('levelVal');
+const elScore = document.getElementById('scoreVal');
+const elBest = document.getElementById('bestVal');
+const elTelVy = document.getElementById('telVy');
+const elTelVx = document.getElementById('telVx');
+const elTelAng = document.getElementById('telAng');
+const elTelAlign = document.getElementById('telAlign');
+const hintLeft = document.getElementById('hintLeft');
+const hintRight = document.getElementById('hintRight');
+const modal = document.getElementById('modal');
+const modalTitle = document.getElementById('modalTitle');
+const modalDesc = document.getElementById('modalDesc');
+const btnStart = document.getElementById('btnStart');
+const levelBanner = document.getElementById('levelBanner');
+const bannerTitle = document.getElementById('bannerTitle');
+const bannerDesc = document.getElementById('bannerDesc');
+
+elBest.textContent = bestScore;
+
+function getGroundY() {
+  return H - 76;
+}
+
+// --- BÖLÜM KURULUMU (9:16 DÜZENİ) ---
+function setupLevel(lvl, isNewLevel = true) {
+  level = lvl;
+  elLevel.textContent = level;
+
+  const groundY = getGroundY();
+
+  // Mobilde 9:16 genişliği dar olduğundan park yuvası genişliği optimize edilmiştir:
+  // RW = 24px.
+  // Bölüm 1: 76px genişlik (~26px her iki yanda manevra payı)
+  // Bölüm 5+: ~54px genişlik (~15px manevra payı)
+  const bayWidth = Math.max(54, Math.round(76 - Math.min(lvl - 1, 6) * 3.6));
+
+  // Park yuvasının ekran yatayındaki konumu (her bölümde farklı yere kayar)
+  const margin = 70;
+  const usableWidth = Math.max(160, W - margin * 2);
+  let bayCenterX;
+
+  if (lvl === 1) {
+    bayCenterX = W / 2; // Bölüm 1: Tam merkez
+  } else if (lvl === 2) {
+    bayCenterX = W / 2 + usableWidth * 0.32; // Bölüm 2: Sağa kaymış
+  } else if (lvl === 3) {
+    bayCenterX = W / 2 - usableWidth * 0.32; // Bölüm 3: Sola kaymış
+  } else {
+    // 4+ Bölümler: Dinamik sektörler
+    const randOffset = (Math.sin(lvl * 1.9) * 0.42);
+    bayCenterX = W / 2 + usableWidth * randOffset;
+  }
+
+  bayCenterX = Math.max(margin, Math.min(W - margin, bayCenterX));
+
+  parkingBay = {
+    x: bayCenterX - bayWidth / 2,
+    centerX: bayCenterX,
+    y: groundY,
+    width: bayWidth
+  };
+
+  // Yerdeki park etmiş roketler ve servis kuleleri
+  parkedRockets = [];
+  const colors = ['#3b82f6', '#64748b', '#0284c7', '#475569'];
+
+  // Sol taraftaki roketler
+  let curX = parkingBay.x - 18;
+  let colorIdx = 0;
+  while (curX > 18) {
+    const rHeight = 76 + (Math.sin(curX + lvl) * 12);
+    const hasTower = (colorIdx % 2 === 1);
+    parkedRockets.push({
+      x: curX,
+      y: groundY,
+      w: RW,
+      h: rHeight,
+      color: colors[colorIdx % colors.length],
+      hasTower: hasTower
+    });
+    curX -= (RW + (hasTower ? 22 : 14));
+    colorIdx++;
+  }
+
+  // Sağ taraftaki roketler
+  curX = parkingBay.x + parkingBay.width + 18;
+  while (curX < W - 18) {
+    const rHeight = 76 + (Math.cos(curX + lvl) * 12);
+    const hasTower = (colorIdx % 2 === 0);
+    parkedRockets.push({
+      x: curX,
+      y: groundY,
+      w: RW,
+      h: rHeight,
+      color: colors[(colorIdx + 2) % colors.length],
+      hasTower: hasTower
+    });
+    curX -= -(RW + (hasTower ? 22 : 14));
+    colorIdx++;
+  }
+
+  if (isNewLevel) {
+    spawnRocket();
+  }
+}
+
+// Yeni roket doğur
+function spawnRocket() {
+  const offsetMax = Math.min(W * 0.35, 120);
+  const startOffset = (Math.random() < 0.5 ? -1 : 1) * (40 + Math.random() * offsetMax);
+  const spawnX = Math.max(RW + 16, Math.min(W - RW - 16, parkingBay.centerX + startOffset));
+
+  currentRocket = {
+    x: spawnX,
+    y: 84, // Üst telemetri barının hemen altında doğar
+    vx: (Math.random() - 0.5) * 20,
+    vy: 45,
+    angle: (Math.random() - 0.5) * 0.12,
+    vAngle: 0,
+    dead: false,
+    leftThrust: false,
+    rightThrust: false
+  };
+}
+
+// Oyunu başlat
+function startGame() {
+  if (spawnTimeout) {
+    clearTimeout(spawnTimeout);
+    spawnTimeout = null;
+  }
+  initAudio();
+  score = 0;
+  level = 1;
+  particles = [];
+  state = 'play';
+  elScore.textContent = '0';
+  modal.style.display = 'none';
+  levelBanner.classList.remove('show');
+  setupLevel(1, true);
+}
+
+btnStart.addEventListener('click', startGame);
+
+// Oyun bitti
+function gameOver(reason) {
+  if (spawnTimeout) {
+    clearTimeout(spawnTimeout);
+    spawnTimeout = null;
+  }
+  state = 'over';
+  playSound('explode');
+  if (currentRocket) {
+    currentRocket.dead = true;
+    createExplosion(currentRocket.x, currentRocket.y - RH / 2, 70);
+  }
+
+  if (score > bestScore) {
+    bestScore = score;
+    saveBestScore(bestScore);
+    elBest.textContent = bestScore;
+  }
+
+  setTimeout(() => {
+    modalTitle.innerHTML = '💥 Kaza Gerçekleşti!';
+    modalDesc.innerHTML = `<b style="color:#f87171;font-size:15px;">${reason}</b><br><br>Ulaşılan: <b style="color:#facc15;font-size:17px;">Bölüm ${level}</b><br>Toplam Puan: <b style="color:#38bdf8;font-size:20px;">${score}</b>`;
+    btnStart.textContent = 'YENİDEN DENE';
+    modal.style.display = 'flex';
+  }, 900);
+}
+
+// Seviye Başarısı Banner Gösterimi
+function showSuccessBanner(pts) {
+  bannerTitle.textContent = `BÖLÜM ${level} TAMAMLANDI! ✓`;
+  bannerDesc.textContent = `+${pts} Park Puanı`;
+  levelBanner.classList.add('show');
+  setTimeout(() => {
+    levelBanner.classList.remove('show');
+  }, 1300);
+}
+
+// --- GİRDİ YÖNETİMİ ---
+function updateInputHints() {
+  if (inputLeft) hintLeft.classList.add('active');
+  else hintLeft.classList.remove('active');
+
+  if (inputRight) hintRight.classList.add('active');
+  else hintRight.classList.remove('active');
+}
+
+function handlePointer(clientX, isDown) {
+  initAudio();
+  if (!isDown) {
+    inputLeft = false;
+    inputRight = false;
+  } else {
+    const rect = cv.getBoundingClientRect();
+    const localX = clientX - rect.left;
+    if (localX < W / 2) {
+      inputLeft = true;
+      inputRight = false;
+    } else {
+      inputRight = true;
+      inputLeft = false;
+    }
+  }
+  updateInputHints();
+}
+
+frame.addEventListener('pointerdown', (e) => {
+  if (state !== 'play') return;
+  if (e.target.closest('#modal')) return;
+  handlePointer(e.clientX, true);
+});
+
+window.addEventListener('pointermove', (e) => {
+  if (state !== 'play') return;
+  if (e.buttons > 0) {
+    handlePointer(e.clientX, true);
+  }
+});
+
+window.addEventListener('pointerup', () => {
+  inputLeft = false;
+  inputRight = false;
+  updateInputHints();
+});
+
+window.addEventListener('pointercancel', () => {
+  inputLeft = false;
+  inputRight = false;
+  updateInputHints();
+});
+
+window.addEventListener('keydown', (e) => {
+  initAudio();
+  if (e.repeat) return;
+  if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+    inputLeft = true;
+  }
+  if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+    inputRight = true;
+  }
+  if ((e.key === ' ' || e.key === 'Enter') && state !== 'play') {
+    startGame();
+  }
+  updateInputHints();
+});
+
+window.addEventListener('keyup', (e) => {
+  if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+    inputLeft = false;
+  }
+  if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+    inputRight = false;
+  }
+  updateInputHints();
+});
+
+// Parçacıklar
+function addFlameParticle(x, y, angle, spreadX, spreadY, speedUp) {
+  const rad = angle + Math.PI / 2;
+  const speed = speedUp + Math.random() * 80;
+  const vx = Math.cos(rad) * speed + (Math.random() - 0.5) * spreadX;
+  const vy = Math.sin(rad) * speed + (Math.random() - 0.5) * spreadY;
+  
+  const colors = ['#f59e0b', '#ef4444', '#fbbf24', '#ffffff'];
+  particles.push({
+    x: x,
+    y: y,
+    vx: vx,
+    vy: vy,
+    radius: Math.random() * 3.5 + 2,
+    alpha: 1,
+    decay: Math.random() * 1.5 + 2.0,
+    color: colors[Math.floor(Math.random() * colors.length)]
+  });
+}
+
+function createExplosion(x, y, count) {
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 240 + 35;
+    particles.push({
+      x: x,
+      y: y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 35,
+      radius: Math.random() * 5 + 2,
+      alpha: 1,
+      decay: Math.random() * 0.8 + 0.6,
+      color: Math.random() < 0.6 ? '#f97316' : (Math.random() < 0.5 ? '#facc15' : '#ef4444')
+    });
+  }
+}
+
+function createLandingSparks(x, y) {
+  for (let i = 0; i < 40; i++) {
+    const angle = -Math.PI / 2 + (Math.random() - 0.5) * 2.2;
+    const speed = Math.random() * 160 + 35;
+    particles.push({
+      x: x + (Math.random() - 0.5) * RW,
+      y: y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      radius: Math.random() * 3 + 1,
+      alpha: 1,
+      decay: Math.random() * 1.2 + 1.2,
+      color: Math.random() < 0.7 ? '#4ade80' : '#ffffff'
+    });
+  }
+}
+
+// --- FİZİK GÜNCELLEMESİ ---
+function update(dt) {
+  beaconPulse += dt * 4;
+
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.alpha -= p.decay * dt;
+    if (p.alpha <= 0) {
+      particles.splice(i, 1);
+    }
+  }
+
+  if (state !== 'play' || !currentRocket || currentRocket.dead) return;
+
+  const r = currentRocket;
+
+  // Rüzgar salınımı
+  windTimer -= dt;
+  if (windTimer <= 0) {
+    const maxWind = 18 + Math.min(level, 10) * 3.5;
+    wind = (Math.random() - 0.5) * maxWind * 2;
+    windTimer = 1.2 + Math.random() * 2.0;
+  }
+
+  let ax = wind * 0.35;
+  let ay = G;
+
+  r.leftThrust = inputLeft;
+  r.rightThrust = inputRight;
+
+  // Sağa basınca: Sol-Yukarı itki
+  if (inputRight) {
+    ax -= THRUST_SIDE;
+    ay -= THRUST_UP;
+    r.vAngle -= TORQUE * dt;
+    addFlameParticle(r.x + Math.sin(r.angle) * 8 + 5, r.y, r.angle, 22, 18, 135);
+  }
+
+  // Sola basınca: Sağ-Yukarı itki
+  if (inputLeft) {
+    ax += THRUST_SIDE;
+    ay -= THRUST_UP;
+    r.vAngle += TORQUE * dt;
+    addFlameParticle(r.x + Math.sin(r.angle) * 8 - 5, r.y, r.angle, 22, 18, 135);
+  }
+
+  if (inputLeft && inputRight) {
+    ay -= THRUST_UP * 0.4;
+  }
+
+  if (inputLeft || inputRight) {
+    soundTimer -= dt;
+    if (soundTimer <= 0) {
+      playSound('thrust');
+      soundTimer = 0.12;
+    }
+  }
+
+  r.vx += ax * dt;
+  r.vy += ay * dt;
+  r.vx *= DAMP_X;
+
+  r.x += r.vx * dt;
+  r.y += r.vy * dt;
+
+  r.vAngle += (-r.angle * 1.8) * dt;
+  r.vAngle *= ANGULAR_DAMP;
+  r.angle += r.vAngle * dt;
+
+  // Ekran yan sınırları
+  if (r.x < RW / 2) {
+    r.x = RW / 2;
+    r.vx = Math.abs(r.vx) * 0.4;
+  } else if (r.x > W - RW / 2) {
+    r.x = W - RW / 2;
+    r.vx = -Math.abs(r.vx) * 0.4;
+  }
+
+  // Aşırı devrilme
+  if (Math.abs(r.angle) > 1.35) {
+    gameOver('Roket aşırı yatarak dengesini kaybetti!');
+    return;
+  }
+
+  // --- ÇARPIŞMA KONTROLÜ (PARK HALİNDEKİ ROKETLERE ÇARPMA) ---
+  const rocketLeft = r.x - RW / 2;
+  const rocketRight = r.x + RW / 2;
+  const rocketTop = r.y - RH;
+  const rocketBottom = r.y;
+
+  for (let i = 0; i < parkedRockets.length; i++) {
+    const p = parkedRockets[i];
+    const pLeft = p.x - p.w / 2;
+    const pRight = p.x + p.w / 2;
+    const pTop = p.y - p.h;
+    const pBottom = p.y;
+
+    if (rocketRight > pLeft && rocketLeft < pRight && rocketBottom > pTop && rocketTop < pBottom) {
+      gameOver('Yerde park halinde duran diğer rokete çarptın!');
+      return;
+    }
+
+    if (p.hasTower) {
+      const tLeft = p.x + p.w / 2;
+      const tRight = tLeft + 10;
+      const tTop = p.y - p.h - 16;
+      if (rocketRight > tLeft && rocketLeft < tRight && rocketBottom > tTop && rocketTop < p.y) {
+        gameOver('Fırlatma kulesine çarptın!');
+        return;
+      }
+    }
+  }
+
+  // --- ZEMİN VE PARK ALANINA İNİŞ ---
+  const groundY = getGroundY();
+
+  if (r.y >= groundY && r.vy > 0) {
+    const bay = parkingBay;
+    const distFromCenter = Math.abs(r.x - bay.centerX);
+    const halfBay = bay.width / 2;
+    const withinBay = (r.x - RW / 2 >= bay.x + 2) && (r.x + RW / 2 <= bay.x + bay.width - 2);
+
+    if (withinBay) {
+      if (r.vy > SAFE_MAX_VY) {
+        gameOver(`Çok sert çarptın! Hız: ${Math.round(r.vy)} m/s (Azami ${SAFE_MAX_VY} m/s)`);
+        return;
+      }
+      if (Math.abs(r.vx) > SAFE_MAX_VX) {
+        gameOver(`Yatay hız çok fazlaydı! Savruldun: ${Math.round(Math.abs(r.vx))} m/s`);
+        return;
+      }
+      if (Math.abs(r.angle) > SAFE_MAX_ANG) {
+        gameOver(`Roket çok eğik indi! Eğim: ${Math.round(Math.abs(r.angle) * 57.3)}°`);
+        return;
+      }
+
+      // BAŞARILI PARK!
+      playSound('land');
+      createLandingSparks(r.x, groundY);
+
+      r.y = groundY;
+      r.angle = 0;
+      currentRocket = null;
+
+      const centerAccuracy = Math.max(0, 1 - (distFromCenter / halfBay));
+      const speedScore = Math.max(0, Math.round((1 - (r.vy / SAFE_MAX_VY)) * 200));
+      const precisionScore = Math.round(centerAccuracy * 200);
+      const earnedPoints = 500 + precisionScore + speedScore;
+
+      score += earnedPoints;
+      elScore.textContent = score;
+
+      showSuccessBanner(earnedPoints);
+
+      if (spawnTimeout) clearTimeout(spawnTimeout);
+      spawnTimeout = setTimeout(() => {
+        if (state === 'play') {
+          setupLevel(level + 1, true);
+        }
+      }, 1300);
+
+      return;
+    } else {
+      gameOver('Roketi park alanının dışına indirdin!');
+      return;
+    }
+  }
+
+  updateTelemetry(r);
+}
+
+// Telemetriyi Üst Bar'a Yaz
+function updateTelemetry(r) {
+  const vyVal = Math.round(r.vy);
+  const vxVal = Math.round(Math.abs(r.vx));
+  const angVal = Math.round(Math.abs(r.angle) * 57.3);
+
+  elTelVy.textContent = vyVal + ' m/s';
+  elTelVy.className = 'telem-val ' + (r.vy <= SAFE_MAX_VY ? 'safe' : 'danger');
+
+  elTelVx.textContent = vxVal + ' m/s';
+  elTelVx.className = 'telem-val ' + (vxVal <= SAFE_MAX_VX ? 'safe' : 'danger');
+
+  elTelAng.textContent = angVal + '°';
+  elTelAng.className = 'telem-val ' + (r.angle <= SAFE_MAX_ANG ? 'safe' : 'danger');
+
+  if (parkingBay) {
+    const diff = r.x - parkingBay.centerX;
+    if (Math.abs(diff) <= (parkingBay.width / 2 - RW / 2)) {
+      elTelAlign.textContent = 'HİZALANDI ✓';
+      elTelAlign.className = 'telem-val safe';
+    } else if (diff < 0) {
+      elTelAlign.textContent = 'SAĞA KAY ▶';
+      elTelAlign.className = 'telem-val warn';
+    } else {
+      elTelAlign.textContent = '◀ SOLA KAY';
+      elTelAlign.className = 'telem-val warn';
+    }
+  }
+}
+
+// --- ÇİZİM İŞLEMLERİ ---
+function drawRocket(x, y, angle, bodyColor, isLanded) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+
+  const halfW = RW / 2;
+
+  // Gövde
+  const bodyGrad = ctx.createLinearGradient(-halfW, 0, halfW, 0);
+  if (isLanded) {
+    bodyGrad.addColorStop(0, '#94a3b8');
+    bodyGrad.addColorStop(0.5, bodyColor || '#e2e8f0');
+    bodyGrad.addColorStop(1, '#64748b');
+  } else {
+    bodyGrad.addColorStop(0, '#cbd5e1');
+    bodyGrad.addColorStop(0.5, '#ffffff');
+    bodyGrad.addColorStop(1, '#94a3b8');
+  }
+  ctx.fillStyle = bodyGrad;
+  ctx.beginPath();
+  ctx.roundRect(-halfW, -RH + 16, RW, RH - 22, 3);
+  ctx.fill();
+
+  // Burun konisi
+  ctx.fillStyle = isLanded ? '#0284c7' : '#e11d48';
+  ctx.beginPath();
+  ctx.moveTo(-halfW, -RH + 16);
+  ctx.quadraticCurveTo(0, -RH - 8, 0, -RH - 10);
+  ctx.quadraticCurveTo(0, -RH - 8, halfW, -RH + 16);
+  ctx.closePath();
+  ctx.fill();
+
+  // Pencere
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.arc(0, -RH + 30, 4.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#38bdf8';
+  ctx.beginPath();
+  ctx.arc(-1.2, -RH + 28.8, 1.8, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Şerit
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(-halfW, -30, RW, 3.5);
+
+  // Izgara kanatçıklar
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(-halfW - 3.5, -RH + 24, 3.5, 9);
+  ctx.fillRect(halfW, -RH + 24, 3.5, 9);
+
+  // İniş ayakları
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(-halfW + 2, -16);
+  ctx.lineTo(-halfW - 7, 0);
+  ctx.lineTo(-halfW - 10, 0);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(halfW - 2, -16);
+  ctx.lineTo(halfW + 7, 0);
+  ctx.lineTo(halfW + 10, 0);
+  ctx.stroke();
+
+  // Motor çanı
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.moveTo(-5, -5);
+  ctx.lineTo(5, -5);
+  ctx.lineTo(7, 0);
+  ctx.lineTo(-7, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Derin Uzay Gökyüzü
+  const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+  skyGrad.addColorStop(0, '#030614');
+  skyGrad.addColorStop(0.65, '#0c1633');
+  skyGrad.addColorStop(1, '#1e294b');
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Yıldızlar
+  stars.forEach((s) => {
+    s.alpha += s.twinkle;
+    if (s.alpha > 0.9 || s.alpha < 0.2) s.twinkle = -s.twinkle;
+    ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0.1, s.alpha)})`;
+    ctx.beginPath();
+    ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  const groundY = getGroundY();
+
+  // Arka plan silüeti
+  ctx.fillStyle = '#0b1224';
+  ctx.beginPath();
+  ctx.moveTo(0, groundY);
+  ctx.lineTo(50, groundY - 35);
+  ctx.lineTo(120, groundY - 35);
+  ctx.lineTo(150, groundY);
+  ctx.lineTo(W - 140, groundY);
+  ctx.lineTo(W - 110, groundY - 45);
+  ctx.lineTo(W - 40, groundY - 45);
+  ctx.lineTo(W, groundY);
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.closePath();
+  ctx.fill();
+
+  // Zemin Platformu
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(0, groundY, W, H - groundY);
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, groundY + 10, W, H - groundY - 10);
+
+  // Sarı emniyet çizgileri
+  ctx.fillStyle = '#f59e0b';
+  for (let i = 0; i < W; i += 28) {
+    ctx.fillRect(i, groundY, 14, 3.5);
+  }
+
+  // --- PARK YUVASI (LANDING BAY) ---
+  if (parkingBay) {
+    const bay = parkingBay;
+
+    // Yeşil zemin neon ışıltısı
+    const bayGlow = ctx.createLinearGradient(bay.x, 0, bay.x + bay.width, 0);
+    bayGlow.addColorStop(0, 'rgba(74, 222, 128, 0.15)');
+    bayGlow.addColorStop(0.5, 'rgba(74, 222, 128, 0.38)');
+    bayGlow.addColorStop(1, 'rgba(74, 222, 128, 0.15)');
+    ctx.fillStyle = bayGlow;
+    ctx.fillRect(bay.x, groundY, bay.width, 10);
+
+    // Sınır dirsekleri
+    ctx.strokeStyle = '#4ade80';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(bay.x, groundY - 16);
+    ctx.lineTo(bay.x, groundY);
+    ctx.lineTo(bay.x + 12, groundY);
+
+    ctx.moveTo(bay.x + bay.width, groundY - 16);
+    ctx.lineTo(bay.x + bay.width, groundY);
+    ctx.lineTo(bay.x + bay.width - 12, groundY);
+    ctx.stroke();
+
+    // Yuva Yazısı
+    ctx.fillStyle = 'rgba(74, 222, 128, 0.75)';
+    ctx.font = 'bold 10px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText(`PARK - ${level}`, bay.centerX, groundY + 22);
+
+    // Fenerler
+    const pulseAlpha = 0.5 + Math.sin(beaconPulse) * 0.45;
+    ctx.fillStyle = `rgba(74, 222, 128, ${pulseAlpha})`;
+    ctx.beginPath();
+    ctx.arc(bay.x + 3, groundY - 2, 3.5, 0, Math.PI * 2);
+    ctx.arc(bay.x + bay.width - 3, groundY - 2, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Yukarı uzanan kılavuz koridoru
+    if (state === 'play' && currentRocket && !currentRocket.dead) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(74, 222, 128, 0.16)';
+      ctx.setLineDash([6, 6]);
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(bay.x + 2, groundY);
+      ctx.lineTo(bay.x + 2, Math.max(0, currentRocket.y));
+      ctx.moveTo(bay.x + bay.width - 2, groundY);
+      ctx.lineTo(bay.x + bay.width - 2, Math.max(0, currentRocket.y));
+      ctx.stroke();
+
+      // Kılavuz oku
+      ctx.fillStyle = 'rgba(74, 222, 128, 0.6)';
+      ctx.beginPath();
+      ctx.moveTo(bay.centerX - 7, groundY - 26);
+      ctx.lineTo(bay.centerX + 7, groundY - 26);
+      ctx.lineTo(bay.centerX, groundY - 16);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  // --- YERDEKİ ROKETLER & KULELER ---
+  parkedRockets.forEach((p) => {
+    drawRocket(p.x, p.y, 0, p.color, true);
+
+    if (p.hasTower) {
+      const tX = p.x + p.w / 2 + 1;
+      const tW = 10;
+      const tH = p.h + 16;
+      const tY = p.y - tH;
+
+      ctx.strokeStyle = '#dc2626';
+      ctx.lineWidth = 1.2;
+      ctx.strokeRect(tX, tY, tW, tH);
+
+      ctx.beginPath();
+      for (let yStep = tY; yStep < p.y; yStep += 14) {
+        ctx.moveTo(tX, yStep);
+        ctx.lineTo(tX + tW, yStep + 14);
+      }
+      ctx.stroke();
+
+      const redAlpha = 0.4 + Math.cos(beaconPulse * 1.5) * 0.5;
+      ctx.fillStyle = `rgba(239, 68, 68, ${redAlpha})`;
+      ctx.beginPath();
+      ctx.arc(tX + tW / 2, tY - 2.5, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+
+  // Parçacıklar
+  particles.forEach((p) => {
+    ctx.fillStyle = p.color;
+    ctx.globalAlpha = Math.max(0, Math.min(1, p.alpha));
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+
+  // Aktif İnen Roket
+  if (currentRocket && !currentRocket.dead) {
+    drawRocket(currentRocket.x, currentRocket.y, currentRocket.angle, null, false);
+  }
+}
+
+// Döngü
+let lastTime = performance.now();
+function gameLoop(currentTime) {
+  const dt = Math.min(0.04, (currentTime - lastTime) / 1000);
+  lastTime = currentTime;
+  update(dt);
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>
