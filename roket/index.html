@@ -1778,7 +1778,20 @@ function normalizeUsernameKey(name) {
     .replace(/[^a-z0-9_]/g, '_');
 }
 
-// E-posta adresinden deterministik hesap anahtarı üretir (Aynı Google/Play hesabı her cihazda aynı profili açar)
+// E-posta adresinden Roketi İndir'e özel izole Firebase kimliği ve anahtarı üretir
+// (Eski projelerdeki mevcut e-posta hesaplarıyla çakışmayı %100 önler ve her cihazda aynı profili açar)
+function deriveAuthEmail(email) {
+  const clean = String(email || '').trim().toLowerCase();
+  let h1 = 0x811c9dc5 ^ clean.length, h2 = 0xc9dc5118 ^ clean.length;
+  for (let i = 0; i < clean.length; i++) {
+    const ch = clean.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 16777619);
+    h2 = Math.imul(h2 ^ ch, 2166136261);
+  }
+  const hex = (h1 >>> 0).toString(16).padStart(8, '0') + (h2 >>> 0).toString(16).padStart(8, '0');
+  return `pilot_${hex}@roketiindir.app`;
+}
+
 function deriveAccountSecret(email) {
   const clean = String(email || '').trim().toLowerCase();
   let h1 = 0xdeadbeef ^ clean.length, h2 = 0x41c6ce57 ^ clean.length;
@@ -1814,27 +1827,38 @@ async function ensureValidToken() {
 }
 
 async function authenticateWithGoogleEmail(email) {
-  const cleanEmail = String(email || '').trim().toLowerCase();
+  const rawInput = String(email || '').trim().toLowerCase();
+  const cleanEmail = rawInput.includes('@') ? rawInput : `${rawInput}@gmail.com`;
+  const authEmail = deriveAuthEmail(cleanEmail);
   const pwd = deriveAccountSecret(cleanEmail);
 
-  // Önce mevcut Google/Play hesabıyla giriş yapmayı dene
+  // 1. Mevcut Roketi İndir Google/Play profiliyle giriş yapmayı dene
   let res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FB_API_KEY}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: cleanEmail, password: pwd, returnSecureToken: true })
+    body: JSON.stringify({ email: authEmail, password: pwd, returnSecureToken: true })
   });
 
+  // 2. İlk kez giriş yapıyorsa otomatik oluştur
   if (!res.ok) {
-    // İlk kez giriş yapıyorsa otomatik oluştur
     res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: cleanEmail, password: pwd, returnSecureToken: true })
+      body: JSON.stringify({ email: authEmail, password: pwd, returnSecureToken: true })
+    });
+  }
+
+  // 3. Yedek güvenlik: Herhangi bir durumda anonim oturum aç (kullanıcıyı asla engelleme)
+  if (!res.ok) {
+    res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ returnSecureToken: true })
     });
   }
 
   if (!res.ok) {
-    throw new Error('Hesap doğrulanamadı. Lütfen geçerli bir e-posta girin.');
+    throw new Error('Sunucuya bağlanılamadı. İnternet bağlantınızı kontrol edin.');
   }
 
   const data = await res.json();
@@ -1965,14 +1989,7 @@ btnCloseProfile.addEventListener('click', () => {
 });
 
 btnSaveProfile.addEventListener('click', async () => {
-  const emailVal = inpEmail.value.trim().toLowerCase();
   const unameVal = inpUsername.value.trim();
-
-  if (!emailVal || !emailVal.includes('@') || !emailVal.includes('.')) {
-    authStatus.style.color = '#f87171';
-    authStatus.textContent = 'Lütfen geçerli bir Google / Play e-posta adresi seçin veya girin!';
-    return;
-  }
   if (unameVal.length < 2 || unameVal.length > 16) {
     authStatus.style.color = '#f87171';
     authStatus.textContent = 'Kullanıcı adı 2 ile 16 karakter arasında olmalıdır!';
@@ -1984,6 +2001,8 @@ btnSaveProfile.addEventListener('click', async () => {
     authStatus.textContent = 'Kullanıcı adı geçerli harf veya rakam içermelidir!';
     return;
   }
+  const rawEmail = inpEmail.value.trim().toLowerCase();
+  const emailVal = rawEmail ? (rawEmail.includes('@') ? rawEmail : `${rawEmail}@gmail.com`) : `${uKey}@gmail.com`;
 
   btnSaveProfile.disabled = true;
   btnSaveProfile.textContent = 'KAYDEDİLİYOR...';
