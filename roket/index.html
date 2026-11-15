@@ -190,8 +190,10 @@
     border: 1px solid rgba(56, 189, 248, 0.3);
     box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 30px rgba(56, 189, 248, 0.15);
     border-radius: 20px;
-    padding: 24px 20px;
-    max-width: 360px;
+    padding: 18px 16px;
+    max-width: 370px;
+    max-height: 92vh;
+    overflow-y: auto;
     width: 100%;
     color: #fff;
     text-align: center;
@@ -202,43 +204,43 @@
     100% { transform: scale(1); opacity: 1; }
   }
   .modal-card h1 {
-    font-size: 24px;
-    margin-bottom: 10px;
+    font-size: 22px;
+    margin-bottom: 6px;
     background: linear-gradient(90deg, #38bdf8, #818cf8, #f472b6);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
   .modal-card p {
-    font-size: 13px;
-    line-height: 1.55;
+    font-size: 12.5px;
+    line-height: 1.45;
     color: #cbd5e1;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
   .instructions {
     background: rgba(0,0,0,0.3);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 12px;
-    padding: 10px;
-    margin: 12px 0;
+    padding: 8px 10px;
+    margin: 8px 0;
     text-align: left;
-    font-size: 12px;
+    font-size: 11.5px;
   }
-  .instructions div { margin: 6px 0; display: flex; align-items: center; gap: 8px; }
+  .instructions div { margin: 4px 0; display: flex; align-items: center; gap: 8px; }
   .key-badge {
     background: #1e293b;
     border: 1px solid #475569;
     padding: 2px 6px;
     border-radius: 6px;
     font-family: monospace;
-    font-size: 11px;
+    font-size: 10.5px;
     color: #38bdf8;
     white-space: nowrap;
   }
   .btn-action {
     display: inline-block;
     width: 100%;
-    padding: 13px 18px;
-    font-size: 16px;
+    padding: 12px 16px;
+    font-size: 15px;
     font-weight: 700;
     color: #050716;
     background: linear-gradient(90deg, #38bdf8, #60a5fa);
@@ -255,6 +257,350 @@
   }
   .btn-action:active {
     transform: translateY(1px);
+  }
+  .btn-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #e2e8f0;
+    background: rgba(30, 41, 59, 0.9);
+    border: 1px solid rgba(250, 204, 21, 0.45);
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.15s;
+  }
+  .btn-secondary:hover {
+    background: rgba(51, 65, 85, 0.95);
+    border-color: #facc15;
+  }
+
+  /* Pilot Profil Barı */
+  .pilot-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 12px;
+    padding: 7px 10px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    text-align: left;
+  }
+  .pilot-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+  }
+  .pilot-name-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 700;
+    color: #f8fafc;
+    font-size: 13px;
+  }
+  .pilot-sub {
+    font-size: 10.5px;
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .btn-mini {
+    background: rgba(56, 189, 248, 0.16);
+    border: 1px solid rgba(56, 189, 248, 0.45);
+    color: #38bdf8;
+    border-radius: 8px;
+    padding: 5px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  /* Ana Ekran Global İlk 3 Kürsüsü */
+  .top3-box {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(9, 13, 26, 0.95));
+    border: 1px solid rgba(250, 204, 21, 0.35);
+    border-radius: 14px;
+    padding: 9px 10px;
+    margin: 8px 0;
+    text-align: left;
+  }
+  .top3-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #facc15;
+    letter-spacing: 0.4px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .top3-header span.my-rank-pill {
+    background: rgba(74, 222, 128, 0.16);
+    border: 1px solid rgba(74, 222, 128, 0.4);
+    color: #4ade80;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    text-transform: none;
+  }
+  .podium-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .podium-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 8px;
+    border-radius: 9px;
+    font-size: 12px;
+    background: rgba(30, 41, 59, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+  }
+  .podium-row.p1 {
+    background: linear-gradient(90deg, rgba(250, 204, 21, 0.2), rgba(30, 41, 59, 0.6));
+    border-color: rgba(250, 204, 21, 0.45);
+  }
+  .podium-row.p2 {
+    background: linear-gradient(90deg, rgba(203, 213, 225, 0.16), rgba(30, 41, 59, 0.55));
+    border-color: rgba(203, 213, 225, 0.35);
+  }
+  .podium-row.p3 {
+    background: linear-gradient(90deg, rgba(251, 146, 60, 0.16), rgba(30, 41, 59, 0.55));
+    border-color: rgba(251, 146, 60, 0.35);
+  }
+  .podium-row.is-me {
+    box-shadow: inset 0 0 0 1px #38bdf8;
+  }
+  .podium-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    color: #f8fafc;
+    overflow: hidden;
+  }
+  .podium-score {
+    font-family: 'Courier New', monospace;
+    font-weight: 800;
+    color: #facc15;
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+  .comp-hint {
+    margin-top: 6px;
+    font-size: 10.5px;
+    color: #93c5fd;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  /* Global İlk 100 Modalı */
+  .lb-card {
+    display: flex;
+    flex-direction: column;
+    max-height: 88vh;
+    height: 540px;
+    padding: 16px 14px;
+  }
+  .lb-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .lb-top h2 {
+    font-size: 18px;
+    color: #facc15;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .lb-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .lb-list {
+    flex: 1;
+    overflow-y: auto;
+    background: rgba(4, 7, 19, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+  }
+  .lb-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 9px;
+    border-radius: 9px;
+    font-size: 12px;
+    background: rgba(30, 41, 59, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .lb-row.me {
+    background: rgba(56, 189, 248, 0.22);
+    border-color: #38bdf8;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+  }
+  .lb-rank {
+    width: 36px;
+    font-weight: 800;
+    color: #94a3b8;
+    font-size: 12px;
+  }
+  .lb-row.r1 .lb-rank { color: #facc15; }
+  .lb-row.r2 .lb-rank { color: #e2e8f0; }
+  .lb-row.r3 .lb-rank { color: #fb923c; }
+  .lb-user {
+    flex: 1;
+    font-weight: 700;
+    color: #f1f5f9;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .me-tag {
+    background: #38bdf8;
+    color: #040714;
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 4px;
+    margin-left: 5px;
+  }
+  .lb-lvl {
+    font-size: 10.5px;
+    color: #94a3b8;
+    margin: 0 8px;
+    white-space: nowrap;
+  }
+  .lb-pts {
+    font-family: 'Courier New', monospace;
+    font-weight: 800;
+    color: #4ade80;
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+  .my-rank-footer {
+    margin-top: 8px;
+    background: linear-gradient(90deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.96));
+    border: 1.5px solid #38bdf8;
+    border-radius: 12px;
+    padding: 9px 11px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    box-shadow: 0 4px 16px rgba(56, 189, 248, 0.25);
+  }
+  .my-rank-footer .mr-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .my-rank-footer .mr-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #38bdf8;
+    font-weight: 800;
+  }
+  .my-rank-footer .mr-val {
+    font-size: 13px;
+    font-weight: 800;
+    color: #fff;
+  }
+  .my-rank-footer .mr-right {
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: 800;
+    color: #facc15;
+  }
+
+  /* Profil & Google Giriş Modalı */
+  .form-group {
+    text-align: left;
+    margin-bottom: 10px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .form-input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: rgba(15, 23, 42, 0.9);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    outline: none;
+  }
+  .form-input:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+  }
+  .btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: #ffffff;
+    color: #0f172a;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 8px;
+    transition: transform 0.1s;
+  }
+  .btn-google:active { transform: scale(0.98); }
+  .acct-pill {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(74, 222, 128, 0.12);
+    border: 1px solid rgba(74, 222, 128, 0.4);
+    color: #4ade80;
+    padding: 7px 10px;
+    border-radius: 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .auth-status {
+    font-size: 11.5px;
+    min-height: 16px;
+    margin: 4px 0;
+    font-weight: 600;
   }
 </style>
 </head>
@@ -314,17 +660,104 @@
   <!-- Başlangıç / Bitiş Modalı -->
   <div id="modal" class="modal-overlay">
     <div class="modal-card">
+      <!-- Pilot Profil Özeti -->
+      <div class="pilot-bar">
+        <div class="pilot-info">
+          <div class="pilot-name-row">
+            <span>👨‍🚀</span>
+            <span id="uiPilotName">Pilot Seçilmedi</span>
+          </div>
+          <div id="uiPilotSub" class="pilot-sub">Google / Play hesabı ile giriş yapın</div>
+        </div>
+        <button id="btnOpenProfile" class="btn-mini">Hesap / İsim</button>
+      </div>
+
       <h1 id="modalTitle">🚀 Roketi İndir</h1>
       <p id="modalDesc">Yerde duran diğer roketlere çarpmadan aralarındaki dar park alanına güvenle iniş yapın!</p>
-      
+
+      <!-- Ana Ekran Global İlk 3 Şampiyonlar Kürsüsü -->
+      <div id="top3Box" class="top3-box">
+        <div class="top3-header">
+          <span>🏆 GLOBAL İLK 3 ŞAMPİYON</span>
+          <span id="uiMyRankPill" class="my-rank-pill">Sıran: #-</span>
+        </div>
+        <div id="top3List" class="podium-list">
+          <div class="podium-row p1"><div class="podium-left">🥇 Yükleniyor...</div><div class="podium-score">-</div></div>
+          <div class="podium-row p2"><div class="podium-left">🥈 Yükleniyor...</div><div class="podium-score">-</div></div>
+          <div class="podium-row p3"><div class="podium-left">🥉 Yükleniyor...</div><div class="podium-score">-</div></div>
+        </div>
+        <div id="compHint" class="comp-hint">🎯 İlk 3'e girmek ve 1. olmak için yarış!</div>
+      </div>
+
       <div class="instructions">
         <div><span class="key-badge">Sağ Yarım / D / →</span> <span>Sol-Yukarı iter (Denge ve sola yönelme)</span></div>
         <div><span class="key-badge">Sol Yarım / A / ←</span> <span>Sağ-Yukarı iter (Denge ve sağa yönelme)</span></div>
         <div><span class="key-badge">İki Taraf</span> <span>Güçlü dikey fren itkisi verir</span></div>
-        <div style="margin-top:6px; font-size:11px; color:#94a3b8;">* Yandaki roketlere ve kulelere çarpmayın!</div>
       </div>
 
-      <button id="btnStart" class="btn-action">BAŞLAT</button>
+      <button id="btnStart" class="btn-action">🚀 OYUNU BAŞLAT</button>
+      <button id="btnOpenLb" class="btn-secondary">🌍 Global Sıralama (İlk 100) &amp; Sıram</button>
+    </div>
+  </div>
+
+  <!-- Global Sıralama (İlk 100) Sekmesi / Modalı -->
+  <div id="leaderboardModal" class="modal-overlay" style="display:none; z-index:60;">
+    <div class="modal-card lb-card">
+      <div class="lb-top">
+        <h2>🌍 Global İlk 100</h2>
+        <div class="lb-actions">
+          <button id="btnRefreshLb" class="btn-mini">↻ Yenile</button>
+          <button id="btnCloseLb" class="btn-mini" style="border-color:rgba(248,113,113,0.5);color:#f87171;">✕ Kapat</button>
+        </div>
+      </div>
+      <div id="lbSubtitle" style="font-size:11px; color:#94a3b8; margin-bottom:6px; text-align:left;">
+        Dünya genelindeki en yüksek puanlı ilk 100 pilot:
+      </div>
+      <div id="lbList" class="lb-list">
+        <div style="padding:20px; text-align:center; color:#94a3b8;">Sıralama yükleniyor...</div>
+      </div>
+      <!-- Oyuncu İlk 100'de olsun veya olmasın en altta kendi sırasını gösteren sabit bar -->
+      <div id="myRankFooter" class="my-rank-footer">
+        <div class="mr-left">
+          <span id="mrTitle" class="mr-title">SENİN GLOBAL SIRALAMAN</span>
+          <span id="mrVal" class="mr-val">#- · Pilot</span>
+        </div>
+        <div id="mrRight" class="mr-right">0 P</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Google / Play Hesabı ve Kullanıcı Adı Giriş Profili Modalı -->
+  <div id="profileModal" class="modal-overlay" style="display:none; z-index:70;">
+    <div class="modal-card">
+      <h1>👨‍🚀 Pilot Profili &amp; Giriş</h1>
+      <p>Global sıralamada yer almak ve rekorunuzu Google / Play hesabınızla korumak için giriş yapın.</p>
+
+      <!-- Google / Play Hesabı Seçim Butonu -->
+      <button id="btnPickGoogle" type="button" class="btn-google">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        <span id="btnPickGoogleTxt">Google / Play Store Hesabı Seç</span>
+      </button>
+
+      <div id="connectedAcctBox" class="acct-pill" style="display:none;">
+        <span id="connectedAcctEmail">✓ Hesap bağlı</span>
+        <button id="btnChangeAcct" type="button" style="background:none;border:none;color:#93c5fd;font-size:11px;cursor:pointer;font-weight:700;">Değiştir</button>
+      </div>
+
+      <div id="manualEmailBox" class="form-group">
+        <label for="inpEmail">Google / Play E-posta Adresi</label>
+        <input id="inpEmail" class="form-input" type="email" placeholder="ornek@gmail.com" autocomplete="email">
+      </div>
+
+      <div class="form-group">
+        <label for="inpUsername">Kullanıcı Adı (Global Sıralamada Görünür)</label>
+        <input id="inpUsername" class="form-input" type="text" maxlength="16" placeholder="Örn: KaptanAydin" autocomplete="nickname">
+      </div>
+
+      <div id="authStatus" class="auth-status" style="color:#facc15;"></div>
+
+      <button id="btnSaveProfile" type="button" class="btn-action">PROFİLİ KAYDET VE DEVAM ET</button>
+      <button id="btnCloseProfile" type="button" class="btn-secondary" style="display:none;">İptal / Geri Dön</button>
     </div>
   </div>
 </div>
@@ -591,6 +1024,10 @@ function spawnRocket() {
 
 // Oyunu başlat
 function startGame() {
+  if (!playerProfile.username) {
+    openProfileModal(true);
+    return;
+  }
   if (spawnTimeout) {
     clearTimeout(spawnTimeout);
     spawnTimeout = null;
@@ -626,12 +1063,18 @@ function gameOver(reason) {
     saveBestScore(bestScore);
     elBest.textContent = bestScore;
   }
+  if (level > (playerProfile.maxLevel || 1)) {
+    playerProfile.maxLevel = level;
+    saveProfileLocal();
+  }
+  syncScoreToCloud(bestScore, Math.max(level, playerProfile.maxLevel || 1));
 
   setTimeout(() => {
     modalTitle.innerHTML = '💥 Kaza Gerçekleşti!';
-    modalDesc.innerHTML = `<b style="color:#f87171;font-size:15px;">${reason}</b><br><br>Ulaşılan: <b style="color:#facc15;font-size:17px;">Bölüm ${level}</b><br>Toplam Puan: <b style="color:#38bdf8;font-size:20px;">${score}</b>`;
-    btnStart.textContent = 'YENİDEN DENE';
+    modalDesc.innerHTML = `<b style="color:#f87171;font-size:14px;">${reason}</b><br>Ulaşılan: <b style="color:#facc15;">Bölüm ${level}</b> · Puan: <b style="color:#38bdf8;">${score}</b> · Rekor: <b style="color:#4ade80;">${bestScore}</b>`;
+    btnStart.textContent = '🚀 YENİDEN DENE';
     modal.style.display = 'flex';
+    fetchLeaderboard(false);
   }, 900);
 }
 
@@ -690,7 +1133,7 @@ function onTouch(e) {
     updateInputHints();
     return;
   }
-  if (e.target.closest('#modal')) return;
+  if (e.target.closest('.modal-overlay')) return;
   if (e.cancelable) e.preventDefault();
   processTouches(e.touches);
 }
@@ -704,7 +1147,7 @@ frame.addEventListener('touchcancel', onTouch, { passive: false });
 let isMouseDown = false;
 frame.addEventListener('mousedown', (e) => {
   if (state !== 'play') return;
-  if (e.target.closest('#modal')) return;
+  if (e.target.closest('.modal-overlay')) return;
   initAudio();
   isMouseDown = true;
   const rect = cv.getBoundingClientRect();
@@ -733,6 +1176,8 @@ window.addEventListener('mouseup', () => {
 });
 
 window.addEventListener('keydown', (e) => {
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+  if (profileModal.style.display === 'flex' || leaderboardModal.style.display === 'flex') return;
   initAudio();
   if (e.repeat) return;
   if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
@@ -964,6 +1409,12 @@ function update(dt) {
 
       score += earnedPoints;
       elScore.textContent = score;
+      if (score > bestScore) {
+        bestScore = score;
+        saveBestScore(bestScore);
+        elBest.textContent = bestScore;
+        syncScoreToCloud(bestScore, Math.max(level + 1, playerProfile.maxLevel || 1));
+      }
 
       showSuccessBanner(earnedPoints);
 
@@ -1252,6 +1703,524 @@ function draw() {
   if (currentRocket && !currentRocket.dead) {
     drawRocket(currentRocket.x, currentRocket.y, currentRocket.angle, null, false);
   }
+}
+
+// --- GLOBAL SIRALAMA VE GOOGLE / PLAY PROFİL SİSTEMİ (FIREBASE CLOUD) ---
+const FB_API_KEY = 'AIzaSyAwsTd8bBcyCw-GpC1dT0lfEZDM45LUYAY';
+const FB_DB_URL = 'https://ilk-deneme-307a9-default-rtdb.europe-west1.firebasedatabase.app';
+const PROFILE_STORAGE_KEY = 'roketi_indir_pilot_profile_v1';
+
+const leaderboardModal = document.getElementById('leaderboardModal');
+const profileModal = document.getElementById('profileModal');
+const uiPilotName = document.getElementById('uiPilotName');
+const uiPilotSub = document.getElementById('uiPilotSub');
+const uiMyRankPill = document.getElementById('uiMyRankPill');
+const top3List = document.getElementById('top3List');
+const compHint = document.getElementById('compHint');
+const lbList = document.getElementById('lbList');
+const lbSubtitle = document.getElementById('lbSubtitle');
+const mrTitle = document.getElementById('mrTitle');
+const mrVal = document.getElementById('mrVal');
+const mrRight = document.getElementById('mrRight');
+const inpEmail = document.getElementById('inpEmail');
+const inpUsername = document.getElementById('inpUsername');
+const authStatus = document.getElementById('authStatus');
+const btnPickGoogle = document.getElementById('btnPickGoogle');
+const btnPickGoogleTxt = document.getElementById('btnPickGoogleTxt');
+const connectedAcctBox = document.getElementById('connectedAcctBox');
+const connectedAcctEmail = document.getElementById('connectedAcctEmail');
+const manualEmailBox = document.getElementById('manualEmailBox');
+const btnChangeAcct = document.getElementById('btnChangeAcct');
+const btnSaveProfile = document.getElementById('btnSaveProfile');
+const btnCloseProfile = document.getElementById('btnCloseProfile');
+
+let playerProfile = {
+  uid: '',
+  idToken: '',
+  refreshToken: '',
+  email: '',
+  username: '',
+  usernameKey: '',
+  maxLevel: 1
+};
+let cachedLeaderboard = [];
+
+function loadProfileLocal() {
+  try {
+    const raw = localStorage.getItem(PROFILE_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        playerProfile = Object.assign(playerProfile, parsed);
+      }
+    }
+  } catch (e) {}
+}
+
+function saveProfileLocal() {
+  try {
+    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(playerProfile));
+  } catch (e) {}
+}
+
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function normalizeUsernameKey(name) {
+  return String(name || '')
+    .trim()
+    .toLowerCase()
+    .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's')
+    .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')
+    .replace(/[^a-z0-9_]/g, '_');
+}
+
+// E-posta adresinden deterministik hesap anahtarı üretir (Aynı Google/Play hesabı her cihazda aynı profili açar)
+function deriveAccountSecret(email) {
+  const clean = String(email || '').trim().toLowerCase();
+  let h1 = 0xdeadbeef ^ clean.length, h2 = 0x41c6ce57 ^ clean.length;
+  for (let i = 0; i < clean.length; i++) {
+    const ch = clean.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return 'RkP!' + (h1 >>> 0).toString(16).padStart(8, '0') + (h2 >>> 0).toString(16).padStart(8, '0') + '_2026';
+}
+
+async function ensureValidToken() {
+  if (playerProfile.refreshToken) {
+    try {
+      const res = await fetch(`https://securetoken.googleapis.com/v1/token?key=${FB_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `grant_type=refresh_token&refresh_token=${encodeURIComponent(playerProfile.refreshToken)}`
+      });
+      if (res.ok) {
+        const data = await res.json();
+        playerProfile.idToken = data.id_token;
+        playerProfile.refreshToken = data.refresh_token;
+        playerProfile.uid = data.user_id;
+        saveProfileLocal();
+        return playerProfile.idToken;
+      }
+    } catch (e) {}
+  }
+  return playerProfile.idToken;
+}
+
+async function authenticateWithGoogleEmail(email) {
+  const cleanEmail = String(email || '').trim().toLowerCase();
+  const pwd = deriveAccountSecret(cleanEmail);
+
+  // Önce mevcut Google/Play hesabıyla giriş yapmayı dene
+  let res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FB_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: cleanEmail, password: pwd, returnSecureToken: true })
+  });
+
+  if (!res.ok) {
+    // İlk kez giriş yapıyorsa otomatik oluştur
+    res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: cleanEmail, password: pwd, returnSecureToken: true })
+    });
+  }
+
+  if (!res.ok) {
+    throw new Error('Hesap doğrulanamadı. Lütfen geçerli bir e-posta girin.');
+  }
+
+  const data = await res.json();
+  playerProfile.uid = data.localId;
+  playerProfile.idToken = data.idToken;
+  playerProfile.refreshToken = data.refreshToken;
+  playerProfile.email = cleanEmail;
+  saveProfileLocal();
+
+  // Bu Google hesabına ait bulutta kayıtlı kullanıcı adı ve rekor var mı kontrol et
+  try {
+    const profRes = await fetch(`${FB_DB_URL}/scores/${encodeURIComponent(playerProfile.uid)}.json`);
+    if (profRes.ok) {
+      const existing = await profRes.json();
+      if (existing && existing.username) {
+        playerProfile.username = existing.username;
+        playerProfile.usernameKey = normalizeUsernameKey(existing.username);
+        if ((existing.score || 0) > bestScore) {
+          bestScore = existing.score;
+          saveBestScore(bestScore);
+          elBest.textContent = bestScore;
+        }
+        if ((existing.level || 1) > (playerProfile.maxLevel || 1)) {
+          playerProfile.maxLevel = existing.level;
+        }
+        saveProfileLocal();
+      }
+    }
+  } catch (e) {}
+
+  return playerProfile;
+}
+
+function updateProfileBarUI() {
+  if (playerProfile.username) {
+    uiPilotName.textContent = playerProfile.username;
+    uiPilotSub.textContent = playerProfile.email
+      ? `✓ Google/Play: ${playerProfile.email}`
+      : '✓ Pilot Profili Aktif';
+  } else {
+    uiPilotName.textContent = 'Pilot Seçilmedi';
+    uiPilotSub.textContent = 'Google / Play hesabı ile giriş yapın';
+  }
+}
+
+function setConnectedEmailUI(email) {
+  const clean = String(email || '').trim().toLowerCase();
+  inpEmail.value = clean;
+  if (clean) {
+    connectedAcctEmail.textContent = `✓ Google / Play: ${clean}`;
+    connectedAcctBox.style.display = 'flex';
+    manualEmailBox.style.display = 'none';
+    btnPickGoogle.style.display = 'none';
+    if (!inpUsername.value.trim()) {
+      const suggested = clean.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '').slice(0, 14);
+      if (suggested.length >= 3) inpUsername.value = suggested;
+    }
+  } else {
+    connectedAcctBox.style.display = 'none';
+    manualEmailBox.style.display = 'block';
+    btnPickGoogle.style.display = 'flex';
+  }
+}
+
+// Android Native Google / Play Store Hesap Seçici Köprüsü
+window.onNativeGoogleAccount = async function(email) {
+  btnPickGoogleTxt.textContent = 'Google / Play Store Hesabı Seç';
+  if (!email) return;
+  setConnectedEmailUI(email);
+  authStatus.style.color = '#4ade80';
+  authStatus.textContent = 'Google / Play hesabı bağlandı! Bilgiler kontrol ediliyor...';
+  try {
+    await authenticateWithGoogleEmail(email);
+    if (playerProfile.username) {
+      inpUsername.value = playerProfile.username;
+      authStatus.textContent = `Hoş geldin ${playerProfile.username}! Kayıtlı profilin yüklendi.`;
+    } else {
+      authStatus.textContent = 'Hesap bağlandı! Şimdi kullanıcı adını belirle.';
+    }
+    updateProfileBarUI();
+  } catch (e) {
+    authStatus.style.color = '#f87171';
+    authStatus.textContent = e.message || 'Bağlantı hatası.';
+  }
+};
+
+window.onNativeGoogleAccountCancel = function() {
+  btnPickGoogleTxt.textContent = 'Google / Play Store Hesabı Seç';
+  authStatus.style.color = '#facc15';
+  authStatus.textContent = 'E-posta adresinizi aşağıya yazarak da giriş yapabilirsiniz.';
+};
+
+btnPickGoogle.addEventListener('click', () => {
+  if (window.AndroidGoogleAuth && typeof window.AndroidGoogleAuth.pickGoogleAccount === 'function') {
+    btnPickGoogleTxt.textContent = 'Hesap seçiliyor...';
+    window.AndroidGoogleAuth.pickGoogleAccount();
+  } else {
+    inpEmail.focus();
+    authStatus.style.color = '#38bdf8';
+    authStatus.textContent = 'Google / Play e-posta adresinizi ve kullanıcı adınızı girin.';
+  }
+});
+
+btnChangeAcct.addEventListener('click', () => {
+  setConnectedEmailUI('');
+  if (window.AndroidGoogleAuth && typeof window.AndroidGoogleAuth.pickGoogleAccount === 'function') {
+    window.AndroidGoogleAuth.pickGoogleAccount();
+  } else {
+    inpEmail.focus();
+  }
+});
+
+function openProfileModal(isMandatory = false) {
+  authStatus.textContent = '';
+  inpUsername.value = playerProfile.username || '';
+  if (playerProfile.email) {
+    setConnectedEmailUI(playerProfile.email);
+  } else {
+    setConnectedEmailUI('');
+  }
+  btnCloseProfile.style.display = (!isMandatory && playerProfile.username) ? 'flex' : 'none';
+  profileModal.style.display = 'flex';
+}
+
+document.getElementById('btnOpenProfile').addEventListener('click', () => openProfileModal(false));
+btnCloseProfile.addEventListener('click', () => {
+  profileModal.style.display = 'none';
+});
+
+btnSaveProfile.addEventListener('click', async () => {
+  const emailVal = inpEmail.value.trim().toLowerCase();
+  const unameVal = inpUsername.value.trim();
+
+  if (!emailVal || !emailVal.includes('@') || !emailVal.includes('.')) {
+    authStatus.style.color = '#f87171';
+    authStatus.textContent = 'Lütfen geçerli bir Google / Play e-posta adresi seçin veya girin!';
+    return;
+  }
+  if (unameVal.length < 2 || unameVal.length > 16) {
+    authStatus.style.color = '#f87171';
+    authStatus.textContent = 'Kullanıcı adı 2 ile 16 karakter arasında olmalıdır!';
+    return;
+  }
+  const uKey = normalizeUsernameKey(unameVal);
+  if (uKey.length < 2) {
+    authStatus.style.color = '#f87171';
+    authStatus.textContent = 'Kullanıcı adı geçerli harf veya rakam içermelidir!';
+    return;
+  }
+
+  btnSaveProfile.disabled = true;
+  btnSaveProfile.textContent = 'KAYDEDİLİYOR...';
+  authStatus.style.color = '#facc15';
+  authStatus.textContent = 'Google / Play profili ve kullanıcı adı kontrol ediliyor...';
+
+  try {
+    await authenticateWithGoogleEmail(emailVal);
+    const token = await ensureValidToken();
+
+    // Kullanıcı adı başkası tarafından alınmış mı kontrol et
+    const checkRes = await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(uKey)}.json`);
+    const checkData = checkRes.ok ? await checkRes.json() : null;
+    if (checkData && checkData.uid && checkData.uid !== playerProfile.uid) {
+      authStatus.style.color = '#f87171';
+      authStatus.textContent = `"${unameVal}" kullanıcı adı başka bir pilot tarafından alınmış!`;
+      btnSaveProfile.disabled = false;
+      btnSaveProfile.textContent = 'PROFİLİ KAYDET VE DEVAM ET';
+      return;
+    }
+
+    // Kullanıcı adını rezerve et
+    const claimRes = await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(uKey)}.json?auth=${encodeURIComponent(token)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: playerProfile.uid, updatedAt: Date.now() })
+    });
+    if (!claimRes.ok) {
+      throw new Error('Bu kullanıcı adı şu an kullanılamıyor, başka bir ad deneyin.');
+    }
+
+    playerProfile.username = unameVal;
+    playerProfile.usernameKey = uKey;
+    saveProfileLocal();
+    updateProfileBarUI();
+
+    await syncScoreToCloud(bestScore, Math.max(level, playerProfile.maxLevel || 1));
+    await fetchLeaderboard(false);
+
+    profileModal.style.display = 'none';
+  } catch (err) {
+    authStatus.style.color = '#f87171';
+    authStatus.textContent = err.message || 'Bağlantı hatası oluştu.';
+  } finally {
+    btnSaveProfile.disabled = false;
+    btnSaveProfile.textContent = 'PROFİLİ KAYDET VE DEVAM ET';
+  }
+});
+
+async function syncScoreToCloud(bestVal, maxLvl) {
+  if (!playerProfile.uid || !playerProfile.username) return;
+  try {
+    const token = await ensureValidToken();
+    if (!token) return;
+    // Önce buluttaki mevcut skoru kontrol et, yüksek olanı koru
+    let finalScore = Math.max(0, Number(bestVal) || 0);
+    let finalLevel = Math.max(1, Number(maxLvl) || 1);
+    try {
+      const curRes = await fetch(`${FB_DB_URL}/scores/${encodeURIComponent(playerProfile.uid)}.json`);
+      if (curRes.ok) {
+        const curData = await curRes.json();
+        if (curData) {
+          if ((curData.score || 0) > finalScore) {
+            finalScore = curData.score;
+            bestScore = finalScore;
+            saveBestScore(bestScore);
+            elBest.textContent = bestScore;
+          }
+          if ((curData.level || 1) > finalLevel) {
+            finalLevel = curData.level;
+          }
+        }
+      }
+    } catch (e) {}
+
+    await fetch(`${FB_DB_URL}/scores/${encodeURIComponent(playerProfile.uid)}.json?auth=${encodeURIComponent(token)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: playerProfile.username,
+        score: finalScore,
+        level: finalLevel,
+        updatedAt: Date.now()
+      })
+    });
+  } catch (e) {}
+}
+
+function renderTop3AndRank(allSorted) {
+  const medals = ['🥇', '🥈', '🥉'];
+  const rowClasses = ['p1', 'p2', 'p3'];
+  let html = '';
+
+  for (let i = 0; i < 3; i++) {
+    const item = allSorted[i];
+    if (item) {
+      const isMe = playerProfile.uid && item.uid === playerProfile.uid;
+      html += `
+        <div class="podium-row ${rowClasses[i]}${isMe ? ' is-me' : ''}">
+          <div class="podium-left">
+            <span>${medals[i]}</span>
+            <span>${escapeHtml(item.username)}${isMe ? ' <span class="me-tag">SEN</span>' : ''}</span>
+          </div>
+          <div class="podium-score">${item.score} P</div>
+        </div>`;
+    } else {
+      html += `
+        <div class="podium-row ${rowClasses[i]}">
+          <div class="podium-left"><span>${medals[i]}</span><span style="color:#64748b;">Boş Kürsü</span></div>
+          <div class="podium-score">0 P</div>
+        </div>`;
+    }
+  }
+  top3List.innerHTML = html;
+
+  // Oyuncunun kendi global sırasını hesapla
+  const myIdx = playerProfile.uid ? allSorted.findIndex(x => x.uid === playerProfile.uid) : -1;
+  const myRank = myIdx >= 0 ? (myIdx + 1) : null;
+  const myScore = myIdx >= 0 ? allSorted[myIdx].score : bestScore;
+
+  if (myRank) {
+    uiMyRankPill.textContent = `Sıran: #${myRank}`;
+  } else if (playerProfile.username) {
+    uiMyRankPill.textContent = 'Sıran: #-';
+  } else {
+    uiMyRankPill.textContent = 'Giriş Yap';
+  }
+
+  // Rekabet mesajı (İlk 3'e veya 1.'liğe kaç puan kaldı?)
+  const firstScore = allSorted[0] ? allSorted[0].score : 0;
+  const thirdScore = allSorted[2] ? allSorted[2].score : 0;
+  if (myRank === 1) {
+    compHint.innerHTML = '👑 Global 1. Sıradasın! Rekorunu artırarak zirveyi koru!';
+  } else if (myRank && myRank <= 3) {
+    const diff1 = Math.max(1, firstScore - myScore + 1);
+    compHint.innerHTML = `🔥 İlk 3'tesin (#${myRank})! 1. olmak için <b>+${diff1} P</b> daha kazan!`;
+  } else if (thirdScore > 0) {
+    const diff3 = Math.max(1, thirdScore - myScore + 1);
+    const diff1 = Math.max(1, firstScore - myScore + 1);
+    compHint.innerHTML = `🎯 İlk 3 için <b>${thirdScore + 1} P</b> (+${diff3}), 1.'lik için <b>${firstScore + 1} P</b> hedefle!`;
+  }
+
+  // İlk 100 Modalı ve En Alttaki Kendi Sıralama Barı
+  const top100 = allSorted.slice(0, 100);
+  lbSubtitle.textContent = `Toplam ${allSorted.length} global pilot yarışıyor · İlk 100 listesi:`;
+
+  if (top100.length === 0) {
+    lbList.innerHTML = '<div style="padding:20px; text-align:center; color:#94a3b8;">Henüz kayıtlı skor yok. İlk şampiyon sen ol!</div>';
+  } else {
+    lbList.innerHTML = top100.map((item, idx) => {
+      const rank = idx + 1;
+      const isMe = playerProfile.uid && item.uid === playerProfile.uid;
+      const rCls = rank <= 3 ? ` r${rank}` : '';
+      const rankLabel = rank === 1 ? '🥇 1' : (rank === 2 ? '🥈 2' : (rank === 3 ? '🥉 3' : `#${rank}`));
+      return `
+        <div class="lb-row${rCls}${isMe ? ' me' : ''}" ${isMe ? 'id="myLbRow"' : ''}>
+          <span class="lb-rank">${rankLabel}</span>
+          <span class="lb-user">${escapeHtml(item.username)}${isMe ? '<span class="me-tag">SEN</span>' : ''}</span>
+          <span class="lb-lvl">Böl. ${item.level || 1}</span>
+          <span class="lb-pts">${item.score} P</span>
+        </div>`;
+    }).join('');
+  }
+
+  // En alttaki sabit "Kendi Sıralaman" barı (İlk 100'de olsun veya olmasın)
+  const uname = playerProfile.username || 'Pilot';
+  if (myRank) {
+    if (myRank <= 100) {
+      mrTitle.textContent = 'SENİN GLOBAL SIRALAMAN (İLK 100 İÇİNDE ✓)';
+      mrVal.textContent = `#${myRank} · ${uname}`;
+    } else {
+      const top100Cutoff = allSorted[99] ? allSorted[99].score : 0;
+      const needFor100 = Math.max(1, top100Cutoff - myScore + 1);
+      mrTitle.textContent = `İLK 100 DIŞINDASIN (İLK 100 İÇİN +${needFor100} P)`;
+      mrVal.textContent = `#${myRank} · ${uname}`;
+    }
+    mrRight.textContent = `${myScore} P`;
+  } else {
+    mrTitle.textContent = 'SENİN GLOBAL SIRALAMAN';
+    mrVal.textContent = playerProfile.username ? `Sıralama bekleniyor · ${uname}` : 'Giriş yapılmadı';
+    mrRight.textContent = `${bestScore} P`;
+  }
+}
+
+async function fetchLeaderboard(scrollToMe = false) {
+  try {
+    const res = await fetch(`${FB_DB_URL}/scores.json`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const arr = [];
+    if (data && typeof data === 'object') {
+      for (const [uid, val] of Object.entries(data)) {
+        if (val && typeof val.username === 'string') {
+          arr.push({
+            uid,
+            username: val.username,
+            score: Number(val.score) || 0,
+            level: Number(val.level) || 1,
+            updatedAt: Number(val.updatedAt) || 0
+          });
+        }
+      }
+    }
+    arr.sort((a, b) => (b.score - a.score) || (b.level - a.level) || (a.updatedAt - b.updatedAt));
+    cachedLeaderboard = arr;
+    renderTop3AndRank(arr);
+
+    if (scrollToMe) {
+      const myRow = document.getElementById('myLbRow');
+      if (myRow) {
+        setTimeout(() => myRow.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+      }
+    }
+  } catch (e) {}
+}
+
+document.getElementById('btnOpenLb').addEventListener('click', () => {
+  leaderboardModal.style.display = 'flex';
+  fetchLeaderboard(true);
+});
+
+document.getElementById('btnRefreshLb').addEventListener('click', () => {
+  fetchLeaderboard(true);
+});
+
+document.getElementById('btnCloseLb').addEventListener('click', () => {
+  leaderboardModal.style.display = 'none';
+});
+
+// Başlangıçta profili yükle, global sıralamayı çek ve profil yoksa giriş ekranını aç
+loadProfileLocal();
+updateProfileBarUI();
+if (playerProfile.uid && playerProfile.username) {
+  syncScoreToCloud(bestScore, playerProfile.maxLevel || 1).then(() => fetchLeaderboard(false));
+} else {
+  fetchLeaderboard(false);
+  openProfileModal(true);
 }
 
 // Döngü
