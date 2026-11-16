@@ -47,70 +47,108 @@
     width: 100%; height: 100%;
   }
 
-  /* ÜST HUD & TELEMETRİ ALANI */
+  /* ÜST HUD & SOL ÜST DİKEY TELEMETRİ KUTUSU */
   #hud {
     position: absolute;
     top: calc(10px + env(safe-area-inset-top, 0px)); left: 10px; right: 10px;
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    justify-content: space-between;
+    align-items: flex-start;
     pointer-events: none;
     z-index: 10;
   }
 
-  .hud-top-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .hud-badge {
-    background: rgba(15, 23, 42, 0.85);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    padding: 6px 12px;
-    border-radius: 16px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #e2e8f0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  }
-  .hud-badge span { color: #38bdf8; font-weight: 700; font-size: 15px; }
-  .badge-level { border-color: rgba(250, 204, 21, 0.4); }
-  .badge-level span { color: #facc15; }
-
-  /* ÜST KÖŞE / ŞERİT TELEMETRİ GÖSTERGESİ */
+  /* SOL ÜST DİKDÖRTGEN TELEMETRİ GÖSTERGESİ (ALT ALTA) */
   #telemetry {
-    background: rgba(10, 15, 30, 0.85);
+    background: rgba(15, 20, 32, 0.86);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(56, 189, 248, 0.25);
-    border-radius: 14px;
-    padding: 7px 10px;
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    padding: 8px 11px;
+    width: 162px;
     display: flex;
-    justify-content: space-around;
-    align-items: center;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+    flex-direction: column;
+    gap: 5px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
   }
   .telem-item {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
+    gap: 8px;
     line-height: 1.25;
   }
+  .telem-sep {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 2px 0;
+  }
   .telem-lbl {
-    font-size: 9px;
+    font-size: 10.5px;
     color: #94a3b8;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
   }
   .telem-val {
     font-family: 'Courier New', Courier, monospace;
-    font-size: 13px;
-    font-weight: bold;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #e2e8f0;
+    white-space: nowrap;
   }
   .safe { color: #4ade80; }
   .danger { color: #f87171; }
   .warn { color: #facc15; }
+
+  /* SAĞ ÜST DURDURMA BUTONU */
+  #btnPause {
+    pointer-events: auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(15, 20, 32, 0.86);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #ecebe8;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+    transition: transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #btnPause:active {
+    transform: scale(0.94);
+  }
+
+  /* 3-2-1 GERİ SAYIM KATMANI */
+  #countdownOverlay {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(7, 9, 15, 0.45);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 55;
+    pointer-events: none;
+  }
+  #countdownNum {
+    font-size: 92px;
+    font-weight: 800;
+    color: var(--ui-text, #ecebe8);
+    text-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    animation: countPop 0.85s ease-out infinite;
+  }
+  @keyframes countPop {
+    0% { transform: scale(1.25); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.75; }
+  }
 
   /* MOBİL DOKUNMA BÖLGELERİ (ALT ALAN) */
   #touch-hints {
@@ -745,22 +783,21 @@
 <div id="phone-frame">
   <canvas id="c"></canvas>
 
-  <!-- Üst HUD ve Göstergeler -->
+  <!-- Üst HUD: Sol Üst Dikey Telemetri Kutusu & Sağ Üst Durdurma Butonu -->
   <div id="hud">
-    <div class="hud-top-row">
-      <div class="hud-badge badge-level">BÖLÜM: <span id="levelVal">1</span></div>
-      <div class="hud-badge">Puan: <span id="scoreVal">0</span></div>
-      <div class="hud-badge">En İyi: <span id="bestVal">0</span></div>
-    </div>
-
-    <!-- Üst Köşede Kompakt Telemetri Barı -->
     <div id="telemetry">
       <div class="telem-item">
-        <span class="telem-lbl">Düşüş</span>
+        <span class="telem-lbl">Bölüm / Puan</span>
+        <span class="telem-val"><span id="levelVal">1</span> · <span id="scoreVal">0</span></span>
+      </div>
+      <span id="bestVal" style="display:none;">0</span>
+      <div class="telem-sep"></div>
+      <div class="telem-item">
+        <span class="telem-lbl">Dikey Hız</span>
         <span id="telVy" class="telem-val safe">0 m/s</span>
       </div>
       <div class="telem-item">
-        <span class="telem-lbl">Yatay</span>
+        <span class="telem-lbl">Yatay Hız</span>
         <span id="telVx" class="telem-val safe">0 m/s</span>
       </div>
       <div class="telem-item">
@@ -771,6 +808,28 @@
         <span class="telem-lbl">Park Hizası</span>
         <span id="telAlign" class="telem-val warn">ORTALA</span>
       </div>
+    </div>
+
+    <button id="btnPause" type="button" aria-label="Oyunu Durdur">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4.5" height="16" rx="1.5"/><rect x="13.5" y="4" width="4.5" height="16" rx="1.5"/></svg>
+    </button>
+  </div>
+
+  <!-- 3 - 2 - 1 Geri Sayım Katmanı -->
+  <div id="countdownOverlay">
+    <div id="countdownNum">3</div>
+  </div>
+
+  <!-- Oyun İçi Duraklatma (Pause) Paneli -->
+  <div id="pauseModal" class="modal-overlay" style="display:none; z-index:58;">
+    <div class="sheet" style="max-width:300px; text-align:center;">
+      <div class="sheet-head" style="justify-content:center; margin-bottom:12px;">
+        <h2>Oyun Duraklatıldı</h2>
+      </div>
+      <div class="row-setting"><span>Ses</span><button id="swPauseSound" class="switch on" aria-label="Ses"></button></div>
+      <div class="row-setting" style="margin-bottom:14px;"><span>Titreşim</span><button id="swPauseVibe" class="switch on" aria-label="Titreşim"></button></div>
+      <button id="btnResume" type="button" class="btn-action">DEVAM ET</button>
+      <button id="btnPauseMenu" type="button" class="btn-ghost">Ana Menü</button>
     </div>
   </div>
 
@@ -783,12 +842,10 @@
   <!-- Dokunma Alanı Görsel İpuçları -->
   <div id="touch-hints">
     <div id="hintLeft" class="hint-zone">
-      <span>◀ SOL DOKUNUŞ</span>
-      <small>Sağ-Yukarı İtki</small>
+      <span>◀ SOL MOTORLAR</span>
     </div>
     <div id="hintRight" class="hint-zone">
-      <span>SAĞ DOKUNUŞ ▶</span>
-      <small>Sol-Yukarı İtki</small>
+      <span>SAĞ MOTORLAR ▶</span>
     </div>
   </div>
 
@@ -1398,13 +1455,13 @@ function processTouches(touchList) {
 }
 
 function onTouch(e) {
+  if (e.target.closest('#btnPause') || e.target.closest('.modal-overlay')) return;
   if (state !== 'play') {
     inputLeft = false;
     inputRight = false;
     updateInputHints();
     return;
   }
-  if (e.target.closest('.modal-overlay')) return;
   if (e.cancelable) e.preventDefault();
   processTouches(e.touches);
 }
@@ -1418,7 +1475,7 @@ frame.addEventListener('touchcancel', onTouch, { passive: false });
 let isMouseDown = false;
 frame.addEventListener('mousedown', (e) => {
   if (state !== 'play') return;
-  if (e.target.closest('.modal-overlay')) return;
+  if (e.target.closest('#btnPause') || e.target.closest('.modal-overlay')) return;
   initAudio();
   isMouseDown = true;
   const rect = cv.getBoundingClientRect();
@@ -1913,30 +1970,6 @@ function draw() {
     ctx.arc(bay.x + 3, groundY - 2, 3.5, 0, Math.PI * 2);
     ctx.arc(bay.x + bay.width - 3, groundY - 2, 3.5, 0, Math.PI * 2);
     ctx.fill();
-
-    // Yukarı uzanan kılavuz koridoru
-    if (state === 'play' && currentRocket && !currentRocket.dead) {
-      ctx.save();
-      ctx.strokeStyle = 'rgba(74, 222, 128, 0.16)';
-      ctx.setLineDash([6, 6]);
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.moveTo(bay.x + 2, groundY);
-      ctx.lineTo(bay.x + 2, Math.max(0, currentRocket.y));
-      ctx.moveTo(bay.x + bay.width - 2, groundY);
-      ctx.lineTo(bay.x + bay.width - 2, Math.max(0, currentRocket.y));
-      ctx.stroke();
-
-      // Kılavuz oku
-      ctx.fillStyle = 'rgba(74, 222, 128, 0.6)';
-      ctx.beginPath();
-      ctx.moveTo(bay.centerX - 7, groundY - 26);
-      ctx.lineTo(bay.centerX + 7, groundY - 26);
-      ctx.lineTo(bay.centerX, groundY - 16);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
-    }
   }
 
   // --- YERDEKİ ROKETLER & KULELER ---
@@ -2319,14 +2352,23 @@ document.querySelectorAll('[data-close]').forEach((b) => {
   });
 });
 
-// Sağ üst ayarlar -> Ses / Titreşim / Tema
+// Sağ üst ayarlar & oyun içi duraklatma (Pause) -> Ses / Titreşim / Tema
 const swSound = document.getElementById('swSound');
 const swVibe = document.getElementById('swVibe');
+const swPauseSound = document.getElementById('swPauseSound');
+const swPauseVibe = document.getElementById('swPauseVibe');
 const thDark = document.getElementById('thDark');
 const thLight = document.getElementById('thLight');
+const pauseModal = document.getElementById('pauseModal');
+const countdownOverlay = document.getElementById('countdownOverlay');
+const countdownNum = document.getElementById('countdownNum');
+let countdownTimer = null;
+
 function refreshSettingsUI() {
   swSound.classList.toggle('on', !!settings.sound);
   swVibe.classList.toggle('on', !!settings.vibe);
+  if (swPauseSound) swPauseSound.classList.toggle('on', !!settings.sound);
+  if (swPauseVibe) swPauseVibe.classList.toggle('on', !!settings.vibe);
   thDark.classList.toggle('active', settings.theme !== 'light');
   thLight.classList.toggle('active', settings.theme === 'light');
 }
@@ -2334,14 +2376,69 @@ document.getElementById('btnSettings').addEventListener('click', () => {
   refreshSettingsUI();
   settingsPanel.style.display = 'flex';
 });
-swSound.addEventListener('click', () => {
+function toggleSoundSetting() {
   settings.sound = !settings.sound;
   saveSettings(); refreshSettingsUI();
-});
-swVibe.addEventListener('click', () => {
+}
+function toggleVibeSetting() {
   settings.vibe = !settings.vibe;
   saveSettings(); refreshSettingsUI();
   if (settings.vibe) vibrate([60]);
+}
+swSound.addEventListener('click', toggleSoundSetting);
+swVibe.addEventListener('click', toggleVibeSetting);
+swPauseSound.addEventListener('click', toggleSoundSetting);
+swPauseVibe.addEventListener('click', toggleVibeSetting);
+
+// Oyun içi Durdurma (Pause) ve 3-2-1 Geri Sayım ile Devam Etme
+document.getElementById('btnPause').addEventListener('click', () => {
+  if (state !== 'play') return;
+  initAudio();
+  playSound('click');
+  state = 'paused';
+  inputLeft = false;
+  inputRight = false;
+  isMouseDown = false;
+  updateInputHints();
+  refreshSettingsUI();
+  pauseModal.style.display = 'flex';
+});
+
+document.getElementById('btnResume').addEventListener('click', () => {
+  if (state !== 'paused') return;
+  pauseModal.style.display = 'none';
+  state = 'countdown';
+  let step = 3;
+  countdownNum.textContent = String(step);
+  countdownOverlay.style.display = 'flex';
+  playSound('click');
+
+  if (countdownTimer) clearInterval(countdownTimer);
+  countdownTimer = setInterval(() => {
+    step--;
+    if (step > 0) {
+      countdownNum.textContent = String(step);
+      playSound('click');
+    } else {
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+      countdownOverlay.style.display = 'none';
+      lastTime = performance.now();
+      state = 'play';
+    }
+  }, 850);
+});
+
+document.getElementById('btnPauseMenu').addEventListener('click', () => {
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
+  countdownOverlay.style.display = 'none';
+  pauseModal.style.display = 'none';
+  state = 'menu';
+  modal.style.display = 'flex';
+  fetchLeaderboard(false);
 });
 thDark.addEventListener('click', () => {
   settings.theme = 'dark';
