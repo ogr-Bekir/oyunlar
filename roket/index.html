@@ -173,435 +173,570 @@
   #levelBanner h2 { font-size: 21px; color: #4ade80; margin-bottom: 4px; }
   #levelBanner p { font-size: 13px; color: #cbd5e1; }
 
-  /* Modallar */
+  /* ===== TEMA DEĞİŞKENLERİ (Koyu / Açık) ===== */
+  :root {
+    --ui-overlay: rgba(7, 9, 15, 0.76);
+    --ui-panel: #15171e;
+    --ui-panel-2: #1c1f27;
+    --ui-text: #ecebe8;
+    --ui-muted: #8e929b;
+    --ui-line: rgba(255, 255, 255, 0.09);
+    --ui-accent: #d3c29b;
+    --ui-btn-bg: #ecebe8;
+    --ui-btn-text: #15171e;
+    --ui-step: rgba(255, 255, 255, 0.05);
+    --ui-gold: #cdb27a;
+    --ui-silver: #a8acb4;
+    --ui-bronze: #b08766;
+    --ui-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+  }
+  body.light {
+    --ui-overlay: rgba(239, 236, 230, 0.82);
+    --ui-panel: #faf9f6;
+    --ui-panel-2: #f0eee8;
+    --ui-text: #24272e;
+    --ui-muted: #70747d;
+    --ui-line: rgba(0, 0, 0, 0.09);
+    --ui-accent: #8b7142;
+    --ui-btn-bg: #24272e;
+    --ui-btn-text: #faf9f6;
+    --ui-step: rgba(0, 0, 0, 0.045);
+    --ui-gold: #b08f50;
+    --ui-silver: #8e939b;
+    --ui-bronze: #9b6d4c;
+    --ui-shadow: 0 18px 44px rgba(40, 36, 28, 0.18);
+  }
+
+  /* ===== GENEL KATMANLAR ===== */
   .modal-overlay {
     position: absolute;
     inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(5, 7, 22, 0.88);
-    backdrop-filter: blur(8px);
+    background: var(--ui-overlay);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
     z-index: 50;
     padding: 16px;
-  }
-  .modal-card {
-    background: linear-gradient(145deg, #131c31, #0c1222);
-    border: 1px solid rgba(56, 189, 248, 0.3);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 30px rgba(56, 189, 248, 0.15);
-    border-radius: 20px;
-    padding: 18px 16px;
-    max-width: 370px;
-    max-height: 92vh;
-    overflow-y: auto;
-    width: 100%;
-    color: #fff;
-    text-align: center;
-    animation: popIn 0.25s ease-out;
+    color: var(--ui-text);
   }
   @keyframes popIn {
-    0% { transform: scale(0.9); opacity: 0; }
+    0% { transform: scale(0.96); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
   }
-  .modal-card h1 {
-    font-size: 22px;
-    margin-bottom: 6px;
-    background: linear-gradient(90deg, #38bdf8, #818cf8, #f472b6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  .modal-overlay button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .modal-overlay svg { display: block; }
+
+  /* ===== ANA MENÜ ===== */
+  #modal {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 16px calc(22px + env(safe-area-inset-bottom, 0px));
   }
-  .modal-card p {
-    font-size: 12.5px;
-    line-height: 1.45;
-    color: #cbd5e1;
-    margin-bottom: 10px;
-  }
-  .instructions {
-    background: rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    padding: 8px 10px;
-    margin: 8px 0;
-    text-align: left;
-    font-size: 11.5px;
-  }
-  .instructions div { margin: 4px 0; display: flex; align-items: center; gap: 8px; }
-  .key-badge {
-    background: #1e293b;
-    border: 1px solid #475569;
-    padding: 2px 6px;
-    border-radius: 6px;
-    font-family: monospace;
-    font-size: 10.5px;
-    color: #38bdf8;
-    white-space: nowrap;
-  }
-  .btn-action {
-    display: inline-block;
+  .menu-top {
     width: 100%;
-    padding: 12px 16px;
-    font-size: 15px;
-    font-weight: 700;
-    color: #050716;
-    background: linear-gradient(90deg, #38bdf8, #60a5fa);
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
-    transition: transform 0.1s, box-shadow 0.1s;
-    margin-top: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
-  .btn-action:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(56, 189, 248, 0.6);
-  }
-  .btn-action:active {
-    transform: translateY(1px);
-  }
-  .btn-secondary {
+  .chip-btn {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 6px;
-    width: 100%;
-    padding: 10px 14px;
-    font-size: 13.5px;
-    font-weight: 700;
-    color: #e2e8f0;
-    background: rgba(30, 41, 59, 0.9);
-    border: 1px solid rgba(250, 204, 21, 0.45);
-    border-radius: 12px;
+    gap: 8px;
+    height: 40px;
+    padding: 0 14px 0 4px;
+    border-radius: 999px;
+    background: var(--ui-step);
+    border: 1px solid var(--ui-line);
+    color: var(--ui-text);
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
-    margin-top: 8px;
-    transition: all 0.15s;
+    max-width: 60%;
   }
-  .btn-secondary:hover {
-    background: rgba(51, 65, 85, 0.95);
-    border-color: #facc15;
+  .chip-btn .av {
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--ui-panel-2);
+    color: var(--ui-muted);
+  }
+  .chip-btn .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .round-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--ui-step);
+    border: 1px solid var(--ui-line);
+    color: var(--ui-text);
+    cursor: pointer;
+  }
+  .menu-title {
+    margin-top: 5vh;
+    font-size: 12px;
+    letter-spacing: 5px;
+    font-weight: 700;
+    color: var(--ui-muted);
+    text-transform: uppercase;
   }
 
-  /* Pilot Profil Barı */
-  .pilot-bar {
+  /* Olimpiyat Kürsüsü (2 - 1 - 3) */
+  .podium {
+    margin-top: 3vh;
+    width: 100%;
+    max-width: 300px;
+    display: grid;
+    grid-template-columns: 1fr 1.12fr 1fr;
+    align-items: end;
+    gap: 6px;
+  }
+  .pod {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+  }
+  .pod-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--ui-text);
+  }
+  .pod-score {
+    font-size: 11px;
+    color: var(--ui-muted);
+    margin: 2px 0 7px;
+    font-variant-numeric: tabular-nums;
+  }
+  .pod-step {
+    width: 100%;
+    border-radius: 9px 9px 0 0;
+    background: var(--ui-step);
+    border: 1px solid var(--ui-line);
+    border-bottom: none;
+    border-top: 2px solid var(--c);
+    display: flex;
+    justify-content: center;
+    padding-top: 8px;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--c);
+  }
+  .pod.first { --c: var(--ui-gold); }
+  .pod.second { --c: var(--ui-silver); }
+  .pod.third { --c: var(--ui-bronze); }
+  .pod.first .pod-step { height: 92px; font-size: 24px; }
+  .pod.second .pod-step { height: 64px; }
+  .pod.third .pod-step { height: 46px; }
+  .pod.first .pod-name { font-size: 14px; }
+  .pod.empty .pod-name { color: var(--ui-muted); font-weight: 500; }
+  .pod.me .pod-name { color: var(--ui-accent); }
+  .podium-base {
+    width: 100%;
+    max-width: 300px;
+    height: 1px;
+    background: var(--ui-line);
+  }
+
+  .menu-mid {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 14vh;
+  }
+  .result-box {
+    display: none;
+    text-align: center;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--ui-muted);
+    max-width: 260px;
+    margin-bottom: 18px;
+  }
+  .result-box b { color: var(--ui-text); font-weight: 600; }
+  .record {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .record span {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--ui-muted);
+    font-weight: 600;
+  }
+  .record b {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ui-text);
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+  }
+  .play-btn {
+    margin-top: 20px;
+    width: 196px;
+    height: 56px;
+    border-radius: 999px;
+    border: none;
+    background: var(--ui-btn-bg);
+    color: var(--ui-btn-text);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    cursor: pointer;
+    box-shadow: var(--ui-shadow);
+    transition: transform 0.1s;
+  }
+  .play-btn:active { transform: scale(0.97); }
+
+  /* Kenardaki sıralama butonu */
+  .side-lb {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 9px 12px 11px;
+    border-radius: 14px 0 0 14px;
+    background: var(--ui-step);
+    border: 1px solid var(--ui-line);
+    border-right: none;
+    color: var(--ui-text);
+    cursor: pointer;
+  }
+  .side-lb .lbl { font-size: 11px; font-weight: 700; }
+  .side-lb small { font-size: 10px; color: var(--ui-muted); font-weight: 600; }
+
+  /* ===== PANELLER (Sıralama, Profil, Ayarlar, Metinler) ===== */
+  .sheet {
+    background: var(--ui-panel);
+    border: 1px solid var(--ui-line);
+    border-radius: 18px;
+    width: 100%;
+    max-width: 340px;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: 16px;
+    box-shadow: var(--ui-shadow);
+    animation: popIn 0.18s ease-out;
+    text-align: left;
+    color: var(--ui-text);
+  }
+  .sheet-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .sheet-head h2 { font-size: 16px; font-weight: 700; }
+  .head-actions { display: flex; gap: 6px; }
+  .x-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--ui-line);
+    background: transparent;
+    color: var(--ui-muted);
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .sec-label {
+    font-size: 10.5px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ui-muted);
+    font-weight: 700;
+    margin: 14px 2px 8px;
+  }
+  .list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 13px 12px;
+    background: var(--ui-panel-2);
+    border: 1px solid var(--ui-line);
+    border-radius: 12px;
+    color: var(--ui-text);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-align: left;
+    cursor: pointer;
+  }
+  .list-item .chev { color: var(--ui-muted); font-size: 18px; line-height: 1; }
+  .row-setting {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: var(--ui-panel-2);
+    border: 1px solid var(--ui-line);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .switch {
+    position: relative;
+    width: 44px;
+    height: 26px;
+    border-radius: 999px;
+    background: var(--ui-line);
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex: 0 0 44px;
+  }
+  .switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s;
+  }
+  .switch.on { background: var(--ui-accent); }
+  .switch.on::after { transform: translateX(18px); }
+  .seg {
+    display: flex;
+    background: var(--ui-step);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .seg button {
+    padding: 6px 12px;
+    border: none;
+    background: transparent;
+    color: var(--ui-muted);
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .seg button.active { background: var(--ui-btn-bg); color: var(--ui-btn-text); }
+  .help-text {
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--ui-muted);
+    padding: 2px 2px 4px;
+  }
+  .help-text b { color: var(--ui-text); font-weight: 600; }
+
+  /* Profil özeti */
+  .profile-head {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid rgba(56, 189, 248, 0.3);
-    border-radius: 12px;
-    padding: 7px 10px;
-    margin-bottom: 10px;
-    font-size: 12px;
-    text-align: left;
+    gap: 12px;
+    padding: 12px;
+    background: var(--ui-panel-2);
+    border: 1px solid var(--ui-line);
+    border-radius: 14px;
   }
-  .pilot-info {
+  .profile-head .av {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--ui-step);
+    color: var(--ui-muted);
+    flex: 0 0 44px;
+  }
+  .profile-head .pn { font-size: 15px; font-weight: 700; }
+  .profile-head .ps {
+    font-size: 11.5px;
+    color: var(--ui-muted);
+    margin-top: 2px;
+    word-break: break-all;
+  }
+
+  /* Global İlk 100 */
+  .lb-card { display: flex; flex-direction: column; }
+  .lb-sub { font-size: 11.5px; color: var(--ui-muted); margin: -6px 0 10px; }
+  .lb-list {
+    max-height: 52vh;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 2px;
-    overflow: hidden;
-  }
-  .pilot-name-row {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-weight: 700;
-    color: #f8fafc;
-    font-size: 13px;
-  }
-  .pilot-sub {
-    font-size: 10.5px;
-    color: #94a3b8;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .btn-mini {
-    background: rgba(56, 189, 248, 0.16);
-    border: 1px solid rgba(56, 189, 248, 0.45);
-    color: #38bdf8;
-    border-radius: 8px;
-    padding: 5px 9px;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-
-  /* Ana Ekran Global İlk 3 Kürsüsü */
-  .top3-box {
-    background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(9, 13, 26, 0.95));
-    border: 1px solid rgba(250, 204, 21, 0.35);
-    border-radius: 14px;
-    padding: 9px 10px;
-    margin: 8px 0;
-    text-align: left;
-  }
-  .top3-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 11.5px;
-    font-weight: 800;
-    color: #facc15;
-    letter-spacing: 0.4px;
-    margin-bottom: 6px;
-    text-transform: uppercase;
-  }
-  .top3-header span.my-rank-pill {
-    background: rgba(74, 222, 128, 0.16);
-    border: 1px solid rgba(74, 222, 128, 0.4);
-    color: #4ade80;
-    padding: 2px 7px;
-    border-radius: 999px;
-    font-size: 10.5px;
-    text-transform: none;
-  }
-  .podium-list {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  .podium-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px 8px;
-    border-radius: 9px;
-    font-size: 12px;
-    background: rgba(30, 41, 59, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-  }
-  .podium-row.p1 {
-    background: linear-gradient(90deg, rgba(250, 204, 21, 0.2), rgba(30, 41, 59, 0.6));
-    border-color: rgba(250, 204, 21, 0.45);
-  }
-  .podium-row.p2 {
-    background: linear-gradient(90deg, rgba(203, 213, 225, 0.16), rgba(30, 41, 59, 0.55));
-    border-color: rgba(203, 213, 225, 0.35);
-  }
-  .podium-row.p3 {
-    background: linear-gradient(90deg, rgba(251, 146, 60, 0.16), rgba(30, 41, 59, 0.55));
-    border-color: rgba(251, 146, 60, 0.35);
-  }
-  .podium-row.is-me {
-    box-shadow: inset 0 0 0 1px #38bdf8;
-  }
-  .podium-left {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-weight: 700;
-    color: #f8fafc;
-    overflow: hidden;
-  }
-  .podium-score {
-    font-family: 'Courier New', monospace;
-    font-weight: 800;
-    color: #facc15;
-    font-size: 12.5px;
-    white-space: nowrap;
-  }
-  .comp-hint {
-    margin-top: 6px;
-    font-size: 10.5px;
-    color: #93c5fd;
-    text-align: center;
-    font-weight: 600;
-  }
-
-  /* Global İlk 100 Modalı */
-  .lb-card {
-    display: flex;
-    flex-direction: column;
-    max-height: 88vh;
-    height: 540px;
-    padding: 16px 14px;
-  }
-  .lb-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-  }
-  .lb-top h2 {
-    font-size: 18px;
-    color: #facc15;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .lb-actions {
-    display: flex;
-    gap: 6px;
-  }
-  .lb-list {
-    flex: 1;
-    overflow-y: auto;
-    background: rgba(4, 7, 19, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 6px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    text-align: left;
   }
   .lb-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 7px 9px;
-    border-radius: 9px;
-    font-size: 12px;
-    background: rgba(30, 41, 59, 0.45);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 9px 10px;
+    border-radius: 10px;
+    font-size: 13px;
   }
-  .lb-row.me {
-    background: rgba(56, 189, 248, 0.22);
-    border-color: #38bdf8;
-    box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
-  }
+  .lb-row:nth-child(odd) { background: var(--ui-panel-2); }
+  .lb-row.me { box-shadow: inset 0 0 0 1px var(--ui-accent); }
   .lb-rank {
-    width: 36px;
-    font-weight: 800;
-    color: #94a3b8;
-    font-size: 12px;
+    width: 38px;
+    color: var(--ui-muted);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
   }
-  .lb-row.r1 .lb-rank { color: #facc15; }
-  .lb-row.r2 .lb-rank { color: #e2e8f0; }
-  .lb-row.r3 .lb-rank { color: #fb923c; }
+  .lb-row.r1 .lb-rank { color: var(--ui-gold); }
+  .lb-row.r2 .lb-rank { color: var(--ui-silver); }
+  .lb-row.r3 .lb-rank { color: var(--ui-bronze); }
   .lb-user {
     flex: 1;
-    font-weight: 700;
-    color: #f1f5f9;
+    font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
   .me-tag {
-    background: #38bdf8;
-    color: #040714;
-    font-size: 9.5px;
-    font-weight: 800;
-    padding: 1px 5px;
-    border-radius: 4px;
-    margin-left: 5px;
-  }
-  .lb-lvl {
-    font-size: 10.5px;
-    color: #94a3b8;
-    margin: 0 8px;
-    white-space: nowrap;
-  }
-  .lb-pts {
-    font-family: 'Courier New', monospace;
-    font-weight: 800;
-    color: #4ade80;
-    font-size: 12.5px;
-    white-space: nowrap;
-  }
-  .my-rank-footer {
-    margin-top: 8px;
-    background: linear-gradient(90deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.96));
-    border: 1.5px solid #38bdf8;
-    border-radius: 12px;
-    padding: 9px 11px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    text-align: left;
-    box-shadow: 0 4px 16px rgba(56, 189, 248, 0.25);
-  }
-  .my-rank-footer .mr-left {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  .my-rank-footer .mr-title {
     font-size: 10px;
-    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--ui-accent);
+    margin-left: 6px;
     letter-spacing: 0.5px;
-    color: #38bdf8;
-    font-weight: 800;
   }
-  .my-rank-footer .mr-val {
-    font-size: 13px;
-    font-weight: 800;
-    color: #fff;
+  .lb-lvl { font-size: 11px; color: var(--ui-muted); margin: 0 10px; white-space: nowrap; }
+  .lb-pts { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .lb-empty { padding: 22px; text-align: center; color: var(--ui-muted); font-size: 13px; }
+  .my-rank-footer {
+    margin-top: 10px;
+    padding: 11px 12px;
+    border-radius: 12px;
+    background: var(--ui-panel-2);
+    border: 1px solid var(--ui-accent);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
-  .my-rank-footer .mr-right {
-    text-align: right;
-    font-family: 'Courier New', monospace;
-    font-size: 14px;
-    font-weight: 800;
-    color: #facc15;
+  .mr-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .mr-title {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--ui-muted);
+    font-weight: 700;
   }
+  .mr-val { font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mr-right { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
 
-  /* Profil & Google Giriş Modalı */
-  .form-group {
-    text-align: left;
-    margin-bottom: 10px;
-  }
+  /* Profil düzenleme formu */
+  .form-group { margin-bottom: 12px; }
   .form-group label {
     display: block;
     font-size: 11px;
-    font-weight: 700;
-    color: #94a3b8;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
+    font-weight: 600;
+    color: var(--ui-muted);
+    margin-bottom: 5px;
   }
   .form-input {
     width: 100%;
-    padding: 10px 12px;
+    padding: 11px 12px;
     border-radius: 10px;
-    border: 1px solid rgba(148, 163, 184, 0.35);
-    background: rgba(15, 23, 42, 0.9);
-    color: #fff;
+    border: 1px solid var(--ui-line);
+    background: var(--ui-panel-2);
+    color: var(--ui-text);
     font-size: 14px;
     font-weight: 600;
     outline: none;
+    font-family: inherit;
+    user-select: text;
+    -webkit-user-select: text;
   }
-  .form-input:focus {
-    border-color: #38bdf8;
-    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
-  }
+  .form-input:focus { border-color: var(--ui-accent); }
   .btn-google {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     width: 100%;
-    padding: 10px 12px;
+    padding: 11px 12px;
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    background: #ffffff;
-    color: #0f172a;
+    border: 1px solid var(--ui-line);
+    background: var(--ui-panel-2);
+    color: var(--ui-text);
     font-size: 13.5px;
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
-    margin-bottom: 8px;
-    transition: transform 0.1s;
+    margin-bottom: 12px;
   }
-  .btn-google:active { transform: scale(0.98); }
   .acct-pill {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: rgba(74, 222, 128, 0.12);
-    border: 1px solid rgba(74, 222, 128, 0.4);
-    color: #4ade80;
-    padding: 7px 10px;
+    background: var(--ui-panel-2);
+    border: 1px solid var(--ui-line);
+    color: var(--ui-text);
+    padding: 9px 12px;
     border-radius: 10px;
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    gap: 8px;
+    word-break: break-all;
   }
-  .auth-status {
-    font-size: 11.5px;
-    min-height: 16px;
-    margin: 4px 0;
+  .link-btn {
+    background: none;
+    border: none;
+    color: var(--ui-accent);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .auth-status { font-size: 12px; min-height: 16px; margin: 2px 0 8px; font-weight: 600; }
+  .btn-action {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 999px;
+    border: none;
+    background: var(--ui-btn-bg);
+    color: var(--ui-btn-text);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+  }
+  .btn-action:disabled { opacity: 0.6; }
+  .btn-ghost {
+    width: 100%;
+    padding: 11px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--ui-line);
+    background: transparent;
+    color: var(--ui-muted);
+    font-size: 13px;
     font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
   }
+  .hint-small { font-size: 12px; color: var(--ui-muted); line-height: 1.5; margin-bottom: 14px; }
+
+  /* Gizlilik / Topluluk metinleri */
+  .legal-text { font-size: 12.5px; line-height: 1.65; color: var(--ui-muted); }
+  .legal-text h3 { font-size: 13px; color: var(--ui-text); margin: 14px 0 4px; font-weight: 700; }
+  .legal-text p { margin-bottom: 6px; }
+  .legal-text ul { padding-left: 18px; margin-bottom: 6px; }
 </style>
 </head>
 <body>
@@ -657,107 +792,196 @@
     </div>
   </div>
 
-  <!-- Başlangıç / Bitiş Modalı -->
+  <!-- ===== ANA MENÜ ===== -->
   <div id="modal" class="modal-overlay">
-    <div class="modal-card">
-      <!-- Pilot Profil Özeti -->
-      <div class="pilot-bar">
-        <div class="pilot-info">
-          <div class="pilot-name-row">
-            <span>👨‍🚀</span>
-            <span id="uiPilotName">Pilot Seçilmedi</span>
-          </div>
-          <div id="uiPilotSub" class="pilot-sub">Google / Play hesabı ile giriş yapın</div>
-        </div>
-        <button id="btnOpenProfile" class="btn-mini">Hesap / İsim</button>
-      </div>
-
-      <h1 id="modalTitle">🚀 Roketi İndir</h1>
-      <p id="modalDesc">Yerde duran diğer roketlere çarpmadan aralarındaki dar park alanına güvenle iniş yapın!</p>
-
-      <!-- Ana Ekran Global İlk 3 Şampiyonlar Kürsüsü -->
-      <div id="top3Box" class="top3-box">
-        <div class="top3-header">
-          <span>🏆 GLOBAL İLK 3 ŞAMPİYON</span>
-          <span id="uiMyRankPill" class="my-rank-pill">Sıran: #-</span>
-        </div>
-        <div id="top3List" class="podium-list">
-          <div class="podium-row p1"><div class="podium-left">🥇 Yükleniyor...</div><div class="podium-score">-</div></div>
-          <div class="podium-row p2"><div class="podium-left">🥈 Yükleniyor...</div><div class="podium-score">-</div></div>
-          <div class="podium-row p3"><div class="podium-left">🥉 Yükleniyor...</div><div class="podium-score">-</div></div>
-        </div>
-        <div id="compHint" class="comp-hint">🎯 İlk 3'e girmek ve 1. olmak için yarış!</div>
-      </div>
-
-      <div class="instructions">
-        <div><span class="key-badge">Sağ Yarım / D / →</span> <span>Sol-Yukarı iter (Denge ve sola yönelme)</span></div>
-        <div><span class="key-badge">Sol Yarım / A / ←</span> <span>Sağ-Yukarı iter (Denge ve sağa yönelme)</span></div>
-        <div><span class="key-badge">İki Taraf</span> <span>Güçlü dikey fren itkisi verir</span></div>
-      </div>
-
-      <button id="btnStart" class="btn-action">🚀 OYUNU BAŞLAT</button>
-      <button id="btnOpenLb" class="btn-secondary">🌍 Global Sıralama (İlk 100) &amp; Sıram</button>
+    <div class="menu-top">
+      <button id="btnOpenProfile" class="chip-btn" aria-label="Profil">
+        <span class="av"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+        <span id="uiPilotName" class="nm">Giriş yap</span>
+      </button>
+      <button id="btnSettings" class="round-btn" aria-label="Ayarlar">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
     </div>
+
+    <div class="menu-title">Roketi İndir</div>
+
+    <!-- Olimpiyat kürsüsü: 2 - 1 - 3 -->
+    <div id="top3List" class="podium">
+      <div class="pod second empty"><div class="pod-name">—</div><div class="pod-score">&nbsp;</div><div class="pod-step">2</div></div>
+      <div class="pod first empty"><div class="pod-name">—</div><div class="pod-score">&nbsp;</div><div class="pod-step">1</div></div>
+      <div class="pod third empty"><div class="pod-name">—</div><div class="pod-score">&nbsp;</div><div class="pod-step">3</div></div>
+    </div>
+    <div class="podium-base"></div>
+
+    <div class="menu-mid">
+      <div id="resultBox" class="result-box"></div>
+      <div class="record"><span>Rekor</span><b id="uiRecord">0</b></div>
+      <button id="btnStart" class="play-btn">OYNA</button>
+    </div>
+
+    <!-- Kenarda sade sıralama butonu -->
+    <button id="btnOpenLb" class="side-lb" aria-label="Global sıralama">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>
+      <span class="lbl">İlk 100</span>
+      <small id="uiMyRankPill">Sıram —</small>
+    </button>
+    <span id="compHint" style="display:none;"></span>
   </div>
 
-  <!-- Global Sıralama (İlk 100) Sekmesi / Modalı -->
+  <!-- ===== GLOBAL İLK 100 ===== -->
   <div id="leaderboardModal" class="modal-overlay" style="display:none; z-index:60;">
-    <div class="modal-card lb-card">
-      <div class="lb-top">
-        <h2>🌍 Global İlk 100</h2>
-        <div class="lb-actions">
-          <button id="btnRefreshLb" class="btn-mini">↻ Yenile</button>
-          <button id="btnCloseLb" class="btn-mini" style="border-color:rgba(248,113,113,0.5);color:#f87171;">✕ Kapat</button>
+    <div class="sheet lb-card">
+      <div class="sheet-head">
+        <h2>Global İlk 100</h2>
+        <div class="head-actions">
+          <button id="btnRefreshLb" class="x-btn" aria-label="Yenile">↻</button>
+          <button id="btnCloseLb" class="x-btn" aria-label="Kapat">✕</button>
         </div>
       </div>
-      <div id="lbSubtitle" style="font-size:11px; color:#94a3b8; margin-bottom:6px; text-align:left;">
-        Dünya genelindeki en yüksek puanlı ilk 100 pilot:
-      </div>
-      <div id="lbList" class="lb-list">
-        <div style="padding:20px; text-align:center; color:#94a3b8;">Sıralama yükleniyor...</div>
-      </div>
-      <!-- Oyuncu İlk 100'de olsun veya olmasın en altta kendi sırasını gösteren sabit bar -->
+      <div id="lbSubtitle" class="lb-sub">Yükleniyor...</div>
+      <div id="lbList" class="lb-list"><div class="lb-empty">Sıralama yükleniyor...</div></div>
       <div id="myRankFooter" class="my-rank-footer">
         <div class="mr-left">
-          <span id="mrTitle" class="mr-title">SENİN GLOBAL SIRALAMAN</span>
-          <span id="mrVal" class="mr-val">#- · Pilot</span>
+          <span id="mrTitle" class="mr-title">Senin sıran</span>
+          <span id="mrVal" class="mr-val">—</span>
         </div>
-        <div id="mrRight" class="mr-right">0 P</div>
+        <div id="mrRight" class="mr-right">0</div>
       </div>
     </div>
   </div>
 
-  <!-- Google / Play Hesabı ve Kullanıcı Adı Giriş Profili Modalı -->
-  <div id="profileModal" class="modal-overlay" style="display:none; z-index:70;">
-    <div class="modal-card">
-      <h1>👨‍🚀 Pilot Profili &amp; Giriş</h1>
-      <p>Global sıralamada yer almak ve rekorunuzu Google / Play hesabınızla korumak için giriş yapın.</p>
+  <!-- ===== PROFİL PANELİ (sol üst) ===== -->
+  <div id="profilePanel" class="modal-overlay" style="display:none; z-index:60;">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2>Profil</h2>
+        <button class="x-btn" data-close="profilePanel" aria-label="Kapat">✕</button>
+      </div>
+      <div class="profile-head">
+        <span class="av"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+        <div style="min-width:0;">
+          <div id="ppName" class="pn">Pilot</div>
+          <div id="uiPilotSub" class="ps">Google hesabı bağlı değil</div>
+        </div>
+      </div>
 
-      <!-- Google / Play Hesabı Seçim Butonu -->
+      <div class="sec-label">Hesap</div>
+      <button id="btnEditName" class="list-item"><span>Kullanıcı adını değiştir</span><span class="chev">›</span></button>
+      <button id="btnLinkGoogle" class="list-item"><span id="btnLinkGoogleTxt">Google hesabı bağla</span><span class="chev">›</span></button>
+
+      <div class="sec-label">Bilgi</div>
+      <button class="list-item" data-legal="privacy"><span>Gizlilik Politikası</span><span class="chev">›</span></button>
+      <button class="list-item" data-legal="rules"><span>Topluluk Kuralları</span><span class="chev">›</span></button>
+    </div>
+  </div>
+
+  <!-- ===== AYARLAR PANELİ (sağ üst) ===== -->
+  <div id="settingsPanel" class="modal-overlay" style="display:none; z-index:60;">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2>Ayarlar</h2>
+        <button class="x-btn" data-close="settingsPanel" aria-label="Kapat">✕</button>
+      </div>
+      <div class="row-setting"><span>Ses</span><button id="swSound" class="switch on" aria-label="Ses"></button></div>
+      <div class="row-setting"><span>Titreşim</span><button id="swVibe" class="switch on" aria-label="Titreşim"></button></div>
+      <div class="row-setting">
+        <span>Tema</span>
+        <div class="seg">
+          <button id="thDark" class="active">Koyu</button>
+          <button id="thLight">Açık</button>
+        </div>
+      </div>
+
+      <div class="sec-label">Nasıl oynanır</div>
+      <div class="help-text">
+        <b>Sol yarıya</b> dokun: sağa doğru itki.<br>
+        <b>Sağ yarıya</b> dokun: sola doğru itki.<br>
+        <b>İki tarafa birden</b> dokun: güçlü fren.<br>
+        Roketi yeşil alana yavaş ve dik indir.
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== GİZLİLİK / TOPLULUK METİNLERİ ===== -->
+  <div id="legalModal" class="modal-overlay" style="display:none; z-index:75;">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2 id="legalTitle">Gizlilik Politikası</h2>
+        <button class="x-btn" data-close="legalModal" aria-label="Kapat">✕</button>
+      </div>
+      <div id="legalPrivacy" class="legal-text">
+        <p>Son güncelleme: Kasım 2026</p>
+        <h3>Topladığımız bilgiler</h3>
+        <ul>
+          <li>Seçtiğin kullanıcı adı</li>
+          <li>Oyun skorun ve ulaştığın bölüm</li>
+          <li>Bağladığın Google hesabının e-posta adresi (yalnızca kimlik eşleştirmek için, şifrelenmiş bir kimliğe dönüştürülerek)</li>
+        </ul>
+        <h3>Nasıl kullanıyoruz</h3>
+        <p>Bu bilgiler yalnızca global sıralamayı göstermek ve profilini farklı cihazlarda geri yüklemek için kullanılır. E-posta adresin diğer oyunculara gösterilmez; sıralamada yalnızca kullanıcı adın ve skorun görünür.</p>
+        <h3>Saklama ve paylaşım</h3>
+        <p>Veriler Google Firebase altyapısında saklanır. Üçüncü taraflarla satılmaz veya reklam amacıyla paylaşılmaz. Oyunda reklam ve uygulama içi satın alma yoktur.</p>
+        <h3>Cihazdaki veriler</h3>
+        <p>Rekorun, ayarların (ses, titreşim, tema) ve profil bilgin cihazında yerel olarak saklanır.</p>
+        <h3>Verilerini silme</h3>
+        <p>Profilinin ve skorunun silinmesini istersen kullanıcı adınla birlikte <b>aydingunbekir@gmail.com</b> adresine yazman yeterli.</p>
+        <h3>Çocuklar</h3>
+        <p>Oyun bilerek 13 yaş altı çocuklardan kişisel veri toplamaz.</p>
+      </div>
+      <div id="legalRules" class="legal-text" style="display:none;">
+        <p>Roketi İndir herkes için adil ve keyifli bir yarış olsun diye bu kurallara uymanı bekliyoruz.</p>
+        <h3>Kullanıcı adları</h3>
+        <ul>
+          <li>Küfür, hakaret, nefret söylemi veya cinsel içerik içeren adlar yasaktır.</li>
+          <li>Başka bir kişiyi, markayı veya oyuncuyu taklit eden adlar kullanılamaz.</li>
+          <li>Kişisel bilgilerini (telefon, adres vb.) kullanıcı adına yazma.</li>
+        </ul>
+        <h3>Adil oyun</h3>
+        <ul>
+          <li>Hile, bot, skor manipülasyonu veya oyunun açıklarını kullanmak yasaktır.</li>
+          <li>Birden fazla hesapla sıralamayı doldurmak yasaktır.</li>
+        </ul>
+        <h3>Yaptırımlar</h3>
+        <p>Kurallara uymayan kullanıcı adları değiştirilebilir, skorlar sıralamadan kaldırılabilir veya hesap engellenebilir.</p>
+        <h3>Bildirim</h3>
+        <p>Uygunsuz bir kullanıcı adı görürsen <b>aydingunbekir@gmail.com</b> adresine bildirebilirsin.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== KULLANICI ADI & GOOGLE HESABI DÜZENLEME ===== -->
+  <div id="profileModal" class="modal-overlay" style="display:none; z-index:70;">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2>Pilot profili</h2>
+        <button id="btnCloseProfile" type="button" class="x-btn" style="display:none;" aria-label="Kapat">✕</button>
+      </div>
+      <p class="hint-small">Sıralamada görünmek ve rekorunu korumak için Google hesabını bağla ve bir kullanıcı adı seç.</p>
+
       <button id="btnPickGoogle" type="button" class="btn-google">
-        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-        <span id="btnPickGoogleTxt">Google / Play Store Hesabı Seç</span>
+        <svg width="17" height="17" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.650z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.540 2.56 10.78l7.970-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        <span id="btnPickGoogleTxt">Google hesabı seç</span>
       </button>
 
       <div id="connectedAcctBox" class="acct-pill" style="display:none;">
-        <span id="connectedAcctEmail">✓ Hesap bağlı</span>
-        <button id="btnChangeAcct" type="button" style="background:none;border:none;color:#93c5fd;font-size:11px;cursor:pointer;font-weight:700;">Değiştir</button>
+        <span id="connectedAcctEmail">Hesap bağlı</span>
+        <button id="btnChangeAcct" type="button" class="link-btn">Değiştir</button>
       </div>
 
       <div id="manualEmailBox" class="form-group">
-        <label for="inpEmail">Google / Play E-posta Adresi</label>
+        <label for="inpEmail">Google e-posta adresi</label>
         <input id="inpEmail" class="form-input" type="email" placeholder="ornek@gmail.com" autocomplete="email">
       </div>
 
       <div class="form-group">
-        <label for="inpUsername">Kullanıcı Adı (Global Sıralamada Görünür)</label>
+        <label for="inpUsername">Kullanıcı adı</label>
         <input id="inpUsername" class="form-input" type="text" maxlength="16" placeholder="Örn: KaptanAydin" autocomplete="nickname">
       </div>
 
-      <div id="authStatus" class="auth-status" style="color:#facc15;"></div>
+      <div id="authStatus" class="auth-status" style="color:var(--ui-muted);"></div>
 
-      <button id="btnSaveProfile" type="button" class="btn-action">PROFİLİ KAYDET VE DEVAM ET</button>
-      <button id="btnCloseProfile" type="button" class="btn-secondary" style="display:none;">İptal / Geri Dön</button>
+      <button id="btnSaveProfile" type="button" class="btn-action">KAYDET</button>
     </div>
   </div>
 </div>
@@ -841,9 +1065,23 @@ function initAudio() {
 }
 
 function playSound(type) {
-  if (!audioCtx) return;
+  if (!audioCtx || !settings.sound) return;
   try {
     const now = audioCtx.currentTime;
+    if (type === 'click') {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(620, now);
+      osc.frequency.exponentialRampToValueAtTime(420, now + 0.06);
+      gain.gain.setValueAtTime(0.07, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.08);
+      return;
+    }
     if (type === 'thrust') {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
@@ -907,8 +1145,38 @@ const elTelAlign = document.getElementById('telAlign');
 const hintLeft = document.getElementById('hintLeft');
 const hintRight = document.getElementById('hintRight');
 const modal = document.getElementById('modal');
-const modalTitle = document.getElementById('modalTitle');
-const modalDesc = document.getElementById('modalDesc');
+const resultBox = document.getElementById('resultBox');
+const uiRecord = document.getElementById('uiRecord');
+
+// --- AYARLAR (Ses / Titreşim / Tema) ---
+const SETTINGS_KEY = 'roketi_indir_settings_v1';
+let settings = { sound: true, vibe: true, theme: 'dark' };
+try {
+  const rawS = localStorage.getItem(SETTINGS_KEY);
+  if (rawS) settings = Object.assign(settings, JSON.parse(rawS));
+} catch (e) {}
+function saveSettings() {
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) {}
+}
+function applyTheme() {
+  document.body.classList.toggle('light', settings.theme === 'light');
+}
+applyTheme();
+
+function vibrate(pattern) {
+  if (!settings.vibe) return;
+  try {
+    if (window.AndroidGoogleAuth && typeof window.AndroidGoogleAuth.vibrate === 'function') {
+      window.AndroidGoogleAuth.vibrate(Array.isArray(pattern) ? pattern[0] : pattern);
+    } else if (navigator.vibrate) {
+      navigator.vibrate(pattern);
+    }
+  } catch (e) {}
+}
+
+function refreshRecordUI() {
+  if (uiRecord) uiRecord.textContent = bestScore;
+}
 const btnStart = document.getElementById('btnStart');
 const levelBanner = document.getElementById('levelBanner');
 const bannerTitle = document.getElementById('bannerTitle');
@@ -1069,10 +1337,13 @@ function gameOver(reason) {
   }
   syncScoreToCloud(bestScore, Math.max(level, playerProfile.maxLevel || 1));
 
+  vibrate([280]);
+
   setTimeout(() => {
-    modalTitle.innerHTML = '💥 Kaza Gerçekleşti!';
-    modalDesc.innerHTML = `<b style="color:#f87171;font-size:14px;">${reason}</b><br>Ulaşılan: <b style="color:#facc15;">Bölüm ${level}</b> · Puan: <b style="color:#38bdf8;">${score}</b> · Rekor: <b style="color:#4ade80;">${bestScore}</b>`;
-    btnStart.textContent = '🚀 YENİDEN DENE';
+    resultBox.innerHTML = `${escapeHtml(reason)}<br>Bölüm <b>${level}</b> · Puan <b>${score}</b>`;
+    resultBox.style.display = 'block';
+    refreshRecordUI();
+    btnStart.textContent = 'TEKRAR';
     modal.style.display = 'flex';
     fetchLeaderboard(false);
   }, 900);
@@ -1177,7 +1448,7 @@ window.addEventListener('mouseup', () => {
 
 window.addEventListener('keydown', (e) => {
   if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
-  if (profileModal.style.display === 'flex' || leaderboardModal.style.display === 'flex') return;
+  if (document.querySelector('.modal-overlay:not(#modal)[style*="flex"]')) return;
   initAudio();
   if (e.repeat) return;
   if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
@@ -1548,19 +1819,27 @@ function drawRocket(x, y, angle, bodyColor, isLanded) {
 function draw() {
   ctx.clearRect(0, 0, W, H);
 
-  // Derin Uzay Gökyüzü
+  // Gökyüzü (koyu / açık temaya göre)
+  const isLight = settings.theme === 'light';
   const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
-  skyGrad.addColorStop(0, '#030614');
-  skyGrad.addColorStop(0.65, '#0c1633');
-  skyGrad.addColorStop(1, '#1e294b');
+  if (isLight) {
+    skyGrad.addColorStop(0, '#9fb0c6');
+    skyGrad.addColorStop(0.65, '#cdd4dd');
+    skyGrad.addColorStop(1, '#e6e1d8');
+  } else {
+    skyGrad.addColorStop(0, '#030614');
+    skyGrad.addColorStop(0.65, '#0c1633');
+    skyGrad.addColorStop(1, '#1e294b');
+  }
   ctx.fillStyle = skyGrad;
   ctx.fillRect(0, 0, W, H);
 
-  // Yıldızlar
+  // Yıldızlar (açık temada soluk)
   stars.forEach((s) => {
     s.alpha += s.twinkle;
     if (s.alpha > 0.9 || s.alpha < 0.2) s.twinkle = -s.twinkle;
-    ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0.1, s.alpha)})`;
+    const a = Math.max(0.1, s.alpha) * (isLight ? 0.35 : 1);
+    ctx.fillStyle = `rgba(255, 255, 255, ${a})`;
     ctx.beginPath();
     ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
     ctx.fill();
@@ -1569,7 +1848,7 @@ function draw() {
   const groundY = getGroundY();
 
   // Arka plan silüeti
-  ctx.fillStyle = '#0b1224';
+  ctx.fillStyle = isLight ? '#8d99aa' : '#0b1224';
   ctx.beginPath();
   ctx.moveTo(0, groundY);
   ctx.lineTo(50, groundY - 35);
@@ -1893,14 +2172,21 @@ async function authenticateWithGoogleEmail(email) {
 }
 
 function updateProfileBarUI() {
+  const ppName = document.getElementById('ppName');
+  const linkTxt = document.getElementById('btnLinkGoogleTxt');
   if (playerProfile.username) {
     uiPilotName.textContent = playerProfile.username;
-    uiPilotSub.textContent = playerProfile.email
-      ? `✓ Google/Play: ${playerProfile.email}`
-      : '✓ Pilot Profili Aktif';
+    ppName.textContent = playerProfile.username;
   } else {
-    uiPilotName.textContent = 'Pilot Seçilmedi';
-    uiPilotSub.textContent = 'Google / Play hesabı ile giriş yapın';
+    uiPilotName.textContent = 'Giriş yap';
+    ppName.textContent = 'Pilot';
+  }
+  if (playerProfile.email) {
+    uiPilotSub.textContent = playerProfile.email;
+    linkTxt.textContent = 'Google hesabını değiştir';
+  } else {
+    uiPilotSub.textContent = 'Google hesabı bağlı değil';
+    linkTxt.textContent = 'Google hesabı bağla';
   }
 }
 
@@ -1908,7 +2194,7 @@ function setConnectedEmailUI(email) {
   const clean = String(email || '').trim().toLowerCase();
   inpEmail.value = clean;
   if (clean) {
-    connectedAcctEmail.textContent = `✓ Google / Play: ${clean}`;
+    connectedAcctEmail.textContent = `${clean}`;
     connectedAcctBox.style.display = 'flex';
     manualEmailBox.style.display = 'none';
     btnPickGoogle.style.display = 'none';
@@ -1925,10 +2211,10 @@ function setConnectedEmailUI(email) {
 
 // Android Native Google / Play Store Hesap Seçici Köprüsü
 window.onNativeGoogleAccount = async function(email) {
-  btnPickGoogleTxt.textContent = 'Google / Play Store Hesabı Seç';
+  btnPickGoogleTxt.textContent = 'Google hesabı seç';
   if (!email) return;
   setConnectedEmailUI(email);
-  authStatus.style.color = '#4ade80';
+  authStatus.style.color = 'var(--ui-accent)';
   authStatus.textContent = 'Google / Play hesabı bağlandı! Bilgiler kontrol ediliyor...';
   try {
     await authenticateWithGoogleEmail(email);
@@ -1940,14 +2226,14 @@ window.onNativeGoogleAccount = async function(email) {
     }
     updateProfileBarUI();
   } catch (e) {
-    authStatus.style.color = '#f87171';
+    authStatus.style.color = '#c4796c';
     authStatus.textContent = e.message || 'Bağlantı hatası.';
   }
 };
 
 window.onNativeGoogleAccountCancel = function() {
-  btnPickGoogleTxt.textContent = 'Google / Play Store Hesabı Seç';
-  authStatus.style.color = '#facc15';
+  btnPickGoogleTxt.textContent = 'Google hesabı seç';
+  authStatus.style.color = 'var(--ui-muted)';
   authStatus.textContent = 'E-posta adresinizi aşağıya yazarak da giriş yapabilirsiniz.';
 };
 
@@ -1957,7 +2243,7 @@ btnPickGoogle.addEventListener('click', () => {
     window.AndroidGoogleAuth.pickGoogleAccount();
   } else {
     inpEmail.focus();
-    authStatus.style.color = '#38bdf8';
+    authStatus.style.color = 'var(--ui-muted)';
     authStatus.textContent = 'Google / Play e-posta adresinizi ve kullanıcı adınızı girin.';
   }
 });
@@ -1983,7 +2269,96 @@ function openProfileModal(isMandatory = false) {
   profileModal.style.display = 'flex';
 }
 
-document.getElementById('btnOpenProfile').addEventListener('click', () => openProfileModal(false));
+// Sol üst profil butonu -> Profil paneli
+const profilePanel = document.getElementById('profilePanel');
+const settingsPanel = document.getElementById('settingsPanel');
+const legalModal = document.getElementById('legalModal');
+
+document.getElementById('btnOpenProfile').addEventListener('click', () => {
+  updateProfileBarUI();
+  profilePanel.style.display = 'flex';
+});
+document.getElementById('btnEditName').addEventListener('click', () => {
+  profilePanel.style.display = 'none';
+  openProfileModal(false);
+  setTimeout(() => inpUsername.focus(), 50);
+});
+document.getElementById('btnLinkGoogle').addEventListener('click', () => {
+  profilePanel.style.display = 'none';
+  openProfileModal(false);
+  setConnectedEmailUI('');
+  if (window.AndroidGoogleAuth && typeof window.AndroidGoogleAuth.pickGoogleAccount === 'function') {
+    btnPickGoogleTxt.textContent = 'Hesap seçiliyor...';
+    window.AndroidGoogleAuth.pickGoogleAccount();
+  } else {
+    setTimeout(() => inpEmail.focus(), 50);
+  }
+});
+
+// Gizlilik / Topluluk metinleri
+document.querySelectorAll('[data-legal]').forEach((b) => {
+  b.addEventListener('click', () => {
+    const isPrivacy = b.dataset.legal === 'privacy';
+    document.getElementById('legalTitle').textContent = isPrivacy ? 'Gizlilik Politikası' : 'Topluluk Kuralları';
+    document.getElementById('legalPrivacy').style.display = isPrivacy ? 'block' : 'none';
+    document.getElementById('legalRules').style.display = isPrivacy ? 'none' : 'block';
+    legalModal.style.display = 'flex';
+    legalModal.querySelector('.sheet').scrollTop = 0;
+  });
+});
+
+// Kapat butonları ve panel dışına dokununca kapatma
+document.querySelectorAll('[data-close]').forEach((b) => {
+  b.addEventListener('click', () => {
+    document.getElementById(b.dataset.close).style.display = 'none';
+  });
+});
+[profilePanel, settingsPanel, legalModal, leaderboardModal].forEach((ov) => {
+  ov.addEventListener('click', (e) => {
+    if (e.target === ov) ov.style.display = 'none';
+  });
+});
+
+// Sağ üst ayarlar -> Ses / Titreşim / Tema
+const swSound = document.getElementById('swSound');
+const swVibe = document.getElementById('swVibe');
+const thDark = document.getElementById('thDark');
+const thLight = document.getElementById('thLight');
+function refreshSettingsUI() {
+  swSound.classList.toggle('on', !!settings.sound);
+  swVibe.classList.toggle('on', !!settings.vibe);
+  thDark.classList.toggle('active', settings.theme !== 'light');
+  thLight.classList.toggle('active', settings.theme === 'light');
+}
+document.getElementById('btnSettings').addEventListener('click', () => {
+  refreshSettingsUI();
+  settingsPanel.style.display = 'flex';
+});
+swSound.addEventListener('click', () => {
+  settings.sound = !settings.sound;
+  saveSettings(); refreshSettingsUI();
+});
+swVibe.addEventListener('click', () => {
+  settings.vibe = !settings.vibe;
+  saveSettings(); refreshSettingsUI();
+  if (settings.vibe) vibrate([60]);
+});
+thDark.addEventListener('click', () => {
+  settings.theme = 'dark';
+  saveSettings(); applyTheme(); refreshSettingsUI();
+});
+thLight.addEventListener('click', () => {
+  settings.theme = 'light';
+  saveSettings(); applyTheme(); refreshSettingsUI();
+});
+
+// Tüm menü butonlarında kısa tık sesi
+document.addEventListener('click', (e) => {
+  if (e.target.closest('.modal-overlay button')) {
+    initAudio();
+    playSound('click');
+  }
+}, true);
 btnCloseProfile.addEventListener('click', () => {
   profileModal.style.display = 'none';
 });
@@ -1991,13 +2366,13 @@ btnCloseProfile.addEventListener('click', () => {
 btnSaveProfile.addEventListener('click', async () => {
   const unameVal = inpUsername.value.trim();
   if (unameVal.length < 2 || unameVal.length > 16) {
-    authStatus.style.color = '#f87171';
+    authStatus.style.color = '#c4796c';
     authStatus.textContent = 'Kullanıcı adı 2 ile 16 karakter arasında olmalıdır!';
     return;
   }
   const uKey = normalizeUsernameKey(unameVal);
   if (uKey.length < 2) {
-    authStatus.style.color = '#f87171';
+    authStatus.style.color = '#c4796c';
     authStatus.textContent = 'Kullanıcı adı geçerli harf veya rakam içermelidir!';
     return;
   }
@@ -2005,8 +2380,8 @@ btnSaveProfile.addEventListener('click', async () => {
   const emailVal = rawEmail ? (rawEmail.includes('@') ? rawEmail : `${rawEmail}@gmail.com`) : `${uKey}@gmail.com`;
 
   btnSaveProfile.disabled = true;
-  btnSaveProfile.textContent = 'KAYDEDİLİYOR...';
-  authStatus.style.color = '#facc15';
+  btnSaveProfile.textContent = 'KAYDEDİLİYOR';
+  authStatus.style.color = 'var(--ui-muted)';
   authStatus.textContent = 'Google / Play profili ve kullanıcı adı kontrol ediliyor...';
 
   try {
@@ -2017,10 +2392,10 @@ btnSaveProfile.addEventListener('click', async () => {
     const checkRes = await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(uKey)}.json`);
     const checkData = checkRes.ok ? await checkRes.json() : null;
     if (checkData && checkData.uid && checkData.uid !== playerProfile.uid) {
-      authStatus.style.color = '#f87171';
+      authStatus.style.color = '#c4796c';
       authStatus.textContent = `"${unameVal}" kullanıcı adı başka bir pilot tarafından alınmış!`;
       btnSaveProfile.disabled = false;
-      btnSaveProfile.textContent = 'PROFİLİ KAYDET VE DEVAM ET';
+      btnSaveProfile.textContent = 'KAYDET';
       return;
     }
 
@@ -2044,11 +2419,11 @@ btnSaveProfile.addEventListener('click', async () => {
 
     profileModal.style.display = 'none';
   } catch (err) {
-    authStatus.style.color = '#f87171';
+    authStatus.style.color = '#c4796c';
     authStatus.textContent = err.message || 'Bağlantı hatası oluştu.';
   } finally {
     btnSaveProfile.disabled = false;
-    btnSaveProfile.textContent = 'PROFİLİ KAYDET VE DEVAM ET';
+    btnSaveProfile.textContent = 'KAYDET';
   }
 });
 
@@ -2092,98 +2467,67 @@ async function syncScoreToCloud(bestVal, maxLvl) {
 }
 
 function renderTop3AndRank(allSorted) {
-  const medals = ['🥇', '🥈', '🥉'];
-  const rowClasses = ['p1', 'p2', 'p3'];
+  // Olimpiyat kürsüsü sırası: 2. (sol) - 1. (orta) - 3. (sağ)
+  const order = [1, 0, 2];
+  const cls = ['first', 'second', 'third'];
   let html = '';
-
-  for (let i = 0; i < 3; i++) {
+  for (const i of order) {
     const item = allSorted[i];
-    if (item) {
-      const isMe = playerProfile.uid && item.uid === playerProfile.uid;
-      html += `
-        <div class="podium-row ${rowClasses[i]}${isMe ? ' is-me' : ''}">
-          <div class="podium-left">
-            <span>${medals[i]}</span>
-            <span>${escapeHtml(item.username)}${isMe ? ' <span class="me-tag">SEN</span>' : ''}</span>
-          </div>
-          <div class="podium-score">${item.score} P</div>
-        </div>`;
-    } else {
-      html += `
-        <div class="podium-row ${rowClasses[i]}">
-          <div class="podium-left"><span>${medals[i]}</span><span style="color:#64748b;">Boş Kürsü</span></div>
-          <div class="podium-score">0 P</div>
-        </div>`;
-    }
+    const isMe = item && playerProfile.uid && item.uid === playerProfile.uid;
+    html += `
+      <div class="pod ${cls[i]}${item ? '' : ' empty'}${isMe ? ' me' : ''}">
+        <div class="pod-name">${item ? escapeHtml(item.username) : '—'}</div>
+        <div class="pod-score">${item ? item.score : '&nbsp;'}</div>
+        <div class="pod-step">${i + 1}</div>
+      </div>`;
   }
   top3List.innerHTML = html;
+  refreshRecordUI();
 
   // Oyuncunun kendi global sırasını hesapla
   const myIdx = playerProfile.uid ? allSorted.findIndex(x => x.uid === playerProfile.uid) : -1;
   const myRank = myIdx >= 0 ? (myIdx + 1) : null;
   const myScore = myIdx >= 0 ? allSorted[myIdx].score : bestScore;
 
-  if (myRank) {
-    uiMyRankPill.textContent = `Sıran: #${myRank}`;
-  } else if (playerProfile.username) {
-    uiMyRankPill.textContent = 'Sıran: #-';
-  } else {
-    uiMyRankPill.textContent = 'Giriş Yap';
-  }
+  uiMyRankPill.textContent = myRank ? `Sıram #${myRank}` : 'Sıram —';
 
-  // Rekabet mesajı (İlk 3'e veya 1.'liğe kaç puan kaldı?)
-  const firstScore = allSorted[0] ? allSorted[0].score : 0;
-  const thirdScore = allSorted[2] ? allSorted[2].score : 0;
-  if (myRank === 1) {
-    compHint.innerHTML = '👑 Global 1. Sıradasın! Rekorunu artırarak zirveyi koru!';
-  } else if (myRank && myRank <= 3) {
-    const diff1 = Math.max(1, firstScore - myScore + 1);
-    compHint.innerHTML = `🔥 İlk 3'tesin (#${myRank})! 1. olmak için <b>+${diff1} P</b> daha kazan!`;
-  } else if (thirdScore > 0) {
-    const diff3 = Math.max(1, thirdScore - myScore + 1);
-    const diff1 = Math.max(1, firstScore - myScore + 1);
-    compHint.innerHTML = `🎯 İlk 3 için <b>${thirdScore + 1} P</b> (+${diff3}), 1.'lik için <b>${firstScore + 1} P</b> hedefle!`;
-  }
-
-  // İlk 100 Modalı ve En Alttaki Kendi Sıralama Barı
+  // İlk 100 listesi
   const top100 = allSorted.slice(0, 100);
-  lbSubtitle.textContent = `Toplam ${allSorted.length} global pilot yarışıyor · İlk 100 listesi:`;
+  lbSubtitle.textContent = `${allSorted.length} pilot yarışıyor`;
 
   if (top100.length === 0) {
-    lbList.innerHTML = '<div style="padding:20px; text-align:center; color:#94a3b8;">Henüz kayıtlı skor yok. İlk şampiyon sen ol!</div>';
+    lbList.innerHTML = '<div class="lb-empty">Henüz skor yok. İlk sen ol!</div>';
   } else {
     lbList.innerHTML = top100.map((item, idx) => {
       const rank = idx + 1;
       const isMe = playerProfile.uid && item.uid === playerProfile.uid;
       const rCls = rank <= 3 ? ` r${rank}` : '';
-      const rankLabel = rank === 1 ? '🥇 1' : (rank === 2 ? '🥈 2' : (rank === 3 ? '🥉 3' : `#${rank}`));
       return `
         <div class="lb-row${rCls}${isMe ? ' me' : ''}" ${isMe ? 'id="myLbRow"' : ''}>
-          <span class="lb-rank">${rankLabel}</span>
+          <span class="lb-rank">${rank}</span>
           <span class="lb-user">${escapeHtml(item.username)}${isMe ? '<span class="me-tag">SEN</span>' : ''}</span>
-          <span class="lb-lvl">Böl. ${item.level || 1}</span>
-          <span class="lb-pts">${item.score} P</span>
+          <span class="lb-lvl">Bölüm ${item.level || 1}</span>
+          <span class="lb-pts">${item.score}</span>
         </div>`;
     }).join('');
   }
 
-  // En alttaki sabit "Kendi Sıralaman" barı (İlk 100'de olsun veya olmasın)
+  // En altta sabit "senin sıran" barı (İlk 100'de olsun veya olmasın)
   const uname = playerProfile.username || 'Pilot';
   if (myRank) {
     if (myRank <= 100) {
-      mrTitle.textContent = 'SENİN GLOBAL SIRALAMAN (İLK 100 İÇİNDE ✓)';
-      mrVal.textContent = `#${myRank} · ${uname}`;
+      mrTitle.textContent = 'Senin sıran';
     } else {
       const top100Cutoff = allSorted[99] ? allSorted[99].score : 0;
       const needFor100 = Math.max(1, top100Cutoff - myScore + 1);
-      mrTitle.textContent = `İLK 100 DIŞINDASIN (İLK 100 İÇİN +${needFor100} P)`;
-      mrVal.textContent = `#${myRank} · ${uname}`;
+      mrTitle.textContent = `İlk 100 için +${needFor100}`;
     }
-    mrRight.textContent = `${myScore} P`;
+    mrVal.textContent = `#${myRank}  ${uname}`;
+    mrRight.textContent = `${myScore}`;
   } else {
-    mrTitle.textContent = 'SENİN GLOBAL SIRALAMAN';
-    mrVal.textContent = playerProfile.username ? `Sıralama bekleniyor · ${uname}` : 'Giriş yapılmadı';
-    mrRight.textContent = `${bestScore} P`;
+    mrTitle.textContent = 'Senin sıran';
+    mrVal.textContent = playerProfile.username ? `—  ${uname}` : 'Giriş yapılmadı';
+    mrRight.textContent = `${bestScore}`;
   }
 }
 
