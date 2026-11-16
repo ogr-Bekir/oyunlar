@@ -2,191 +2,1473 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Yörünge'de Kal — Tek Dokunuşla Gezegen Atla</title>
 <meta name="description" content="Gezegenlerin etrafında dön, doğru anda dokun ve bir sonraki yörüngeye fırla. Tek dokunuşluk uzay oyunu.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
 <style>
-  :root{--a:hsl(186 100% 60%);--b:hsl(300 90% 65%);--bg:hsl(240 40% 5%)}
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%;height:100dvh;background:var(--bg);overflow:hidden;font-family:Outfit,sans-serif;color:#fff;user-select:none;touch-action:none}
-  canvas{display:block;width:100%;height:100%}
-  #hud{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 22px 14px;pointer-events:none}
-  #score{font-size:44px;font-weight:800;text-shadow:0 0 20px var(--a)}
-  #best{font-size:14px;opacity:.6;letter-spacing:2px;text-align:right}
-  .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;
-    background:radial-gradient(circle at 50% 40%,hsla(260,80%,30%,.35),hsla(240,40%,5%,.85));backdrop-filter:blur(6px);transition:opacity .4s}
-  .screen.hide{opacity:0;pointer-events:none}
-  h1{font-size:clamp(40px,11vw,84px);font-weight:800;letter-spacing:3px;text-align:center;line-height:1.05;
-    background:linear-gradient(120deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent;
-    filter:drop-shadow(0 0 25px hsla(186,100%,60%,.4))}
-  p{font-weight:300;opacity:.8;text-align:center;max-width:300px;line-height:1.5}
-  button{font:600 18px Outfit;color:#fff;padding:14px 44px;border:none;border-radius:999px;cursor:pointer;
-    background:linear-gradient(120deg,var(--a),var(--b));box-shadow:0 0 30px hsla(300,90%,65%,.45);transition:transform .2s}
-  button:hover{transform:scale(1.07)}
-  .big{font-size:72px;font-weight:800}
-  .pulse{animation:p 1.6s infinite}@keyframes p{50%{opacity:.4}}
+  :root {
+    --a: hsl(186 100% 60%);
+    --b: hsl(300 90% 65%);
+    --bg: hsl(240 40% 5%);
+    --ui-overlay: rgba(7, 9, 15, 0.78);
+    --ui-panel: #15171e;
+    --ui-panel-2: #1c1f27;
+    --ui-text: #ecebe8;
+    --ui-muted: #8e929b;
+    --ui-line: rgba(255, 255, 255, 0.09);
+    --ui-accent: #d3c29b;
+    --ui-btn-bg: #ecebe8;
+    --ui-btn-text: #15171e;
+    --ui-step: rgba(255, 255, 255, 0.05);
+    --ui-gold: #cdb27a;
+    --ui-silver: #a8acb4;
+    --ui-bronze: #b08766;
+    --ui-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+  }
+  body.light {
+    --ui-overlay: rgba(239, 236, 230, 0.84);
+    --ui-panel: #faf9f6;
+    --ui-panel-2: #f0eee8;
+    --ui-text: #24272e;
+    --ui-muted: #70747d;
+    --ui-line: rgba(0, 0, 0, 0.09);
+    --ui-accent: #8b7142;
+    --ui-btn-bg: #24272e;
+    --ui-btn-text: #faf9f6;
+    --ui-step: rgba(0, 0, 0, 0.045);
+    --ui-gold: #b08f50;
+    --ui-silver: #8e939b;
+    --ui-bronze: #9b6d4c;
+    --ui-shadow: 0 18px 44px rgba(40, 36, 28, 0.18);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100%; height: 100dvh;
+    background: var(--bg);
+    overflow: hidden;
+    font-family: Outfit, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    color: #fff;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+  }
+  canvas { display: block; width: 100%; height: 100%; }
+
+  #hud {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 70px 14px 22px;
+    pointer-events: none;
+    z-index: 10;
+  }
+  #hud[hidden] { display: none; }
+  #score { font-size: 38px; font-weight: 800; text-shadow: 0 0 20px var(--a); }
+  #best { font-size: 13px; opacity: .75; letter-spacing: 1.5px; text-align: right; }
+  body.light #score { color: #1e293b; text-shadow: none; }
+  body.light #best { color: #334155; }
+
+  /* Sağ Üst Oyun İçi Durdurma Butonu */
+  #btnPause {
+    position: fixed;
+    top: calc(14px + env(safe-area-inset-top, 0px));
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(15, 20, 32, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #ecebe8;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+    z-index: 20;
+  }
+  #btnPause[hidden] { display: none; }
+  #btnPause:active { transform: scale(0.94); }
+
+  /* 3-2-1 Geri Sayım Katmanı */
+  #countdownOverlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(7, 9, 15, 0.45);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 55;
+    pointer-events: none;
+  }
+  #countdownNum {
+    font-size: 92px;
+    font-weight: 800;
+    color: var(--ui-text, #ecebe8);
+    text-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    animation: countPop 0.85s ease-out infinite;
+  }
+  @keyframes countPop {
+    0% { transform: scale(1.25); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.75; }
+  }
+
+  /* ===== GENEL KATMANLAR VE ANA MENÜ ===== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ui-overlay);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    z-index: 50;
+    padding: 16px;
+    color: var(--ui-text);
+  }
+  @keyframes popIn {
+    0% { transform: scale(0.96); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .modal-overlay button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .modal-overlay svg { display: block; }
+
+  #modal {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 16px calc(22px + env(safe-area-inset-bottom, 0px));
+  }
+  .menu-top {
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .chip-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 14px 0 4px;
+    border-radius: 999px;
+    background: var(--ui-step);
+    border: 1px solid var(--ui-line);
+    color: var(--ui-text);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    max-width: 60%;
+  }
+  .chip-btn .av {
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--ui-panel-2);
+    color: var(--ui-muted);
+  }
+  .chip-btn .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .round-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--ui-step);
+    border: 1px solid var(--ui-line);
+    color: var(--ui-text);
+    cursor: pointer;
+  }
+  .menu-title {
+    margin-top: 5vh;
+    font-size: 12px;
+    letter-spacing: 5px;
+    font-weight: 700;
+    color: var(--ui-muted);
+    text-transform: uppercase;
+  }
+  .podium {
+    margin-top: 3vh;
+    width: 100%;
+    max-width: 300px;
+    display: grid;
+    grid-template-columns: 1fr 1.12fr 1fr;
+    align-items: end;
+    gap: 6px;
+  }
+  .pod { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+  .pod-name { font-size: 12.5px; font-weight: 600; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ui-text); }
+  .pod-score { font-size: 11px; color: var(--ui-muted); margin: 2px 0 7px; font-variant-numeric: tabular-nums; }
+  .pod-step {
+    width: 100%;
+    border-radius: 9px 9px 0 0;
+    background: var(--ui-step);
+    border: 1px solid var(--ui-line);
+    border-bottom: none;
+    border-top: 2px solid var(--c);
+    display: flex;
+    justify-content: center;
+    padding-top: 8px;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--c);
+  }
+  .pod.first { --c: var(--ui-gold); }
+  .pod.second { --c: var(--ui-silver); }
+  .pod.third { --c: var(--ui-bronze); }
+  .pod.first .pod-step { height: 92px; font-size: 24px; }
+  .pod.second .pod-step { height: 64px; }
+  .pod.third .pod-step { height: 46px; }
+  .pod.first .pod-name { font-size: 14px; }
+  .pod.empty .pod-name { color: var(--ui-muted); font-weight: 500; }
+  .pod.me .pod-name { color: var(--ui-accent); }
+  .podium-base { width: 100%; max-width: 300px; height: 1px; background: var(--ui-line); }
+
+  .menu-mid {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 14vh;
+  }
+  .result-box {
+    display: none;
+    text-align: center;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--ui-muted);
+    max-width: 260px;
+    margin-bottom: 18px;
+  }
+  .result-box b { color: var(--ui-text); font-weight: 600; }
+  .record { display: flex; flex-direction: column; align-items: center; }
+  .record span { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--ui-muted); font-weight: 600; }
+  .record b { font-size: 32px; font-weight: 700; color: var(--ui-text); font-variant-numeric: tabular-nums; margin-top: 2px; }
+  .play-btn {
+    margin-top: 20px;
+    width: 196px;
+    height: 56px;
+    border-radius: 999px;
+    border: none;
+    background: var(--ui-btn-bg);
+    color: var(--ui-btn-text);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    cursor: pointer;
+    box-shadow: var(--ui-shadow);
+    transition: transform 0.1s;
+  }
+  .play-btn:active { transform: scale(0.97); }
+
+  .side-lb {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 9px 12px 11px;
+    border-radius: 14px 0 0 14px;
+    background: var(--ui-step);
+    border: 1px solid var(--ui-line);
+    border-right: none;
+    color: var(--ui-text);
+    cursor: pointer;
+  }
+  .side-lb .lbl { font-size: 11px; font-weight: 700; }
+  .side-lb small { font-size: 10px; color: var(--ui-muted); font-weight: 600; }
+
+  .sheet {
+    background: var(--ui-panel);
+    border: 1px solid var(--ui-line);
+    border-radius: 18px;
+    width: 100%;
+    max-width: 340px;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: 16px;
+    box-shadow: var(--ui-shadow);
+    animation: popIn 0.18s ease-out;
+    text-align: left;
+    color: var(--ui-text);
+  }
+  .sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .sheet-head h2 { font-size: 16px; font-weight: 700; }
+  .head-actions { display: flex; gap: 6px; }
+  .x-btn {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: grid; place-items: center;
+    border: 1px solid var(--ui-line);
+    background: transparent; color: var(--ui-muted);
+    font-size: 15px; cursor: pointer;
+  }
+  .sec-label { font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ui-muted); font-weight: 700; margin: 14px 2px 8px; }
+  .list-item {
+    display: flex; justify-content: space-between; align-items: center;
+    width: 100%; padding: 13px 12px;
+    background: var(--ui-panel-2); border: 1px solid var(--ui-line);
+    border-radius: 12px; color: var(--ui-text);
+    font-size: 14px; font-weight: 600; margin-bottom: 8px;
+    text-align: left; cursor: pointer;
+  }
+  .list-item .chev { color: var(--ui-muted); font-size: 18px; line-height: 1; }
+  .row-setting {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px; background: var(--ui-panel-2); border: 1px solid var(--ui-line);
+    border-radius: 12px; margin-bottom: 8px; font-size: 14px; font-weight: 600;
+  }
+  .switch {
+    position: relative; width: 44px; height: 26px; border-radius: 999px;
+    background: var(--ui-line); border: none; cursor: pointer; transition: background 0.2s; flex: 0 0 44px;
+  }
+  .switch::after {
+    content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px;
+    border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); transition: transform 0.2s;
+  }
+  .switch.on { background: var(--ui-accent); }
+  .switch.on::after { transform: translateX(18px); }
+  .seg { display: flex; background: var(--ui-step); border-radius: 10px; padding: 3px; gap: 2px; }
+  .seg button { padding: 6px 12px; border: none; background: transparent; color: var(--ui-muted); border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+  .seg button.active { background: var(--ui-btn-bg); color: var(--ui-btn-text); }
+  .help-text { font-size: 12.5px; line-height: 1.6; color: var(--ui-muted); padding: 2px 2px 4px; }
+  .help-text b { color: var(--ui-text); font-weight: 600; }
+
+  .profile-head { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--ui-panel-2); border: 1px solid var(--ui-line); border-radius: 14px; }
+  .profile-head .av { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--ui-step); color: var(--ui-muted); flex: 0 0 44px; }
+  .profile-head .pn { font-size: 15px; font-weight: 700; }
+  .profile-head .ps { font-size: 11.5px; color: var(--ui-muted); margin-top: 2px; word-break: break-all; }
+
+  .lb-card { display: flex; flex-direction: column; }
+  .lb-sub { font-size: 11.5px; color: var(--ui-muted); margin: -6px 0 10px; }
+  .lb-list { max-height: 52vh; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+  .lb-row { display: flex; align-items: center; padding: 9px 10px; border-radius: 10px; font-size: 13px; }
+  .lb-row:nth-child(odd) { background: var(--ui-panel-2); }
+  .lb-row.me { box-shadow: inset 0 0 0 1px var(--ui-accent); }
+  .lb-rank { width: 38px; color: var(--ui-muted); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .lb-row.r1 .lb-rank { color: var(--ui-gold); }
+  .lb-row.r2 .lb-rank { color: var(--ui-silver); }
+  .lb-row.r3 .lb-rank { color: var(--ui-bronze); }
+  .lb-user { flex: 1; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .me-tag { font-size: 10px; font-weight: 700; color: var(--ui-accent); margin-left: 6px; letter-spacing: 0.5px; }
+  .lb-lvl { font-size: 11px; color: var(--ui-muted); margin: 0 10px; white-space: nowrap; }
+  .lb-pts { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .lb-empty { padding: 22px; text-align: center; color: var(--ui-muted); font-size: 13px; }
+  .my-rank-footer {
+    margin-top: 10px; padding: 11px 12px; border-radius: 12px;
+    background: var(--ui-panel-2); border: 1px solid var(--ui-accent);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .mr-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .mr-title { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--ui-muted); font-weight: 700; }
+  .mr-val { font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mr-right { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  .form-group { margin-bottom: 12px; }
+  .form-group label { display: block; font-size: 11px; font-weight: 600; color: var(--ui-muted); margin-bottom: 5px; }
+  .form-input {
+    width: 100%; padding: 11px 12px; border-radius: 10px;
+    border: 1px solid var(--ui-line); background: var(--ui-panel-2); color: var(--ui-text);
+    font-size: 14px; font-weight: 600; outline: none; font-family: inherit;
+    user-select: text; -webkit-user-select: text;
+  }
+  .form-input:focus { border-color: var(--ui-accent); }
+  .btn-google {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 11px 12px; border-radius: 10px;
+    border: 1px solid var(--ui-line); background: var(--ui-panel-2); color: var(--ui-text);
+    font-size: 13.5px; font-weight: 600; cursor: pointer; margin-bottom: 12px;
+  }
+  .acct-pill {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--ui-panel-2); border: 1px solid var(--ui-line); color: var(--ui-text);
+    padding: 9px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; margin-bottom: 12px; gap: 8px; word-break: break-all;
+  }
+  .link-btn { background: none; border: none; color: var(--ui-accent); font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .auth-status { font-size: 12px; min-height: 16px; margin: 2px 0 8px; font-weight: 600; }
+  .btn-action {
+    width: 100%; padding: 13px 16px; border-radius: 999px; border: none;
+    background: var(--ui-btn-bg); color: var(--ui-btn-text);
+    font-size: 14px; font-weight: 700; letter-spacing: 1px; cursor: pointer;
+  }
+  .btn-action:disabled { opacity: 0.6; }
+  .btn-ghost {
+    width: 100%; padding: 11px 16px; border-radius: 999px;
+    border: 1px solid var(--ui-line); background: transparent; color: var(--ui-muted);
+    font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px;
+  }
+  .hint-small { font-size: 12px; color: var(--ui-muted); line-height: 1.5; margin-bottom: 14px; }
+  .legal-text { font-size: 12.5px; line-height: 1.65; color: var(--ui-muted); }
+  .legal-text h3 { font-size: 13px; color: var(--ui-text); margin: 14px 0 4px; font-weight: 700; }
+  .legal-text p { margin-bottom: 6px; }
+  .legal-text ul { padding-left: 18px; margin-bottom: 6px; }
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
-<div id="hud"><div id="score">0</div><div id="best">EN İYİ<br><b id="bestV">0</b></div></div>
-<section class="screen" id="start">
-  <h1>YÖRÜNGE'DE<br>KAL</h1>
-  <p>Gezegenin etrafında dönüyorsun. Doğru anda <b>dokun</b>, fırla ve bir sonraki gezegenin yörüngesine yakalan.</p>
-  <button id="startBtn">OYNA</button>
-  <p class="pulse" style="font-size:13px">Merkeze yakın yakalanırsan ✦ PERFECT = +2</p>
-</section>
-<section class="screen hide" id="over">
-  <p>KAYBOLDUN UZAYDA</p>
-  <div class="big" id="final">0</div>
-  <p id="overBest"></p>
-  <button id="againBtn">TEKRAR</button>
-</section>
+<div id="hud" hidden><div id="score">0</div><div id="best">EN İYİ<br><b id="bestV">0</b></div></div>
+<button id="btnPause" type="button" hidden aria-label="Oyunu Durdur">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4.5" height="16" rx="1.5"/><rect x="13.5" y="4" width="4.5" height="16" rx="1.5"/></svg>
+</button>
+
+<!-- 3 - 2 - 1 Geri Sayım Katmanı -->
+<div id="countdownOverlay">
+  <div id="countdownNum">3</div>
+</div>
+
+<!-- Oyun İçi Duraklatma (Pause) Paneli -->
+<div id="pauseModal" class="modal-overlay" style="display:none; z-index:58;">
+  <div class="sheet" style="max-width:300px; text-align:center;">
+    <div class="sheet-head" style="justify-content:center; margin-bottom:12px;">
+      <h2>Oyun Duraklatıldı</h2>
+    </div>
+    <div class="row-setting"><span>Ses</span><button id="swPauseSound" class="switch on" aria-label="Ses"></button></div>
+    <div class="row-setting" style="margin-bottom:14px;"><span>Titreşim</span><button id="swPauseVibe" class="switch on" aria-label="Titreşim"></button></div>
+    <button id="btnResume" type="button" class="btn-action">DEVAM ET</button>
+    <button id="btnPauseMenu" type="button" class="btn-ghost">Ana Menü</button>
+  </div>
+</div>
+
+<!-- ===== ANA MENÜ ===== -->
+<div id="modal" class="modal-overlay">
+  <div class="menu-top">
+    <button id="btnOpenProfile" class="chip-btn" aria-label="Profil">
+      <span class="av"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+      <span id="uiPilotName" class="nm">Giriş yap</span>
+    </button>
+    <button id="btnSettings" class="round-btn" aria-label="Ayarlar">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
+  </div>
+
+  <div class="menu-title">Yörünge'de Kal</div>
+
+  <!-- Olimpiyat kürsüsü: 2 - 1 - 3 -->
+  <div id="top3List" class="podium">
+    <div class="pod second empty"><div class="pod-name">—</div><div class="pod-score">&nbsp;</div><div class="pod-step">2</div></div>
+    <div class="pod first empty"><div class="pod-name">—</div><div class="pod-score">&nbsp;</div><div class="pod-step">1</div></div>
+    <div class="pod third empty"><div class="pod-name">—</div><div class="pod-score">&nbsp;</div><div class="pod-step">3</div></div>
+  </div>
+  <div class="podium-base"></div>
+
+  <div class="menu-mid">
+    <div id="resultBox" class="result-box"></div>
+    <div class="record"><span>Rekor</span><b id="uiRecord">0</b></div>
+    <button id="btnStart" class="play-btn">OYNA</button>
+  </div>
+
+  <button id="btnOpenLb" class="side-lb" aria-label="Global sıralama">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>
+    <span class="lbl">İlk 100</span>
+    <small id="uiMyRankPill">Sıram —</small>
+  </button>
+</div>
+
+<!-- ===== GLOBAL İLK 100 ===== -->
+<div id="leaderboardModal" class="modal-overlay" style="display:none; z-index:60;">
+  <div class="sheet lb-card">
+    <div class="sheet-head">
+      <h2>Global İlk 100</h2>
+      <div class="head-actions">
+        <button id="btnRefreshLb" class="x-btn" aria-label="Yenile">↻</button>
+        <button id="btnCloseLb" class="x-btn" aria-label="Kapat">✕</button>
+      </div>
+    </div>
+    <div id="lbSubtitle" class="lb-sub">Yükleniyor...</div>
+    <div id="lbList" class="lb-list"><div class="lb-empty">Sıralama yükleniyor...</div></div>
+    <div id="myRankFooter" class="my-rank-footer">
+      <div class="mr-left">
+        <span id="mrTitle" class="mr-title">Senin sıran</span>
+        <span id="mrVal" class="mr-val">—</span>
+      </div>
+      <div id="mrRight" class="mr-right">0</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PROFİL PANELİ (sol üst) ===== -->
+<div id="profilePanel" class="modal-overlay" style="display:none; z-index:60;">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>Profil</h2>
+      <button class="x-btn" data-close="profilePanel" aria-label="Kapat">✕</button>
+    </div>
+    <div class="profile-head">
+      <span class="av"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+      <div style="min-width:0;">
+        <div id="ppName" class="pn">Pilot</div>
+        <div id="uiPilotSub" class="ps">Google hesabı bağlı değil</div>
+      </div>
+    </div>
+
+    <div class="sec-label">Hesap</div>
+    <button id="btnEditName" class="list-item"><span>Kullanıcı adını değiştir</span><span class="chev">›</span></button>
+    <button id="btnLinkGoogle" class="list-item"><span id="btnLinkGoogleTxt">Google hesabı bağla</span><span class="chev">›</span></button>
+
+    <div class="sec-label">Bilgi</div>
+    <button class="list-item" data-legal="privacy"><span>Gizlilik Politikası</span><span class="chev">›</span></button>
+    <button class="list-item" data-legal="rules"><span>Topluluk Kuralları</span><span class="chev">›</span></button>
+  </div>
+</div>
+
+<!-- ===== AYARLAR PANELİ (sağ üst) ===== -->
+<div id="settingsPanel" class="modal-overlay" style="display:none; z-index:60;">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>Ayarlar</h2>
+      <button class="x-btn" data-close="settingsPanel" aria-label="Kapat">✕</button>
+    </div>
+    <div class="row-setting"><span>Ses</span><button id="swSound" class="switch on" aria-label="Ses"></button></div>
+    <div class="row-setting"><span>Titreşim</span><button id="swVibe" class="switch on" aria-label="Titreşim"></button></div>
+    <div class="row-setting">
+      <span>Tema</span>
+      <div class="seg">
+        <button id="thDark" class="active">Koyu</button>
+        <button id="thLight">Açık</button>
+      </div>
+    </div>
+
+    <div class="sec-label">Nasıl oynanır</div>
+    <div class="help-text">
+      <b>Doğru anda dokun:</b> Gezegenin etrafında dönerken teğet fırla ve sıradaki gezegenin yörüngesine yakalan.<br>
+      Merkeze yakın yakalanırsan <b>PERFECT (+2)</b> kazanırsın.
+    </div>
+  </div>
+</div>
+
+<!-- ===== GİZLİLİK / TOPLULUK METİNLERİ ===== -->
+<div id="legalModal" class="modal-overlay" style="display:none; z-index:75;">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2 id="legalTitle">Gizlilik Politikası</h2>
+      <button class="x-btn" data-close="legalModal" aria-label="Kapat">✕</button>
+    </div>
+    <div id="legalPrivacy" class="legal-text">
+      <p>Son güncelleme: Kasım 2026</p>
+      <h3>Topladığımız bilgiler</h3>
+      <ul>
+        <li>Seçtiğin kullanıcı adı</li>
+        <li>Oyun skorun ve ulaştığın bölüm</li>
+        <li>Bağladığın Google hesabının e-posta adresi (yalnızca kimlik eşleştirmek için, şifrelenmiş bir kimliğe dönüştürülerek)</li>
+      </ul>
+      <h3>Nasıl kullanıyoruz</h3>
+      <p>Bu bilgiler yalnızca global sıralamayı göstermek ve profilini farklı cihazlarda geri yüklemek için kullanılır. E-posta adresin diğer oyunculara gösterilmez; sıralamada yalnızca kullanıcı adın ve skorun görünür.</p>
+      <h3>Saklama ve paylaşım</h3>
+      <p>Veriler Google Firebase altyapısında saklanır. Üçüncü taraflarla satılmaz veya reklam amacıyla paylaşılmaz. Oyunda reklam ve uygulama içi satın alma yoktur.</p>
+      <h3>Cihazdaki veriler</h3>
+      <p>Rekorun, ayarların (ses, titreşim, tema) ve profil bilgin cihazında yerel olarak saklanır.</p>
+      <h3>Verilerini silme</h3>
+      <p>Profilinin ve skorunun silinmesini istersen kullanıcı adınla birlikte <b>aydingunbekir@gmail.com</b> adresine yazman yeterli.</p>
+      <h3>Çocuklar</h3>
+      <p>Oyun bilerek 13 yaş altı çocuklardan kişisel veri toplamaz.</p>
+    </div>
+    <div id="legalRules" class="legal-text" style="display:none;">
+      <p>Oyunlarımız herkes için adil ve keyifli bir yarış olsun diye bu kurallara uymanı bekliyoruz.</p>
+      <h3>Kullanıcı adları</h3>
+      <ul>
+        <li>Küfür, hakaret, nefret söylemi veya cinsel içerik içeren adlar yasaktır.</li>
+        <li>Başka bir kişiyi, markayı veya oyuncuyu taklit eden adlar kullanılamaz.</li>
+        <li>Kişisel bilgilerini (telefon, adres vb.) kullanıcı adına yazma.</li>
+      </ul>
+      <h3>Adil oyun</h3>
+      <ul>
+        <li>Hile, bot, skor manipülasyonu veya oyunun açıklarını kullanmak yasaktır.</li>
+        <li>Birden fazla hesapla sıralamayı doldurmak yasaktır.</li>
+      </ul>
+      <h3>Yaptırımlar</h3>
+      <p>Kurallara uymayan kullanıcı adları değiştirilebilir, skorlar sıralamadan kaldırılabilir veya hesap engellenebilir.</p>
+      <h3>Bildirim</h3>
+      <p>Uygunsuz bir kullanıcı adı görürsen <b>aydingunbekir@gmail.com</b> adresine bildirebilirsin.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== KULLANICI ADI & GOOGLE HESABI DÜZENLEME ===== -->
+<div id="profileModal" class="modal-overlay" style="display:none; z-index:70;">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>Pilot profili</h2>
+      <button id="btnCloseProfile" type="button" class="x-btn" style="display:none;" aria-label="Kapat">✕</button>
+    </div>
+    <p class="hint-small">Sıralamada görünmek ve rekorunu korumak için Google hesabını bağla ve bir kullanıcı adı seç.</p>
+
+    <button id="btnPickGoogle" type="button" class="btn-google">
+      <svg width="17" height="17" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.650z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.540 2.56 10.78l7.970-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      <span id="btnPickGoogleTxt">Google hesabı seç</span>
+    </button>
+
+    <div id="connectedAcctBox" class="acct-pill" style="display:none;">
+      <span id="connectedAcctEmail">Hesap bağlı</span>
+      <button id="btnChangeAcct" type="button" class="link-btn">Değiştir</button>
+    </div>
+
+    <div id="manualEmailBox" class="form-group">
+      <label for="inpEmail">Google e-posta adresi</label>
+      <input id="inpEmail" class="form-input" type="email" placeholder="ornek@gmail.com" autocomplete="email">
+    </div>
+
+    <div class="form-group">
+      <label for="inpUsername">Kullanıcı adı</label>
+      <input id="inpUsername" class="form-input" type="text" maxlength="16" placeholder="Örn: KaptanAydin" autocomplete="nickname">
+    </div>
+
+    <div id="authStatus" class="auth-status" style="color:var(--ui-muted);"></div>
+
+    <button id="btnSaveProfile" type="button" class="btn-action">KAYDET</button>
+  </div>
+</div>
+
 <script>
-const cv=document.getElementById('c'),ctx=cv.getContext('2d');
-let W,H,DPR,S=1,overTimer,K=1,GW=420,GH=750,OX=0;
-// Sabit sanal oyun alani: her cihazda ayni zorluk. GW=420 birim genislik, ekrana sigacak sekilde olceklenir.
-function resize(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;
-  K=Math.min(W/420,H/750);GH=H/K;OX=(W-GW*K)/2;
-  cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)}
-addEventListener('resize',resize);resize();
+(() => {
+  const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+  const hud = document.getElementById('hud');
+  const btnPause = document.getElementById('btnPause');
+  const modal = document.getElementById('modal');
+  const btnStart = document.getElementById('btnStart');
+  const resultBox = document.getElementById('resultBox');
+  const uiRecord = document.getElementById('uiRecord');
+  const $ = id => document.getElementById(id);
 
-const $=id=>document.getElementById(id);
-let best=+localStorage.getItem('yorunge_best')||0;$('bestV').textContent=best;
+  let W, H, DPR, S = 1, overTimer, K = 1, GW = 420, GH = 750, OX = 0;
+  function resize() {
+    DPR = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
+    K = Math.min(W / 420, H / 750); GH = H / K; OX = (W - GW * K) / 2;
+    cv.width = W * DPR; cv.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  addEventListener('resize', resize); resize();
 
-// background stars (parallax)
-const stars=Array.from({length:140},()=>({x:Math.random(),y:Math.random()*3000,z:Math.random()*.8+.2}));
+  let best = 0;
+  try { best = +localStorage.getItem('yorunge_best') || 0; } catch (e) {}
+  $('bestV').textContent = best;
 
-let planets,player,camY,score,state='menu',particles,popups,shake,hue,deathT=0;
+  // --- AYARLAR (Ses / Titreşim / Tema) ---
+  const SETTINGS_KEY = 'roketi_indir_settings_v1';
+  let settings = { sound: true, vibe: true, theme: 'dark' };
+  try {
+    const rawS = localStorage.getItem(SETTINGS_KEY);
+    if (rawS) settings = Object.assign(settings, JSON.parse(rawS));
+  } catch (e) {}
+  function saveSettings() {
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) {}
+  }
+  function applyTheme() {
+    document.body.classList.toggle('light', settings.theme === 'light');
+  }
+  applyTheme();
 
-function newPlanet(prev){
-  const gap=200+Math.random()*90+Math.min(score,30)*2.5;
-  const r=14+Math.random()*14;
-  const R=r+32+Math.random()*20;
-  const p={x:R+Math.random()*(GW-2*R),y:prev.y-gap,r,R,
-    hue:(prev.hue+40+Math.random()*60)%360,vx:0,ph:Math.random()*6};
-  if(planets.length>8&&Math.random()<.5)p.vx=30+Math.random()*Math.min(planets.length*3,70);
-  return p;
-}
-function reset(){
-  score=0;shake=0;particles=[];popups=[];hue=200;
-  const first={x:GW/2,y:0,r:26,R:70,hue:190,vx:0,ph:0,visited:true};
-  planets=[first];
-  for(let i=0;i<6;i++)planets.push(newPlanet(planets[planets.length-1]));
-  player={planet:first,ang:Math.PI/2,rad:first.R*.8,dir:1,x:0,y:0,vx:0,vy:0,fly:0,trail:[]};
-  camY=first.y-GH*.7;$('score').textContent=0;
-}
-const SPEED=()=>(360+Math.min(score,40)*5)*S;
+  let audioCtx = null;
+  function initAudio() {
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audioCtx = new AC();
+    }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  }
+  function playSound(type) {
+    if (!audioCtx || !settings.sound) return;
+    try {
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      if (type === 'click') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(620, now);
+        osc.frequency.exponentialRampToValueAtTime(420, now + 0.06);
+        gain.gain.setValueAtTime(0.07, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+        osc.start(now); osc.stop(now + 0.08);
+      } else if (type === 'jump') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(580, now + 0.11);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        osc.start(now); osc.stop(now + 0.13);
+      } else if (type === 'catch') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(480, now);
+        osc.frequency.setValueAtTime(720, now + 0.08);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+        osc.start(now); osc.stop(now + 0.24);
+      } else if (type === 'explode') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(170, now);
+        osc.frequency.exponentialRampToValueAtTime(35, now + 0.36);
+        gain.gain.setValueAtTime(0.22, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.36);
+        osc.start(now); osc.stop(now + 0.38);
+      }
+    } catch (e) {}
+  }
 
-function tap(){
-  if(state!=='play'||!player.planet)return;
-  const p=player.planet,s=SPEED();
-  // tangent velocity
-  player.vx=-Math.sin(player.ang)*s*player.dir;
-  player.vy= Math.cos(player.ang)*s*player.dir;
-  player.last=p;player.planet=null;player.fly=0;
-  burst(player.x,player.y,8,p.hue);
-}
-addEventListener('pointerdown',e=>{if(e.target.tagName!=='BUTTON')tap()});
-addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();state==='play'?tap():start()}});
+  function vibrate(pattern) {
+    if (!settings.vibe) return;
+    try {
+      if (window.AndroidGoogleAuth && typeof window.AndroidGoogleAuth.vibrate === 'function') {
+        window.AndroidGoogleAuth.vibrate(Array.isArray(pattern) ? pattern[0] : pattern);
+      } else if (navigator.vibrate) {
+        navigator.vibrate(pattern);
+      }
+    } catch (e) {}
+  }
 
-function burst(x,y,n,h){for(let i=0;i<n;i++){const a=Math.random()*6.28,v=40+Math.random()*160;
-  particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:1,h})}}
+  function refreshRecordUI() {
+    $('bestV').textContent = best;
+    if (uiRecord) uiRecord.textContent = best;
+  }
+  refreshRecordUI();
 
-function update(dt){
-  planets.forEach(p=>{if(p.vx){p.ph+=dt;p.x=GW/2+Math.sin(p.ph*p.vx/60)*(GW/2-p.R-10)}});
-  if(player.planet){
-    const p=player.planet;
-    player.rad+=(Math.max(p.r+16,Math.min(player.rad,p.R))-player.rad)*dt*4;
-    player.ang+=player.dir*SPEED()/player.rad*dt;
-    player.x=p.x+Math.cos(player.ang)*player.rad;
-    player.y=p.y+Math.sin(player.ang)*player.rad;
-    camY+=((p.y-GH*.68)-camY)*dt*3;
-  }else{
-    player.x+=player.vx*dt;player.y+=player.vy*dt;player.fly+=dt;
-    camY+=((player.y-GH*.6)-camY)*dt*1.5;
-    for(const p of planets){
-      if(p.visited)continue; // eski gezegenlere geri donulemez
-      const dx=player.x-p.x,dy=player.y-p.y,d=Math.hypot(dx,dy);
-      if(d<p.R){
-        p.visited=true;player.planet=p;player.ang=Math.atan2(dy,dx);player.rad=d;
-        player.dir=Math.sign(dx*player.vy-dy*player.vx)||1;
-        const perfect=d<p.r+(p.R-p.r)*.4;
-        const add=perfect?2:1;score+=add;$('score').textContent=score;
-        popups.push({x:player.x,y:player.y,t:perfect?'✦ PERFECT +2':'+1',life:1,h:p.hue});
-        burst(player.x,player.y,perfect?26:12,p.hue);shake=perfect?8:3;
-        // spawn ahead / cull behind
-        while(planets.length<planets.indexOf(p)+6)planets.push(newPlanet(planets[planets.length-1]));
-        planets=planets.filter(q=>q.y<camY+GH+300);
-        break;
+  const stars = Array.from({ length: 140 }, () => ({ x: Math.random(), y: Math.random() * 3000, z: Math.random() * .8 + .2 }));
+  let planets, player, camY, score, state = 'menu', particles, popups, shake, hue, deathT = 0;
+
+  function newPlanet(prev) {
+    const gap = 200 + Math.random() * 90 + Math.min(score, 30) * 2.5;
+    const r = 14 + Math.random() * 14;
+    const R = r + 32 + Math.random() * 20;
+    const p = {
+      x: R + Math.random() * (GW - 2 * R), y: prev.y - gap, r, R,
+      hue: (prev.hue + 40 + Math.random() * 60) % 360, vx: 0, ph: Math.random() * 6
+    };
+    if (planets.length > 8 && Math.random() < .5) p.vx = 30 + Math.random() * Math.min(planets.length * 3, 70);
+    return p;
+  }
+  function reset() {
+    score = 0; shake = 0; particles = []; popups = []; hue = 200;
+    const first = { x: GW / 2, y: 0, r: 26, R: 70, hue: 190, vx: 0, ph: 0, visited: true };
+    planets = [first];
+    for (let i = 0; i < 6; i++) planets.push(newPlanet(planets[planets.length - 1]));
+    player = { planet: first, ang: Math.PI / 2, rad: first.R * .8, dir: 1, x: 0, y: 0, vx: 0, vy: 0, fly: 0, trail: [] };
+    camY = first.y - GH * .7; $('score').textContent = 0;
+  }
+  const SPEED = () => (360 + Math.min(score, 40) * 5) * S;
+
+  function tap() {
+    if (state !== 'play' || !player.planet) return;
+    initAudio(); playSound('jump');
+    const p = player.planet, s = SPEED();
+    player.vx = -Math.sin(player.ang) * s * player.dir;
+    player.vy = Math.cos(player.ang) * s * player.dir;
+    player.last = p; player.planet = null; player.fly = 0;
+    burst(player.x, player.y, 8, p.hue);
+  }
+  addEventListener('pointerdown', e => {
+    if (e.target.closest('#btnPause') || e.target.closest('.modal-overlay')) return;
+    if (state === 'play') tap();
+  });
+  addEventListener('keydown', e => {
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+    if (document.querySelector('.modal-overlay:not(#modal)[style*="flex"]') || state === 'paused' || state === 'countdown') return;
+    if (e.code === 'Space' || e.code === 'Enter') {
+      e.preventDefault();
+      if (!e.repeat) {
+        if (state === 'play') tap(); else if (state === 'menu' || state === 'over') start();
       }
     }
-    const sy=player.y-camY;
-    if(state==='play'&&(player.x<-30||player.x>GW+30||sy>GH+40||player.fly>2.4))die();
-  }
-  if(state==='over'&&deathT>0){deathT-=dt;burst(player.x,player.y,40,0);shake=14}
-  player.trail.push({x:player.x,y:player.y});if(player.trail.length>22)player.trail.shift();
-  particles.forEach(q=>{q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=.96;q.vy*=.96;q.life-=dt*1.4});
-  particles=particles.filter(q=>q.life>0);
-  popups.forEach(q=>{q.y-=40*dt;q.life-=dt});popups=popups.filter(q=>q.life>0);
-  shake*=.88;hue+=dt*6;
-}
+  });
 
-function die(){
-  state='over';deathT=.6;burst(player.x,player.y,40,0);shake=14;
-  if(score>best){best=score;localStorage.setItem('yorunge_best',best);$('bestV').textContent=best}
-  $('final').textContent=score;$('overBest').textContent='En iyi: '+best;
-  clearTimeout(overTimer);overTimer=setTimeout(()=>$('over').classList.remove('hide'),600);
-}
-
-function draw(){
-  const g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,`hsl(${hue%360} 60% 8%)`);g.addColorStop(1,'hsl(240 40% 4%)');
-  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  ctx.save();
-  ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
-  // stars
-  for(const s of stars){const y=((s.y-camY*s.z*.3)%3000+3000)%3000;if(y>H)continue;
-    ctx.globalAlpha=s.z*.8;ctx.fillStyle='#fff';ctx.fillRect(s.x*W,y,s.z*2,s.z*2)}
-  ctx.globalAlpha=1;
-  // oyun alani kenarlari (genis ekranlarda)
-  if(OX>4){ctx.fillStyle='hsla(186,100%,60%,.12)';ctx.fillRect(OX-1,0,1,H);ctx.fillRect(OX+GW*K,0,1,H)}
-  ctx.translate(OX,0);ctx.scale(K,K);
-  ctx.translate(0,-camY);
-  // planets
-  const t=performance.now()/1000;
-  for(const p of planets){
-    ctx.strokeStyle=`hsla(${p.hue},100%,70%,${p===player.planet?.5:.22})`;
-    ctx.setLineDash([4,8]);ctx.lineDashOffset=-t*20;ctx.lineWidth=1.5;
-    ctx.beginPath();ctx.arc(p.x,p.y,p.R,0,6.28);ctx.stroke();ctx.setLineDash([]);
-    ctx.fillStyle=`hsla(${p.hue},100%,70%,.07)`;ctx.beginPath();ctx.arc(p.x,p.y,p.r+(p.R-p.r)*.4,0,6.28);ctx.fill();
-    const pg=ctx.createRadialGradient(p.x-p.r*.4,p.y-p.r*.4,2,p.x,p.y,p.r);
-    pg.addColorStop(0,`hsl(${p.hue} 100% 80%)`);pg.addColorStop(1,`hsl(${p.hue+30} 80% 35%)`);
-    ctx.shadowColor=`hsl(${p.hue} 100% 60%)`;ctx.shadowBlur=30;
-    ctx.fillStyle=pg;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.28);ctx.fill();ctx.shadowBlur=0;
+  function burst(x, y, n, h) {
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * 6.28, v = 40 + Math.random() * 160;
+      particles.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 1, h });
+    }
   }
-  // trail
-  if(state!=='over'||player.trail.length){
-    player.trail.forEach((q,i)=>{const k=i/player.trail.length;
-      ctx.fillStyle=`hsla(186,100%,70%,${k*.6})`;ctx.beginPath();ctx.arc(q.x,q.y,6*k,0,6.28);ctx.fill()});
-    if(state!=='over'){ctx.shadowColor='#7ff';ctx.shadowBlur=20;ctx.fillStyle='#fff';
-      ctx.beginPath();ctx.arc(player.x,player.y,7,0,6.28);ctx.fill();ctx.shadowBlur=0}
-  }
-  particles.forEach(q=>{ctx.globalAlpha=q.life;ctx.fillStyle=`hsl(${q.h} 100% 70%)`;ctx.fillRect(q.x-2,q.y-2,4,4)});
-  ctx.globalAlpha=1;
-  popups.forEach(q=>{ctx.globalAlpha=q.life;ctx.fillStyle=`hsl(${q.h} 100% 80%)`;ctx.font='800 18px Outfit';
-    ctx.textAlign='center';ctx.fillText(q.t,q.x,q.y-18)});
-  ctx.globalAlpha=1;ctx.restore();
-}
 
-let lt=performance.now();
-function loop(n){const dt=Math.min((n-lt)/1000,.033);lt=n;
-  if(state==='play'||state==='over')update(dt);draw();requestAnimationFrame(loop)}
-function start(){clearTimeout(overTimer);$('start').classList.add('hide');$('over').classList.add('hide');reset();state='play'}
-$('startBtn').onclick=start;$('againBtn').onclick=start;
-reset();requestAnimationFrame(loop);
+  function update(dt) {
+    planets.forEach(p => { if (p.vx) { p.ph += dt; p.x = GW / 2 + Math.sin(p.ph * p.vx / 60) * (GW / 2 - p.R - 10); } });
+    if (player.planet) {
+      const p = player.planet;
+      player.rad += (Math.max(p.r + 16, Math.min(player.rad, p.R)) - player.rad) * dt * 4;
+      player.ang += player.dir * SPEED() / player.rad * dt;
+      player.x = p.x + Math.cos(player.ang) * player.rad;
+      player.y = p.y + Math.sin(player.ang) * player.rad;
+      camY += ((p.y - GH * .68) - camY) * dt * 3;
+    } else {
+      player.x += player.vx * dt; player.y += player.vy * dt; player.fly += dt;
+      camY += ((player.y - GH * .6) - camY) * dt * 1.5;
+      for (const p of planets) {
+        if (p.visited) continue;
+        const dx = player.x - p.x, dy = player.y - p.y, d = Math.hypot(dx, dy);
+        if (d < p.R) {
+          p.visited = true; player.planet = p; player.ang = Math.atan2(dy, dx); player.rad = d;
+          player.dir = Math.sign(dx * player.vy - dy * player.vx) || 1;
+          const perfect = d < p.r + (p.R - p.r) * .4;
+          const add = perfect ? 2 : 1; score += add; $('score').textContent = score;
+          playSound('catch');
+          if (score > best) {
+            best = score;
+            try { localStorage.setItem('yorunge_best', best); } catch (e) {}
+            refreshRecordUI();
+            syncScoreToCloud(best, 1);
+          }
+          popups.push({ x: player.x, y: player.y, t: perfect ? '✦ PERFECT +2' : '+1', life: 1, h: p.hue });
+          burst(player.x, player.y, perfect ? 26 : 12, p.hue); shake = perfect ? 8 : 3;
+          while (planets.length < planets.indexOf(p) + 6) planets.push(newPlanet(planets[planets.length - 1]));
+          planets = planets.filter(q => q.y < camY + GH + 300);
+          break;
+        }
+      }
+      const sy = player.y - camY;
+      if (state === 'play' && (player.x < -30 || player.x > GW + 30 || sy > GH + 40 || player.fly > 2.4)) die();
+    }
+    if (state === 'over' && deathT > 0) { deathT -= dt; burst(player.x, player.y, 40, 0); shake = 14; }
+    player.trail.push({ x: player.x, y: player.y }); if (player.trail.length > 22) player.trail.shift();
+    particles.forEach(q => { q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= .96; q.vy *= .96; q.life -= dt * 1.4; });
+    particles = particles.filter(q => q.life > 0);
+    popups.forEach(q => { q.y -= 40 * dt; q.life -= dt; }); popups = popups.filter(q => q.life > 0);
+    shake *= .88; hue += dt * 6;
+  }
+
+  function die() {
+    state = 'over';
+    btnPause.hidden = true;
+    deathT = .6; burst(player.x, player.y, 40, 0); shake = 14;
+    playSound('explode');
+    vibrate([280]);
+    if (score > best) {
+      best = score;
+      try { localStorage.setItem('yorunge_best', best); } catch (e) {}
+    }
+    refreshRecordUI();
+    syncScoreToCloud(best, 1);
+    clearTimeout(overTimer);
+    overTimer = setTimeout(() => {
+      hud.hidden = true;
+      resultBox.innerHTML = `Uzayda kayboldun<br>Puan <b>${score}</b>`;
+      resultBox.style.display = 'block';
+      refreshRecordUI();
+      btnStart.textContent = 'TEKRAR';
+      modal.style.display = 'flex';
+      fetchLeaderboard(false);
+    }, 650);
+  }
+
+  function draw() {
+    const isLight = settings.theme === 'light';
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    if (isLight) {
+      g.addColorStop(0, '#cfd6e2'); g.addColorStop(1, '#e8e4dc');
+    } else {
+      g.addColorStop(0, `hsl(${hue % 360} 60% 8%)`); g.addColorStop(1, 'hsl(240 40% 4%)');
+    }
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.save();
+    ctx.translate((Math.random() - .5) * shake, (Math.random() - .5) * shake);
+    for (const s of stars) {
+      const y = ((s.y - camY * s.z * .3) % 3000 + 3000) % 3000; if (y > H) continue;
+      ctx.globalAlpha = s.z * (isLight ? .3 : .8);
+      ctx.fillStyle = isLight ? '#475569' : '#fff';
+      ctx.fillRect(s.x * W, y, s.z * 2, s.z * 2);
+    }
+    ctx.globalAlpha = 1;
+    if (OX > 4) { ctx.fillStyle = 'hsla(186,100%,60%,.12)'; ctx.fillRect(OX - 1, 0, 1, H); ctx.fillRect(OX + GW * K, 0, 1, H); }
+    ctx.translate(OX, 0); ctx.scale(K, K);
+    ctx.translate(0, -camY);
+    const t = performance.now() / 1000;
+    for (const p of planets) {
+      ctx.strokeStyle = isLight
+        ? `hsla(${p.hue},75%,38%,${p === player.planet ? .65 : .3})`
+        : `hsla(${p.hue},100%,70%,${p === player.planet ? .5 : .22})`;
+      ctx.setLineDash([4, 8]); ctx.lineDashOffset = -t * 20; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.R, 0, 6.28); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = `hsla(${p.hue},100%,70%,.07)`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r + (p.R - p.r) * .4, 0, 6.28); ctx.fill();
+      const pg = ctx.createRadialGradient(p.x - p.r * .4, p.y - p.r * .4, 2, p.x, p.y, p.r);
+      pg.addColorStop(0, `hsl(${p.hue} 100% 80%)`); pg.addColorStop(1, `hsl(${p.hue + 30} 80% 35%)`);
+      ctx.shadowColor = `hsl(${p.hue} 100% 60%)`; ctx.shadowBlur = 30;
+      ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;
+    }
+    if (state !== 'over' || player.trail.length) {
+      player.trail.forEach((q, i) => {
+        const k = i / player.trail.length;
+        ctx.fillStyle = isLight ? `hsla(200,90%,40%,${k * .6})` : `hsla(186,100%,70%,${k * .6})`;
+        ctx.beginPath(); ctx.arc(q.x, q.y, 6 * k, 0, 6.28); ctx.fill();
+      });
+      if (state !== 'over') {
+        ctx.shadowColor = '#7ff'; ctx.shadowBlur = 20; ctx.fillStyle = isLight ? '#0f172a' : '#fff';
+        ctx.beginPath(); ctx.arc(player.x, player.y, 7, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;
+      }
+    }
+    particles.forEach(q => { ctx.globalAlpha = q.life; ctx.fillStyle = `hsl(${q.h} 100% 70%)`; ctx.fillRect(q.x - 2, q.y - 2, 4, 4); });
+    ctx.globalAlpha = 1;
+    popups.forEach(q => {
+      ctx.globalAlpha = q.life; ctx.fillStyle = isLight ? `hsl(${q.h} 85% 32%)` : `hsl(${q.h} 100% 80%)`;
+      ctx.font = '800 18px Outfit'; ctx.textAlign = 'center'; ctx.fillText(q.t, q.x, q.y - 18);
+    });
+    ctx.globalAlpha = 1; ctx.restore();
+  }
+
+  function start() {
+    if (!playerProfile.username) {
+      openProfileModal(true);
+      return;
+    }
+    initAudio();
+    clearTimeout(overTimer);
+    modal.style.display = 'none';
+    hud.hidden = false;
+    btnPause.hidden = false;
+    reset();
+    state = 'play';
+  }
+  btnStart.addEventListener('click', start);
+
+  // --- GLOBAL SIRALAMA VE PROFİL SİSTEMİ (FIREBASE CLOUD) ---
+  const FB_API_KEY = 'AIzaSyAwsTd8bBcyCw-GpC1dT0lfEZDM45LUYAY';
+  const FB_DB_URL = 'https://ilk-deneme-307a9-default-rtdb.europe-west1.firebasedatabase.app';
+  const SCORES_NODE = 'scores_yorunge';
+  const PROFILE_STORAGE_KEY = 'roketi_indir_pilot_profile_v1';
+
+  const leaderboardModal = document.getElementById('leaderboardModal');
+  const profileModal = document.getElementById('profileModal');
+  const profilePanel = document.getElementById('profilePanel');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const legalModal = document.getElementById('legalModal');
+  const pauseModal = document.getElementById('pauseModal');
+  const countdownOverlay = document.getElementById('countdownOverlay');
+  const countdownNum = document.getElementById('countdownNum');
+  const uiPilotName = document.getElementById('uiPilotName');
+  const uiPilotSub = document.getElementById('uiPilotSub');
+  const uiMyRankPill = document.getElementById('uiMyRankPill');
+  const top3List = document.getElementById('top3List');
+  const lbList = document.getElementById('lbList');
+  const lbSubtitle = document.getElementById('lbSubtitle');
+  const mrTitle = document.getElementById('mrTitle');
+  const mrVal = document.getElementById('mrVal');
+  const mrRight = document.getElementById('mrRight');
+  const inpEmail = document.getElementById('inpEmail');
+  const inpUsername = document.getElementById('inpUsername');
+  const authStatus = document.getElementById('authStatus');
+  const btnPickGoogle = document.getElementById('btnPickGoogle');
+  const btnPickGoogleTxt = document.getElementById('btnPickGoogleTxt');
+  const connectedAcctBox = document.getElementById('connectedAcctBox');
+  const connectedAcctEmail = document.getElementById('connectedAcctEmail');
+  const manualEmailBox = document.getElementById('manualEmailBox');
+  const btnChangeAcct = document.getElementById('btnChangeAcct');
+  const btnSaveProfile = document.getElementById('btnSaveProfile');
+  const btnCloseProfile = document.getElementById('btnCloseProfile');
+
+  let playerProfile = { uid: '', idToken: '', refreshToken: '', email: '', username: '', usernameKey: '', maxLevel: 1 };
+  let countdownTimer = null;
+
+  function loadProfileLocal() {
+    try {
+      const raw = localStorage.getItem(PROFILE_STORAGE_KEY);
+      if (raw) playerProfile = Object.assign(playerProfile, JSON.parse(raw));
+    } catch (e) {}
+  }
+  function saveProfileLocal() {
+    try { localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(playerProfile)); } catch (e) {}
+  }
+  function escapeHtml(str) {
+    return String(str || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function normalizeUsernameKey(name) {
+    return String(name || '').trim().toLowerCase()
+      .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's')
+      .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')
+      .replace(/[^a-z0-9_]/g, '_');
+  }
+  function deriveAuthEmail(email) {
+    const clean = String(email || '').trim().toLowerCase();
+    let h1 = 0x811c9dc5 ^ clean.length, h2 = 0xc9dc5118 ^ clean.length;
+    for (let i = 0; i < clean.length; i++) {
+      const ch = clean.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 16777619);
+      h2 = Math.imul(h2 ^ ch, 2166136261);
+    }
+    return `pilot_${(h1 >>> 0).toString(16).padStart(8, '0')}${(h2 >>> 0).toString(16).padStart(8, '0')}@roketiindir.app`;
+  }
+  function deriveAccountSecret(email) {
+    const clean = String(email || '').trim().toLowerCase();
+    let h1 = 0xdeadbeef ^ clean.length, h2 = 0x41c6ce57 ^ clean.length;
+    for (let i = 0; i < clean.length; i++) {
+      const ch = clean.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return 'RkP!' + (h1 >>> 0).toString(16).padStart(8, '0') + (h2 >>> 0).toString(16).padStart(8, '0') + '_2026';
+  }
+  async function ensureValidToken() {
+    if (playerProfile.refreshToken) {
+      try {
+        const res = await fetch(`https://securetoken.googleapis.com/v1/token?key=${FB_API_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `grant_type=refresh_token&refresh_token=${encodeURIComponent(playerProfile.refreshToken)}`
+        });
+        if (res.ok) {
+          const data = await res.json();
+          playerProfile.idToken = data.id_token;
+          playerProfile.refreshToken = data.refresh_token;
+          playerProfile.uid = data.user_id;
+          saveProfileLocal();
+          return playerProfile.idToken;
+        }
+      } catch (e) {}
+    }
+    return playerProfile.idToken;
+  }
+  async function authenticateWithGoogleEmail(email) {
+    const rawInput = String(email || '').trim().toLowerCase();
+    const cleanEmail = rawInput.includes('@') ? rawInput : `${rawInput}@gmail.com`;
+    const authEmail = deriveAuthEmail(cleanEmail);
+    const pwd = deriveAccountSecret(cleanEmail);
+
+    let res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FB_API_KEY}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: authEmail, password: pwd, returnSecureToken: true })
+    });
+    if (!res.ok) {
+      res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_API_KEY}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: authEmail, password: pwd, returnSecureToken: true })
+      });
+    }
+    if (!res.ok) {
+      res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_API_KEY}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ returnSecureToken: true })
+      });
+    }
+    if (!res.ok) throw new Error('Sunucuya bağlanılamadı.');
+    const data = await res.json();
+    playerProfile.uid = data.localId;
+    playerProfile.idToken = data.idToken;
+    playerProfile.refreshToken = data.refreshToken;
+    playerProfile.email = cleanEmail;
+    saveProfileLocal();
+
+    try {
+      const profRes = await fetch(`${FB_DB_URL}/${SCORES_NODE}/${encodeURIComponent(playerProfile.uid)}.json`);
+      if (profRes.ok) {
+        const existing = await profRes.json();
+        if (existing && existing.username) {
+          playerProfile.username = existing.username;
+          playerProfile.usernameKey = normalizeUsernameKey(existing.username);
+          if ((existing.score || 0) > best) {
+            best = existing.score;
+            try { localStorage.setItem('yorunge_best', best); } catch (e) {}
+            refreshRecordUI();
+          }
+          saveProfileLocal();
+        }
+      }
+    } catch (e) {}
+    return playerProfile;
+  }
+
+  function updateProfileBarUI() {
+    const ppName = document.getElementById('ppName');
+    const linkTxt = document.getElementById('btnLinkGoogleTxt');
+    if (playerProfile.username) {
+      uiPilotName.textContent = playerProfile.username;
+      ppName.textContent = playerProfile.username;
+    } else {
+      uiPilotName.textContent = 'Giriş yap';
+      ppName.textContent = 'Pilot';
+    }
+    if (playerProfile.email) {
+      uiPilotSub.textContent = playerProfile.email;
+      linkTxt.textContent = 'Google hesabını değiştir';
+    } else {
+      uiPilotSub.textContent = 'Google hesabı bağlı değil';
+      linkTxt.textContent = 'Google hesabı bağla';
+    }
+  }
+  function setConnectedEmailUI(email) {
+    const clean = String(email || '').trim().toLowerCase();
+    inpEmail.value = clean;
+    if (clean) {
+      connectedAcctEmail.textContent = clean;
+      connectedAcctBox.style.display = 'flex';
+      manualEmailBox.style.display = 'none';
+      btnPickGoogle.style.display = 'none';
+      if (!inpUsername.value.trim()) {
+        const suggested = clean.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '').slice(0, 14);
+        if (suggested.length >= 3) inpUsername.value = suggested;
+      }
+    } else {
+      connectedAcctBox.style.display = 'none';
+      manualEmailBox.style.display = 'block';
+      btnPickGoogle.style.display = 'flex';
+    }
+  }
+
+  window.onNativeGoogleAccount = async function(email) {
+    btnPickGoogleTxt.textContent = 'Google hesabı seç';
+    if (!email) return;
+    setConnectedEmailUI(email);
+    authStatus.style.color = 'var(--ui-accent)';
+    authStatus.textContent = 'Google hesabı bağlandı, kontrol ediliyor...';
+    try {
+      await authenticateWithGoogleEmail(email);
+      if (playerProfile.username) {
+        inpUsername.value = playerProfile.username;
+        authStatus.textContent = `Hoş geldin ${playerProfile.username}!`;
+      } else {
+        authStatus.textContent = 'Hesap bağlandı. Şimdi kullanıcı adını belirle.';
+      }
+      updateProfileBarUI();
+    } catch (e) {
+      authStatus.style.color = '#c4796c';
+      authStatus.textContent = e.message || 'Bağlantı hatası.';
+    }
+  };
+  window.onNativeGoogleAccountCancel = function() {
+    btnPickGoogleTxt.textContent = 'Google hesabı seç';
+    authStatus.style.color = 'var(--ui-muted)';
+    authStatus.textContent = 'E-posta adresinizi aşağıya yazarak da giriş yapabilirsiniz.';
+  };
+
+  btnPickGoogle.addEventListener('click', () => {
+    if (window.AndroidGoogleAuth && typeof window.AndroidGoogleAuth.pickGoogleAccount === 'function') {
+      btnPickGoogleTxt.textContent = 'Hesap seçiliyor...';
+      window.AndroidGoogleAuth.pickGoogleAccount();
+    } else {
+      inpEmail.focus();
+      authStatus.style.color = 'var(--ui-muted)';
+      authStatus.textContent = 'Google e-posta adresinizi ve kullanıcı adınızı girin.';
+    }
+  });
+  btnChangeAcct.addEventListener('click', () => {
+    setConnectedEmailUI('');
+    if (window.AndroidGoogleAuth && typeof window.AndroidGoogleAuth.pickGoogleAccount === 'function') {
+      window.AndroidGoogleAuth.pickGoogleAccount();
+    } else {
+      inpEmail.focus();
+    }
+  });
+
+  function openProfileModal(isMandatory = false) {
+    authStatus.textContent = '';
+    inpUsername.value = playerProfile.username || '';
+    setConnectedEmailUI(playerProfile.email || '');
+    btnCloseProfile.style.display = (!isMandatory && playerProfile.username) ? 'grid' : 'none';
+    profileModal.style.display = 'flex';
+  }
+
+  document.getElementById('btnOpenProfile').addEventListener('click', () => {
+    updateProfileBarUI();
+    profilePanel.style.display = 'flex';
+  });
+  document.getElementById('btnEditName').addEventListener('click', () => {
+    profilePanel.style.display = 'none';
+    openProfileModal(false);
+    setTimeout(() => inpUsername.focus(), 50);
+  });
+  document.getElementById('btnLinkGoogle').addEventListener('click', () => {
+    profilePanel.style.display = 'none';
+    openProfileModal(false);
+    setConnectedEmailUI('');
+    if (window.AndroidGoogleAuth && typeof window.AndroidGoogleAuth.pickGoogleAccount === 'function') {
+      btnPickGoogleTxt.textContent = 'Hesap seçiliyor...';
+      window.AndroidGoogleAuth.pickGoogleAccount();
+    } else {
+      setTimeout(() => inpEmail.focus(), 50);
+    }
+  });
+  document.querySelectorAll('[data-legal]').forEach(b => {
+    b.addEventListener('click', () => {
+      const isPrivacy = b.dataset.legal === 'privacy';
+      document.getElementById('legalTitle').textContent = isPrivacy ? 'Gizlilik Politikası' : 'Topluluk Kuralları';
+      document.getElementById('legalPrivacy').style.display = isPrivacy ? 'block' : 'none';
+      document.getElementById('legalRules').style.display = isPrivacy ? 'none' : 'block';
+      legalModal.style.display = 'flex';
+      legalModal.querySelector('.sheet').scrollTop = 0;
+    });
+  });
+  document.querySelectorAll('[data-close]').forEach(b => {
+    b.addEventListener('click', () => {
+      document.getElementById(b.dataset.close).style.display = 'none';
+    });
+  });
+  [profilePanel, settingsPanel, legalModal, leaderboardModal].forEach(ov => {
+    ov.addEventListener('click', e => { if (e.target === ov) ov.style.display = 'none'; });
+  });
+
+  // Sağ üst ayarlar & oyun içi duraklatma (Pause)
+  const swSound = document.getElementById('swSound');
+  const swVibe = document.getElementById('swVibe');
+  const swPauseSound = document.getElementById('swPauseSound');
+  const swPauseVibe = document.getElementById('swPauseVibe');
+  const thDark = document.getElementById('thDark');
+  const thLight = document.getElementById('thLight');
+
+  function refreshSettingsUI() {
+    swSound.classList.toggle('on', !!settings.sound);
+    swVibe.classList.toggle('on', !!settings.vibe);
+    if (swPauseSound) swPauseSound.classList.toggle('on', !!settings.sound);
+    if (swPauseVibe) swPauseVibe.classList.toggle('on', !!settings.vibe);
+    thDark.classList.toggle('active', settings.theme !== 'light');
+    thLight.classList.toggle('active', settings.theme === 'light');
+  }
+  document.getElementById('btnSettings').addEventListener('click', () => {
+    refreshSettingsUI();
+    settingsPanel.style.display = 'flex';
+  });
+  function toggleSoundSetting() { settings.sound = !settings.sound; saveSettings(); refreshSettingsUI(); }
+  function toggleVibeSetting() { settings.vibe = !settings.vibe; saveSettings(); refreshSettingsUI(); if (settings.vibe) vibrate([60]); }
+  swSound.addEventListener('click', toggleSoundSetting);
+  swVibe.addEventListener('click', toggleVibeSetting);
+  swPauseSound.addEventListener('click', toggleSoundSetting);
+  swPauseVibe.addEventListener('click', toggleVibeSetting);
+  thDark.addEventListener('click', () => { settings.theme = 'dark'; saveSettings(); applyTheme(); refreshSettingsUI(); });
+  thLight.addEventListener('click', () => { settings.theme = 'light'; saveSettings(); applyTheme(); refreshSettingsUI(); });
+
+  btnPause.addEventListener('click', () => {
+    if (state !== 'play') return;
+    initAudio(); playSound('click');
+    state = 'paused';
+    refreshSettingsUI();
+    pauseModal.style.display = 'flex';
+  });
+  document.getElementById('btnResume').addEventListener('click', () => {
+    if (state !== 'paused') return;
+    pauseModal.style.display = 'none';
+    state = 'countdown';
+    let step = 3;
+    countdownNum.textContent = String(step);
+    countdownOverlay.style.display = 'flex';
+    playSound('click');
+    if (countdownTimer) clearInterval(countdownTimer);
+    countdownTimer = setInterval(() => {
+      step--;
+      if (step > 0) {
+        countdownNum.textContent = String(step);
+        playSound('click');
+      } else {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+        countdownOverlay.style.display = 'none';
+        lt = performance.now();
+        state = 'play';
+      }
+    }, 850);
+  });
+  document.getElementById('btnPauseMenu').addEventListener('click', () => {
+    if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+    countdownOverlay.style.display = 'none';
+    pauseModal.style.display = 'none';
+    hud.hidden = true;
+    btnPause.hidden = true;
+    state = 'menu';
+    modal.style.display = 'flex';
+    fetchLeaderboard(false);
+  });
+
+  document.addEventListener('click', e => {
+    if (e.target.closest('.modal-overlay button')) { initAudio(); playSound('click'); }
+  }, true);
+  btnCloseProfile.addEventListener('click', () => { profileModal.style.display = 'none'; });
+
+  btnSaveProfile.addEventListener('click', async () => {
+    const unameVal = inpUsername.value.trim();
+    if (unameVal.length < 2 || unameVal.length > 16) {
+      authStatus.style.color = '#c4796c';
+      authStatus.textContent = 'Kullanıcı adı 2 ile 16 karakter arasında olmalıdır!';
+      return;
+    }
+    const uKey = normalizeUsernameKey(unameVal);
+    if (uKey.length < 2) {
+      authStatus.style.color = '#c4796c';
+      authStatus.textContent = 'Kullanıcı adı geçerli harf veya rakam içermelidir!';
+      return;
+    }
+    const rawEmail = inpEmail.value.trim().toLowerCase();
+    const emailVal = rawEmail ? (rawEmail.includes('@') ? rawEmail : `${rawEmail}@gmail.com`) : `${uKey}@gmail.com`;
+
+    btnSaveProfile.disabled = true;
+    btnSaveProfile.textContent = 'KAYDEDİLİYOR';
+    authStatus.style.color = 'var(--ui-muted)';
+    authStatus.textContent = 'Profil kontrol ediliyor...';
+
+    try {
+      await authenticateWithGoogleEmail(emailVal);
+      const token = await ensureValidToken();
+
+      const checkRes = await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(uKey)}.json`);
+      const checkData = checkRes.ok ? await checkRes.json() : null;
+      if (checkData && checkData.uid && checkData.uid !== playerProfile.uid) {
+        authStatus.style.color = '#c4796c';
+        authStatus.textContent = `"${unameVal}" kullanıcı adı başka bir pilot tarafından alınmış!`;
+        btnSaveProfile.disabled = false;
+        btnSaveProfile.textContent = 'KAYDET';
+        return;
+      }
+
+      const claimRes = await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(uKey)}.json?auth=${encodeURIComponent(token)}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid: playerProfile.uid, updatedAt: Date.now() })
+      });
+      if (!claimRes.ok) throw new Error('Bu kullanıcı adı şu an kullanılamıyor.');
+
+      playerProfile.username = unameVal;
+      playerProfile.usernameKey = uKey;
+      saveProfileLocal();
+      updateProfileBarUI();
+
+      await syncScoreToCloud(best, 1);
+      await fetchLeaderboard(false);
+      profileModal.style.display = 'none';
+    } catch (err) {
+      authStatus.style.color = '#c4796c';
+      authStatus.textContent = err.message || 'Bağlantı hatası oluştu.';
+    } finally {
+      btnSaveProfile.disabled = false;
+      btnSaveProfile.textContent = 'KAYDET';
+    }
+  });
+
+  async function syncScoreToCloud(bestVal, maxLvl) {
+    if (!playerProfile.uid || !playerProfile.username) return;
+    try {
+      const token = await ensureValidToken();
+      if (!token) return;
+      let finalScore = Math.max(0, Number(bestVal) || 0);
+      let finalLevel = Math.max(1, Number(maxLvl) || 1);
+      try {
+        const curRes = await fetch(`${FB_DB_URL}/${SCORES_NODE}/${encodeURIComponent(playerProfile.uid)}.json`);
+        if (curRes.ok) {
+          const curData = await curRes.json();
+          if (curData) {
+            if ((curData.score || 0) > finalScore) {
+              finalScore = curData.score;
+              best = finalScore;
+              try { localStorage.setItem('yorunge_best', best); } catch (e) {}
+              refreshRecordUI();
+            }
+          }
+        }
+      } catch (e) {}
+      await fetch(`${FB_DB_URL}/${SCORES_NODE}/${encodeURIComponent(playerProfile.uid)}.json?auth=${encodeURIComponent(token)}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: playerProfile.username, score: finalScore, level: finalLevel, updatedAt: Date.now() })
+      });
+    } catch (e) {}
+  }
+
+  function renderTop3AndRank(allSorted) {
+    const order = [1, 0, 2];
+    const cls = ['first', 'second', 'third'];
+    let html = '';
+    for (const i of order) {
+      const item = allSorted[i];
+      const isMe = item && playerProfile.uid && item.uid === playerProfile.uid;
+      html += `
+        <div class="pod ${cls[i]}${item ? '' : ' empty'}${isMe ? ' me' : ''}">
+          <div class="pod-name">${item ? escapeHtml(item.username) : '—'}</div>
+          <div class="pod-score">${item ? item.score : '&nbsp;'}</div>
+          <div class="pod-step">${i + 1}</div>
+        </div>`;
+    }
+    top3List.innerHTML = html;
+    refreshRecordUI();
+
+    const myIdx = playerProfile.uid ? allSorted.findIndex(x => x.uid === playerProfile.uid) : -1;
+    const myRank = myIdx >= 0 ? (myIdx + 1) : null;
+    const myScore = myIdx >= 0 ? allSorted[myIdx].score : best;
+    uiMyRankPill.textContent = myRank ? `Sıram #${myRank}` : 'Sıram —';
+
+    const top100 = allSorted.slice(0, 100);
+    lbSubtitle.textContent = `${allSorted.length} pilot yarışıyor`;
+    if (top100.length === 0) {
+      lbList.innerHTML = '<div class="lb-empty">Henüz skor yok. İlk sen ol!</div>';
+    } else {
+      lbList.innerHTML = top100.map((item, idx) => {
+        const rank = idx + 1;
+        const isMe = playerProfile.uid && item.uid === playerProfile.uid;
+        const rCls = rank <= 3 ? ` r${rank}` : '';
+        return `
+          <div class="lb-row${rCls}${isMe ? ' me' : ''}" ${isMe ? 'id="myLbRow"' : ''}>
+            <span class="lb-rank">${rank}</span>
+            <span class="lb-user">${escapeHtml(item.username)}${isMe ? '<span class="me-tag">SEN</span>' : ''}</span>
+            <span class="lb-pts">${item.score}</span>
+          </div>`;
+      }).join('');
+    }
+
+    const uname = playerProfile.username || 'Pilot';
+    if (myRank) {
+      if (myRank <= 100) {
+        mrTitle.textContent = 'Senin sıran';
+      } else {
+        const top100Cutoff = allSorted[99] ? allSorted[99].score : 0;
+        const needFor100 = Math.max(1, top100Cutoff - myScore + 1);
+        mrTitle.textContent = `İlk 100 için +${needFor100}`;
+      }
+      mrVal.textContent = `#${myRank}  ${uname}`;
+      mrRight.textContent = `${myScore}`;
+    } else {
+      mrTitle.textContent = 'Senin sıran';
+      mrVal.textContent = playerProfile.username ? `—  ${uname}` : 'Giriş yapılmadı';
+      mrRight.textContent = `${best}`;
+    }
+  }
+
+  async function fetchLeaderboard(scrollToMe = false) {
+    try {
+      const res = await fetch(`${FB_DB_URL}/${SCORES_NODE}.json`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const arr = [];
+      if (data && typeof data === 'object') {
+        for (const [uid, val] of Object.entries(data)) {
+          if (val && typeof val.username === 'string') {
+            arr.push({ uid, username: val.username, score: Number(val.score) || 0, level: Number(val.level) || 1, updatedAt: Number(val.updatedAt) || 0 });
+          }
+        }
+      }
+      arr.sort((a, b) => (b.score - a.score) || (a.updatedAt - b.updatedAt));
+      renderTop3AndRank(arr);
+      if (scrollToMe) {
+        const myRow = document.getElementById('myLbRow');
+        if (myRow) setTimeout(() => myRow.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+      }
+    } catch (e) {}
+  }
+
+  document.getElementById('btnOpenLb').addEventListener('click', () => {
+    leaderboardModal.style.display = 'flex';
+    fetchLeaderboard(true);
+  });
+  document.getElementById('btnRefreshLb').addEventListener('click', () => fetchLeaderboard(true));
+  document.getElementById('btnCloseLb').addEventListener('click', () => { leaderboardModal.style.display = 'none'; });
+
+  loadProfileLocal();
+  updateProfileBarUI();
+  if (playerProfile.uid && playerProfile.username) {
+    syncScoreToCloud(best, 1).then(() => fetchLeaderboard(false));
+  } else {
+    fetchLeaderboard(false);
+    openProfileModal(true);
+  }
+
+  let lt = performance.now();
+  function loop(n) {
+    const dt = Math.min((n - lt) / 1000, .033); lt = n;
+    if (state === 'play' || state === 'over') update(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+  reset(); requestAnimationFrame(loop);
+})();
 </script>
 </body>
 </html>
