@@ -2174,10 +2174,21 @@ async function authenticateWithGoogleEmail(email) {
   }
 
   const data = await res.json();
+  const isAccountSwitch = Boolean(playerProfile.uid && playerProfile.uid !== data.localId);
   playerProfile.uid = data.localId;
   playerProfile.idToken = data.idToken;
   playerProfile.refreshToken = data.refreshToken;
   playerProfile.email = cleanEmail;
+  if (isAccountSwitch) {
+    // Farklı bir hesaba geçildiyse önceki hesabın cihazdaki rekorunu yeni hesaba aktarma!
+    playerProfile.username = '';
+    playerProfile.usernameKey = '';
+    playerProfile.maxLevel = 1;
+    bestScore = 0;
+    saveBestScore(0);
+    elBest.textContent = 0;
+    refreshRecordUI();
+  }
   saveProfileLocal();
 
   // Bu Google hesabına ait bulutta kayıtlı kullanıcı adı ve rekor var mı kontrol et
@@ -2188,13 +2199,14 @@ async function authenticateWithGoogleEmail(email) {
       if (existing && existing.username) {
         playerProfile.username = existing.username;
         playerProfile.usernameKey = normalizeUsernameKey(existing.username);
-        if ((existing.score || 0) > bestScore) {
-          bestScore = existing.score;
+        if (isAccountSwitch || (existing.score || 0) > bestScore) {
+          bestScore = existing.score || 0;
           saveBestScore(bestScore);
           elBest.textContent = bestScore;
+          refreshRecordUI();
         }
-        if ((existing.level || 1) > (playerProfile.maxLevel || 1)) {
-          playerProfile.maxLevel = existing.level;
+        if (isAccountSwitch || (existing.level || 1) > (playerProfile.maxLevel || 1)) {
+          playerProfile.maxLevel = existing.level || 1;
         }
         saveProfileLocal();
       }
@@ -2460,6 +2472,12 @@ btnCloseProfile.addEventListener('click', () => {
   profileModal.style.display = 'none';
 });
 
+function isBannedUsername(name) {
+  const s = normalizeUsernameKey(name).replace(/_/g, '');
+  const banned = ['amk','aq','sik','sokuk','orospu','oc','pic','yarrak','yarak','got','tasak','tassak','amcik','amkayiran','kaltak','kahpe','ibne','gavat','pezevenk','fuck','shit','bitch','dick','pussy'];
+  return banned.some(w => w.length >= 3 ? s.includes(w) : s === w);
+}
+
 btnSaveProfile.addEventListener('click', async () => {
   const unameVal = inpUsername.value.trim();
   if (unameVal.length < 2 || unameVal.length > 16) {
@@ -2473,6 +2491,13 @@ btnSaveProfile.addEventListener('click', async () => {
     authStatus.textContent = 'Kullanıcı adı geçerli harf veya rakam içermelidir!';
     return;
   }
+  if (isBannedUsername(unameVal)) {
+    authStatus.style.color = '#c4796c';
+    authStatus.textContent = 'Bu kullanıcı adı topluluk kurallarına uygun değil!';
+    return;
+  }
+  const prevUid = playerProfile.uid;
+  const prevUKey = playerProfile.usernameKey;
   const rawEmail = inpEmail.value.trim().toLowerCase();
   const emailVal = rawEmail ? (rawEmail.includes('@') ? rawEmail : `${rawEmail}@gmail.com`) : `${uKey}@gmail.com`;
 
@@ -2494,6 +2519,13 @@ btnSaveProfile.addEventListener('click', async () => {
       btnSaveProfile.disabled = false;
       btnSaveProfile.textContent = 'KAYDET';
       return;
+    }
+
+    // Aynı hesapta kullanıcı adı değiştirildiyse eski kullanıcı adını boşa çıkar
+    if (prevUid && prevUid === playerProfile.uid && prevUKey && prevUKey !== uKey) {
+      try {
+        await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(prevUKey)}.json?auth=${encodeURIComponent(token)}`, { method: 'DELETE' });
+      } catch (e) {}
     }
 
     // Kullanıcı adını rezerve et

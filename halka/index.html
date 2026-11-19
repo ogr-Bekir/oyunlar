@@ -1060,10 +1060,19 @@
     }
     if (!res.ok) throw new Error('Sunucuya bağlanılamadı.');
     const data = await res.json();
+    const isAccountSwitch = Boolean(playerProfile.uid && playerProfile.uid !== data.localId);
     playerProfile.uid = data.localId;
     playerProfile.idToken = data.idToken;
     playerProfile.refreshToken = data.refreshToken;
     playerProfile.email = cleanEmail;
+    if (isAccountSwitch) {
+      playerProfile.username = '';
+      playerProfile.usernameKey = '';
+      playerProfile.maxLevel = 1;
+      best = 0;
+      try { localStorage.setItem('yorunge-best', 0); } catch (e) {}
+      refreshRecordUI();
+    }
     saveProfileLocal();
 
     try {
@@ -1073,8 +1082,8 @@
         if (existing && existing.username) {
           playerProfile.username = existing.username;
           playerProfile.usernameKey = normalizeUsernameKey(existing.username);
-          if ((existing.score || 0) > best) {
-            best = existing.score;
+          if (isAccountSwitch || (existing.score || 0) > best) {
+            best = existing.score || 0;
             try { localStorage.setItem('yorunge-best', best); } catch (e) {}
             refreshRecordUI();
           }
@@ -1286,6 +1295,12 @@
   }, true);
   btnCloseProfile.addEventListener('click', () => { profileModal.style.display = 'none'; });
 
+  function isBannedUsername(name) {
+    const s = normalizeUsernameKey(name).replace(/_/g, '');
+    const banned = ['amk','aq','sik','sokuk','orospu','oc','pic','yarrak','yarak','got','tasak','tassak','amcik','amkayiran','kaltak','kahpe','ibne','gavat','pezevenk','fuck','shit','bitch','dick','pussy'];
+    return banned.some(w => w.length >= 3 ? s.includes(w) : s === w);
+  }
+
   btnSaveProfile.addEventListener('click', async () => {
     const unameVal = inpUsername.value.trim();
     if (unameVal.length < 2 || unameVal.length > 16) {
@@ -1299,6 +1314,13 @@
       authStatus.textContent = 'Kullanıcı adı geçerli harf veya rakam içermelidir!';
       return;
     }
+    if (isBannedUsername(unameVal)) {
+      authStatus.style.color = '#c4796c';
+      authStatus.textContent = 'Bu kullanıcı adı topluluk kurallarına uygun değil!';
+      return;
+    }
+    const prevUid = playerProfile.uid;
+    const prevUKey = playerProfile.usernameKey;
     const rawEmail = inpEmail.value.trim().toLowerCase();
     const emailVal = rawEmail ? (rawEmail.includes('@') ? rawEmail : `${rawEmail}@gmail.com`) : `${uKey}@gmail.com`;
 
@@ -1321,6 +1343,7 @@
         return;
       }
 
+      if (prevUid && prevUid === playerProfile.uid && prevUKey && prevUKey !== uKey) { try { await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(prevUKey)}.json?auth=${encodeURIComponent(token)}`, { method: 'DELETE' }); } catch (e) {} }
       const claimRes = await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(uKey)}.json?auth=${encodeURIComponent(token)}`, {
         method: 'PUT', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid: playerProfile.uid, updatedAt: Date.now() })
