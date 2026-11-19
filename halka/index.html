@@ -500,30 +500,7 @@
   </div>
 </div>
 
-<!-- ===== PROFİL PANELİ (sol üst) ===== -->
-<div id="profilePanel" class="modal-overlay" style="display:none; z-index:60;">
-  <div class="sheet">
-    <div class="sheet-head">
-      <h2>Profil</h2>
-      <button class="x-btn" data-close="profilePanel" aria-label="Kapat">✕</button>
-    </div>
-    <div class="profile-head">
-      <span class="av"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
-      <div style="min-width:0;">
-        <div id="ppName" class="pn">Pilot</div>
-        <div id="uiPilotSub" class="ps">Google hesabı bağlı değil</div>
-      </div>
-    </div>
 
-    <div class="sec-label">Hesap</div>
-    <button id="btnEditName" class="list-item"><span>Kullanıcı adını değiştir</span><span class="chev">›</span></button>
-    <button id="btnLinkGoogle" class="list-item"><span id="btnLinkGoogleTxt">Google hesabı bağla</span><span class="chev">›</span></button>
-
-    <div class="sec-label">Bilgi</div>
-    <button class="list-item" data-legal="privacy"><span>Gizlilik Politikası</span><span class="chev">›</span></button>
-    <button class="list-item" data-legal="rules"><span>Topluluk Kuralları</span><span class="chev">›</span></button>
-  </div>
-</div>
 
 <!-- ===== AYARLAR PANELİ (sağ üst) ===== -->
 <div id="settingsPanel" class="modal-overlay" style="display:none; z-index:60;">
@@ -597,40 +574,47 @@
   </div>
 </div>
 
-<!-- ===== KULLANICI ADI & GOOGLE HESABI DÜZENLEME ===== -->
-<div id="profileModal" class="modal-overlay" style="display:none; z-index:70;">
-  <div class="sheet">
-    <div class="sheet-head">
-      <h2>Pilot profili</h2>
-      <button id="btnCloseProfile" type="button" class="x-btn" style="display:none;" aria-label="Kapat">✕</button>
+<!-- ===== GÜVENLİ OTURUM AÇMA / KAYIT OLMA EKRANI ===== -->
+  <div id="profileModal" class="modal-overlay" style="display:none; z-index:70;">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2 id="authModalTitle">Hesap Girişi</h2>
+        <button id="btnCloseProfile" type="button" class="x-btn" style="display:none;" aria-label="Kapat">✕</button>
+      </div>
+
+      <!-- Giriş Yap / Kayıt Ol Sekmeleri -->
+      <div class="seg" style="width:100%; margin-bottom:12px;">
+        <button id="tabLogin" type="button" class="active" style="flex:1; padding:8px;">Giriş Yap</button>
+        <button id="tabRegister" type="button" style="flex:1; padding:8px;">Kayıt Ol</button>
+      </div>
+
+      <p id="authModalHint" class="hint-small">Mevcut hesabınıza kayıtlı e-posta adresinizi ve kullanıcı adınızı girin.</p>
+
+      <button id="btnPickGoogle" type="button" class="btn-google">
+        <svg width="17" height="17" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.650z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.540 2.56 10.78l7.970-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        <span id="btnPickGoogleTxt">Google hesabı seç</span>
+      </button>
+
+      <div id="connectedAcctBox" class="acct-pill" style="display:none;">
+        <span id="connectedAcctEmail">Hesap bağlı</span>
+        <button id="btnChangeAcct" type="button" class="link-btn">Değiştir</button>
+      </div>
+
+      <div id="manualEmailBox" class="form-group">
+        <label for="inpEmail">Google / E-posta adresi</label>
+        <input id="inpEmail" class="form-input" type="email" placeholder="ornek@gmail.com" autocomplete="email">
+      </div>
+
+      <div class="form-group">
+        <label id="lblUsername" for="inpUsername">Hesaba kayıtlı kullanıcı adı</label>
+        <input id="inpUsername" class="form-input" type="text" maxlength="16" placeholder="Kullanıcı adınız" autocomplete="nickname">
+      </div>
+
+      <div id="authStatus" class="auth-status" style="color:var(--ui-muted);"></div>
+
+      <button id="btnSaveProfile" type="button" class="btn-action">GİRİŞ YAP</button>
     </div>
-    <p class="hint-small">Sıralamada görünmek ve rekorunu korumak için Google hesabını bağla ve bir kullanıcı adı seç.</p>
-
-    <button id="btnPickGoogle" type="button" class="btn-google">
-      <svg width="17" height="17" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.650z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.540 2.56 10.78l7.970-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-      <span id="btnPickGoogleTxt">Google hesabı seç</span>
-    </button>
-
-    <div id="connectedAcctBox" class="acct-pill" style="display:none;">
-      <span id="connectedAcctEmail">Hesap bağlı</span>
-      <button id="btnChangeAcct" type="button" class="link-btn">Değiştir</button>
-    </div>
-
-    <div id="manualEmailBox" class="form-group">
-      <label for="inpEmail">Google e-posta adresi</label>
-      <input id="inpEmail" class="form-input" type="email" placeholder="ornek@gmail.com" autocomplete="email">
-    </div>
-
-    <div class="form-group">
-      <label for="inpUsername">Kullanıcı adı</label>
-      <input id="inpUsername" class="form-input" type="text" maxlength="16" placeholder="Örn: KaptanAydin" autocomplete="nickname">
-    </div>
-
-    <div id="authStatus" class="auth-status" style="color:var(--ui-muted);"></div>
-
-    <button id="btnSaveProfile" type="button" class="btn-action">KAYDET</button>
   </div>
-</div>
 
 <script>
 (() => {
@@ -942,7 +926,7 @@
   const FB_API_KEY = 'AIzaSyAwsTd8bBcyCw-GpC1dT0lfEZDM45LUYAY';
   const FB_DB_URL = 'https://ilk-deneme-307a9-default-rtdb.europe-west1.firebasedatabase.app';
   const SCORES_NODE = 'scores_halka';
-  const PROFILE_STORAGE_KEY = 'roketi_indir_pilot_profile_v1';
+  const PROFILE_STORAGE_KEY = 'roketi_indir_pilot_profile_v2';
 
   const leaderboardModal = document.getElementById('leaderboardModal');
   const profileModal = document.getElementById('profileModal');
@@ -1036,338 +1020,98 @@
     }
     return playerProfile.idToken;
   }
-  async function authenticateWithGoogleEmail(email) {
-    const rawInput = String(email || '').trim().toLowerCase();
-    const cleanEmail = rawInput.includes('@') ? rawInput : `${rawInput}@gmail.com`;
-    const authEmail = deriveAuthEmail(cleanEmail);
-    const pwd = deriveAccountSecret(cleanEmail);
+  let authMode = 'login'; // 'login' | 'register'
+const tabLogin = document.getElementById('tabLogin');
+const tabRegister = document.getElementById('tabRegister');
+const authModalTitle = document.getElementById('authModalTitle');
+const authModalHint = document.getElementById('authModalHint');
+const lblUsername = document.getElementById('lblUsername');
+const renameBox = document.getElementById('renameBox');
+const inpRenameEmail = document.getElementById('inpRenameEmail');
+const inpNewUsername = document.getElementById('inpNewUsername');
+const renameStatus = document.getElementById('renameStatus');
 
-    let res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FB_API_KEY}`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: authEmail, password: pwd, returnSecureToken: true })
-    });
-    if (!res.ok) {
-      res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_API_KEY}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: authEmail, password: pwd, returnSecureToken: true })
-      });
-    }
-    if (!res.ok) {
-      res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_API_KEY}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ returnSecureToken: true })
-      });
-    }
-    if (!res.ok) throw new Error('Sunucuya bağlanılamadı.');
-    const data = await res.json();
-    const isAccountSwitch = Boolean(playerProfile.uid && playerProfile.uid !== data.localId);
-    playerProfile.uid = data.localId;
-    playerProfile.idToken = data.idToken;
-    playerProfile.refreshToken = data.refreshToken;
-    playerProfile.email = cleanEmail;
-    if (isAccountSwitch) {
-      playerProfile.username = '';
-      playerProfile.usernameKey = '';
-      playerProfile.maxLevel = 1;
-      best = 0;
-      try { localStorage.setItem('yorunge-best', 0); } catch (e) {}
-      refreshRecordUI();
-    }
-    saveProfileLocal();
+function setAuthMode(mode) {
+  authMode = mode;
+  authStatus.textContent = '';
+  if (mode === 'login') {
+    tabLogin.classList.add('active');
+    tabRegister.classList.remove('active');
+    authModalTitle.textContent = 'Hesap Girişi';
+    authModalHint.textContent = 'Kayıtlı e-posta adresinizi ve o hesaba ait kullanıcı adınızı girin.';
+    lblUsername.textContent = 'Hesaba kayıtlı kullanıcı adı';
+    inpUsername.placeholder = 'Kayıtlı kullanıcı adınız';
+    btnSaveProfile.textContent = 'GİRİŞ YAP';
+  } else {
+    tabRegister.classList.add('active');
+    tabLogin.classList.remove('active');
+    authModalTitle.textContent = 'Yeni Hesap Oluştur';
+    authModalHint.textContent = 'E-posta adresinizi bağlayın ve benzersiz bir kullanıcı adı belirleyin.';
+    lblUsername.textContent = 'Yeni kullanıcı adı (2-16 karakter)';
+    inpUsername.placeholder = 'Örn: KaptanAydin';
+    btnSaveProfile.textContent = 'HESAP OLUŞTUR';
+  }
+}
+tabLogin.addEventListener('click', () => setAuthMode('login'));
+tabRegister.addEventListener('click', () => setAuthMode('register'));
 
-    try {
-      const profRes = await fetch(`${FB_DB_URL}/${SCORES_NODE}/${encodeURIComponent(playerProfile.uid)}.json`);
-      if (profRes.ok) {
-        const existing = await profRes.json();
-        if (existing && existing.username) {
-          playerProfile.username = existing.username;
-          playerProfile.usernameKey = normalizeUsernameKey(existing.username);
-          if (isAccountSwitch || (existing.score || 0) > best) {
-            best = existing.score || 0;
-            try { localStorage.setItem('yorunge-best', best); } catch (e) {}
-            refreshRecordUI();
-          }
-          saveProfileLocal();
-        }
-      }
-    } catch (e) {}
-    return playerProfile;
+function isValidEmailFormat(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(email || '').trim());
+}
+
+btnSaveProfile.addEventListener('click', async () => {
+  const emailVal = inpEmail.value.trim().toLowerCase();
+  const unameVal = inpUsername.value.trim();
+
+  if (!isValidEmailFormat(emailVal)) {
+    authStatus.style.color = '#c4796c';
+    authStatus.textContent = 'Lütfen geçerli bir e-posta adresi girin (örn: kullanici@gmail.com)!';
+    return;
+  }
+  if (unameVal.length < 2 || unameVal.length > 16) {
+    authStatus.style.color = '#c4796c';
+    authStatus.textContent = 'Kullanıcı adı 2 ile 16 karakter arasında olmalıdır!';
+    return;
+  }
+  const uKey = normalizeUsernameKey(unameVal);
+  if (uKey.length < 2) {
+    authStatus.style.color = '#c4796c';
+    authStatus.textContent = 'Kullanıcı adı geçerli harf veya rakam içermelidir!';
+    return;
+  }
+  if (authMode === 'register' && isBannedUsername(unameVal)) {
+    authStatus.style.color = '#c4796c';
+    authStatus.textContent = 'Bu kullanıcı adı topluluk kurallarına uygun değil!';
+    return;
   }
 
-  function updateProfileBarUI() {
-    const ppName = document.getElementById('ppName');
-    const linkTxt = document.getElementById('btnLinkGoogleTxt');
-    if (playerProfile.username) {
-      uiPilotName.textContent = playerProfile.username;
-      ppName.textContent = playerProfile.username;
+  btnSaveProfile.disabled = true;
+  btnSaveProfile.textContent = authMode === 'login' ? 'DOĞRULANIYOR...' : 'OLUŞTURULUYOR...';
+  authStatus.style.color = 'var(--ui-muted)';
+  authStatus.textContent = authMode === 'login'
+    ? 'E-posta ve kullanıcı adı eşleşmesi doğrulanıyor...'
+    : 'Yeni hesap ve kullanıcı adı kontrol ediliyor...';
+
+  try {
+    if (authMode === 'login') {
+      await loginExistingAccount(emailVal, unameVal);
     } else {
-      uiPilotName.textContent = 'Giriş yap';
-      ppName.textContent = 'Pilot';
-    }
-    if (playerProfile.email) {
-      uiPilotSub.textContent = playerProfile.email;
-      linkTxt.textContent = 'Google hesabını değiştir';
-    } else {
-      uiPilotSub.textContent = 'Google hesabı bağlı değil';
-      linkTxt.textContent = 'Google hesabı bağla';
-    }
-  }
-  function setConnectedEmailUI(email) {
-    const clean = String(email || '').trim().toLowerCase();
-    inpEmail.value = clean;
-    if (clean) {
-      connectedAcctEmail.textContent = clean;
-      connectedAcctBox.style.display = 'flex';
-      manualEmailBox.style.display = 'none';
-      btnPickGoogle.style.display = 'none';
-      if (!inpUsername.value.trim()) {
-        const suggested = clean.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '').slice(0, 14);
-        if (suggested.length >= 3) inpUsername.value = suggested;
-      }
-    } else {
-      connectedAcctBox.style.display = 'none';
-      manualEmailBox.style.display = 'block';
-      btnPickGoogle.style.display = 'flex';
-    }
-  }
-
-  window.onNativeGoogleAccount = async function(email) {
-    btnPickGoogleTxt.textContent = 'Google hesabı seç';
-    if (!email) return;
-    setConnectedEmailUI(email);
-    authStatus.style.color = 'var(--ui-accent)';
-    authStatus.textContent = 'Google hesabı bağlandı, kontrol ediliyor...';
-    try {
-      await authenticateWithGoogleEmail(email);
-      if (playerProfile.username) {
-        inpUsername.value = playerProfile.username;
-        authStatus.textContent = `Hoş geldin ${playerProfile.username}!`;
-      } else {
-        authStatus.textContent = 'Hesap bağlandı. Şimdi kullanıcı adını belirle.';
-      }
-      updateProfileBarUI();
-    } catch (e) {
-      authStatus.style.color = '#c4796c';
-      authStatus.textContent = e.message || 'Bağlantı hatası.';
-    }
-  };
-  window.onNativeGoogleAccountCancel = function() {
-    btnPickGoogleTxt.textContent = 'Google hesabı seç';
-    authStatus.style.color = 'var(--ui-muted)';
-    authStatus.textContent = 'E-posta adresinizi aşağıya yazarak da giriş yapabilirsiniz.';
-  };
-
-  btnPickGoogle.addEventListener('click', () => {
-    if (window.AndroidGoogleAuth && typeof window.AndroidGoogleAuth.pickGoogleAccount === 'function') {
-      btnPickGoogleTxt.textContent = 'Hesap seçiliyor...';
-      window.AndroidGoogleAuth.pickGoogleAccount();
-    } else {
-      inpEmail.focus();
-      authStatus.style.color = 'var(--ui-muted)';
-      authStatus.textContent = 'Google e-posta adresinizi ve kullanıcı adınızı girin.';
-    }
-  });
-  btnChangeAcct.addEventListener('click', () => {
-    setConnectedEmailUI('');
-    if (window.AndroidGoogleAuth && typeof window.AndroidGoogleAuth.pickGoogleAccount === 'function') {
-      window.AndroidGoogleAuth.pickGoogleAccount();
-    } else {
-      inpEmail.focus();
-    }
-  });
-
-  function openProfileModal(isMandatory = false) {
-    authStatus.textContent = '';
-    inpUsername.value = playerProfile.username || '';
-    setConnectedEmailUI(playerProfile.email || '');
-    btnCloseProfile.style.display = (!isMandatory && playerProfile.username) ? 'grid' : 'none';
-    profileModal.style.display = 'flex';
-  }
-
-  document.getElementById('btnOpenProfile').addEventListener('click', () => {
-    updateProfileBarUI();
-    profilePanel.style.display = 'flex';
-  });
-  document.getElementById('btnEditName').addEventListener('click', () => {
-    profilePanel.style.display = 'none';
-    openProfileModal(false);
-    setTimeout(() => inpUsername.focus(), 50);
-  });
-  document.getElementById('btnLinkGoogle').addEventListener('click', () => {
-    profilePanel.style.display = 'none';
-    openProfileModal(false);
-    setConnectedEmailUI('');
-    if (window.AndroidGoogleAuth && typeof window.AndroidGoogleAuth.pickGoogleAccount === 'function') {
-      btnPickGoogleTxt.textContent = 'Hesap seçiliyor...';
-      window.AndroidGoogleAuth.pickGoogleAccount();
-    } else {
-      setTimeout(() => inpEmail.focus(), 50);
-    }
-  });
-  document.querySelectorAll('[data-legal]').forEach(b => {
-    b.addEventListener('click', () => {
-      const isPrivacy = b.dataset.legal === 'privacy';
-      document.getElementById('legalTitle').textContent = isPrivacy ? 'Gizlilik Politikası' : 'Topluluk Kuralları';
-      document.getElementById('legalPrivacy').style.display = isPrivacy ? 'block' : 'none';
-      document.getElementById('legalRules').style.display = isPrivacy ? 'none' : 'block';
-      legalModal.style.display = 'flex';
-      legalModal.querySelector('.sheet').scrollTop = 0;
-    });
-  });
-  document.querySelectorAll('[data-close]').forEach(b => {
-    b.addEventListener('click', () => {
-      document.getElementById(b.dataset.close).style.display = 'none';
-    });
-  });
-  [profilePanel, settingsPanel, legalModal, leaderboardModal].forEach(ov => {
-    ov.addEventListener('click', e => { if (e.target === ov) ov.style.display = 'none'; });
-  });
-
-  // Sağ üst ayarlar & oyun içi duraklatma (Pause)
-  const swSound = document.getElementById('swSound');
-  const swVibe = document.getElementById('swVibe');
-  const swPauseSound = document.getElementById('swPauseSound');
-  const swPauseVibe = document.getElementById('swPauseVibe');
-  const thDark = document.getElementById('thDark');
-  const thLight = document.getElementById('thLight');
-
-  function refreshSettingsUI() {
-    swSound.classList.toggle('on', !!settings.sound);
-    swVibe.classList.toggle('on', !!settings.vibe);
-    if (swPauseSound) swPauseSound.classList.toggle('on', !!settings.sound);
-    if (swPauseVibe) swPauseVibe.classList.toggle('on', !!settings.vibe);
-    thDark.classList.toggle('active', settings.theme !== 'light');
-    thLight.classList.toggle('active', settings.theme === 'light');
-  }
-  document.getElementById('btnSettings').addEventListener('click', () => {
-    refreshSettingsUI();
-    settingsPanel.style.display = 'flex';
-  });
-  function toggleSoundSetting() { settings.sound = !settings.sound; saveSettings(); refreshSettingsUI(); }
-  function toggleVibeSetting() { settings.vibe = !settings.vibe; saveSettings(); refreshSettingsUI(); if (settings.vibe) vibrate([60]); }
-  swSound.addEventListener('click', toggleSoundSetting);
-  swVibe.addEventListener('click', toggleVibeSetting);
-  swPauseSound.addEventListener('click', toggleSoundSetting);
-  swPauseVibe.addEventListener('click', toggleVibeSetting);
-  thDark.addEventListener('click', () => { settings.theme = 'dark'; saveSettings(); applyTheme(); refreshSettingsUI(); });
-  thLight.addEventListener('click', () => { settings.theme = 'light'; saveSettings(); applyTheme(); refreshSettingsUI(); });
-
-  btnPause.addEventListener('click', () => {
-    if (state !== 'play') return;
-    initAudio(); playSound('click');
-    state = 'paused';
-    refreshSettingsUI();
-    pauseModal.style.display = 'flex';
-  });
-  document.getElementById('btnResume').addEventListener('click', () => {
-    if (state !== 'paused') return;
-    pauseModal.style.display = 'none';
-    state = 'countdown';
-    let step = 3;
-    countdownNum.textContent = String(step);
-    countdownOverlay.style.display = 'flex';
-    playSound('click');
-    if (countdownTimer) clearInterval(countdownTimer);
-    countdownTimer = setInterval(() => {
-      step--;
-      if (step > 0) {
-        countdownNum.textContent = String(step);
-        playSound('click');
-      } else {
-        clearInterval(countdownTimer);
-        countdownTimer = null;
-        countdownOverlay.style.display = 'none';
-        last = performance.now();
-        state = 'play';
-      }
-    }, 850);
-  });
-  document.getElementById('btnPauseMenu').addEventListener('click', () => {
-    if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
-    countdownOverlay.style.display = 'none';
-    pauseModal.style.display = 'none';
-    menu();
-    fetchLeaderboard(false);
-  });
-
-  document.addEventListener('click', e => {
-    if (e.target.closest('.modal-overlay button')) { initAudio(); playSound('click'); }
-  }, true);
-  btnCloseProfile.addEventListener('click', () => { profileModal.style.display = 'none'; });
-
-  function isBannedUsername(name) {
-    const s = normalizeUsernameKey(name).replace(/_/g, '');
-    const banned = ['amk','aq','sik','sokuk','orospu','oc','pic','yarrak','yarak','got','tasak','tassak','amcik','amkayiran','kaltak','kahpe','ibne','gavat','pezevenk','fuck','shit','bitch','dick','pussy'];
-    return banned.some(w => w.length >= 3 ? s.includes(w) : s === w);
-  }
-
-  btnSaveProfile.addEventListener('click', async () => {
-    const unameVal = inpUsername.value.trim();
-    if (unameVal.length < 2 || unameVal.length > 16) {
-      authStatus.style.color = '#c4796c';
-      authStatus.textContent = 'Kullanıcı adı 2 ile 16 karakter arasında olmalıdır!';
-      return;
-    }
-    const uKey = normalizeUsernameKey(unameVal);
-    if (uKey.length < 2) {
-      authStatus.style.color = '#c4796c';
-      authStatus.textContent = 'Kullanıcı adı geçerli harf veya rakam içermelidir!';
-      return;
-    }
-    if (isBannedUsername(unameVal)) {
-      authStatus.style.color = '#c4796c';
-      authStatus.textContent = 'Bu kullanıcı adı topluluk kurallarına uygun değil!';
-      return;
-    }
-    const prevUid = playerProfile.uid;
-    const prevUKey = playerProfile.usernameKey;
-    const rawEmail = inpEmail.value.trim().toLowerCase();
-    const emailVal = rawEmail ? (rawEmail.includes('@') ? rawEmail : `${rawEmail}@gmail.com`) : `${uKey}@gmail.com`;
-
-    btnSaveProfile.disabled = true;
-    btnSaveProfile.textContent = 'KAYDEDİLİYOR';
-    authStatus.style.color = 'var(--ui-muted)';
-    authStatus.textContent = 'Profil kontrol ediliyor...';
-
-    try {
-      await authenticateWithGoogleEmail(emailVal);
-      const token = await ensureValidToken();
-
-      const checkRes = await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(uKey)}.json`);
-      const checkData = checkRes.ok ? await checkRes.json() : null;
-      if (checkData && checkData.uid && checkData.uid !== playerProfile.uid) {
-        authStatus.style.color = '#c4796c';
-        authStatus.textContent = `"${unameVal}" kullanıcı adı başka bir pilot tarafından alınmış!`;
-        btnSaveProfile.disabled = false;
-        btnSaveProfile.textContent = 'KAYDET';
-        return;
-      }
-
-      if (prevUid && prevUid === playerProfile.uid && prevUKey && prevUKey !== uKey) { try { await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(prevUKey)}.json?auth=${encodeURIComponent(token)}`, { method: 'DELETE' }); } catch (e) {} }
-      const claimRes = await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(uKey)}.json?auth=${encodeURIComponent(token)}`, {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid: playerProfile.uid, updatedAt: Date.now() })
-      });
-      if (!claimRes.ok) throw new Error('Bu kullanıcı adı şu an kullanılamıyor.');
-
-      playerProfile.username = unameVal;
-      playerProfile.usernameKey = uKey;
-      saveProfileLocal();
-      updateProfileBarUI();
-
+      await registerNewAccount(emailVal, unameVal);
       await syncScoreToCloud(best, 1);
-      await fetchLeaderboard(false);
-      profileModal.style.display = 'none';
-    } catch (err) {
-      authStatus.style.color = '#c4796c';
-      authStatus.textContent = err.message || 'Bağlantı hatası oluştu.';
-    } finally {
-      btnSaveProfile.disabled = false;
-      btnSaveProfile.textContent = 'KAYDET';
     }
-  });
+    updateProfileBarUI();
+    await fetchLeaderboard(false);
+    profileModal.style.display = 'none';
+  } catch (err) {
+    authStatus.style.color = '#c4796c';
+    authStatus.textContent = err.message || 'İşlem başarısız oldu.';
+  } finally {
+    btnSaveProfile.disabled = false;
+    btnSaveProfile.textContent = authMode === 'login' ? 'GİRİŞ YAP' : 'HESAP OLUŞTUR';
+  }
+});
 
-  async function syncScoreToCloud(bestVal, maxLvl) {
+async function syncScoreToCloud(bestVal, maxLvl) {
     if (!playerProfile.uid || !playerProfile.username) return;
     try {
       const token = await ensureValidToken();
@@ -1378,7 +1122,7 @@
         const curRes = await fetch(`${FB_DB_URL}/${SCORES_NODE}/${encodeURIComponent(playerProfile.uid)}.json`);
         if (curRes.ok) {
           const curData = await curRes.json();
-          if (curData) {
+          if (curData) { if (curData.username && curData.username !== playerProfile.username) { playerProfile.username = curData.username; playerProfile.usernameKey = normalizeUsernameKey(curData.username); saveProfileLocal(); updateProfileBarUI(); }
             if ((curData.score || 0) > finalScore) {
               finalScore = curData.score;
               best = finalScore;

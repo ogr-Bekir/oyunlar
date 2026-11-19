@@ -908,7 +908,7 @@
     </div>
   </div>
 
-  <!-- ===== PROFİL PANELİ (sol üst) ===== -->
+  /* ===== PROFİL PANELİ (sol üst) ===== */
   <div id="profilePanel" class="modal-overlay" style="display:none; z-index:60;">
     <div class="sheet">
       <div class="sheet-head">
@@ -917,15 +917,36 @@
       </div>
       <div class="profile-head">
         <span class="av"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
-        <div style="min-width:0;">
-          <div id="ppName" class="pn">Pilot</div>
+        <div style="min-width:0; flex:1;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+            <div id="ppName" class="pn">Pilot</div>
+            <span id="ppBadge" style="font-size:10px; font-weight:700; color:var(--ui-accent); background:var(--ui-step); padding:2px 7px; border-radius:999px; border:1px solid var(--ui-line);">Doğrulanmış</span>
+          </div>
           <div id="uiPilotSub" class="ps">Google hesabı bağlı değil</div>
         </div>
       </div>
 
-      <div class="sec-label">Hesap</div>
+      <div class="sec-label">Hesap Yönetimi</div>
       <button id="btnEditName" class="list-item"><span>Kullanıcı adını değiştir</span><span class="chev">›</span></button>
-      <button id="btnLinkGoogle" class="list-item"><span id="btnLinkGoogleTxt">Google hesabı bağla</span><span class="chev">›</span></button>
+
+      <!-- Güvenli Kullanıcı Adı Değiştirme Kutusu (Sadece oturum açıkken) -->
+      <div id="renameBox" style="display:none; background:var(--ui-panel-2); border:1px solid var(--ui-line); border-radius:12px; padding:12px; margin-bottom:8px;">
+        <div class="form-group" style="margin-bottom:8px;">
+          <label for="inpRenameEmail">Güvenlik: Kayıtlı e-posta adresinizi doğrulayın</label>
+          <input id="inpRenameEmail" class="form-input" type="email" placeholder="Kayıtlı e-posta adresiniz">
+        </div>
+        <div class="form-group" style="margin-bottom:8px;">
+          <label for="inpNewUsername">Yeni kullanıcı adı</label>
+          <input id="inpNewUsername" class="form-input" type="text" maxlength="16" placeholder="Yeni kullanıcı adınız">
+        </div>
+        <div id="renameStatus" class="auth-status" style="color:var(--ui-muted);"></div>
+        <div style="display:flex; gap:8px;">
+          <button id="btnConfirmRename" type="button" class="btn-action" style="padding:10px;">GÜNCELLE</button>
+          <button id="btnCancelRename" type="button" class="btn-ghost" style="margin-top:0; padding:10px;">İptal</button>
+        </div>
+      </div>
+
+      <button id="btnLinkGoogle" class="list-item" style="color:#c4796c;"><span id="btnLinkGoogleTxt">Çıkış yap / Başka hesaba geç</span><span class="chev">›</span></button>
 
       <div class="sec-label">Bilgi</div>
       <button class="list-item" data-legal="privacy"><span>Gizlilik Politikası</span><span class="chev">›</span></button>
@@ -1007,14 +1028,21 @@
     </div>
   </div>
 
-  <!-- ===== KULLANICI ADI & GOOGLE HESABI DÜZENLEME ===== -->
+  <!-- ===== GÜVENLİ OTURUM AÇMA / KAYIT OLMA EKRANI ===== -->
   <div id="profileModal" class="modal-overlay" style="display:none; z-index:70;">
     <div class="sheet">
       <div class="sheet-head">
-        <h2>Pilot profili</h2>
+        <h2 id="authModalTitle">Hesap Girişi</h2>
         <button id="btnCloseProfile" type="button" class="x-btn" style="display:none;" aria-label="Kapat">✕</button>
       </div>
-      <p class="hint-small">Sıralamada görünmek ve rekorunu korumak için Google hesabını bağla ve bir kullanıcı adı seç.</p>
+
+      <!-- Giriş Yap / Kayıt Ol Sekmeleri -->
+      <div class="seg" style="width:100%; margin-bottom:12px;">
+        <button id="tabLogin" type="button" class="active" style="flex:1; padding:8px;">Giriş Yap</button>
+        <button id="tabRegister" type="button" style="flex:1; padding:8px;">Kayıt Ol</button>
+      </div>
+
+      <p id="authModalHint" class="hint-small">Mevcut hesabınıza kayıtlı e-posta adresinizi ve kullanıcı adınızı girin.</p>
 
       <button id="btnPickGoogle" type="button" class="btn-google">
         <svg width="17" height="17" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.650z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.540 2.56 10.78l7.970-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
@@ -1027,18 +1055,18 @@
       </div>
 
       <div id="manualEmailBox" class="form-group">
-        <label for="inpEmail">Google e-posta adresi</label>
+        <label for="inpEmail">Google / E-posta adresi</label>
         <input id="inpEmail" class="form-input" type="email" placeholder="ornek@gmail.com" autocomplete="email">
       </div>
 
       <div class="form-group">
-        <label for="inpUsername">Kullanıcı adı</label>
-        <input id="inpUsername" class="form-input" type="text" maxlength="16" placeholder="Örn: KaptanAydin" autocomplete="nickname">
+        <label id="lblUsername" for="inpUsername">Hesaba kayıtlı kullanıcı adı</label>
+        <input id="inpUsername" class="form-input" type="text" maxlength="16" placeholder="Kullanıcı adınız" autocomplete="nickname">
       </div>
 
       <div id="authStatus" class="auth-status" style="color:var(--ui-muted);"></div>
 
-      <button id="btnSaveProfile" type="button" class="btn-action">KAYDET</button>
+      <button id="btnSaveProfile" type="button" class="btn-action">GİRİŞ YAP</button>
     </div>
   </div>
 </div>
@@ -2020,7 +2048,7 @@ function draw() {
 // --- GLOBAL SIRALAMA VE GOOGLE / PLAY PROFİL SİSTEMİ (FIREBASE CLOUD) ---
 const FB_API_KEY = 'AIzaSyAwsTd8bBcyCw-GpC1dT0lfEZDM45LUYAY';
 const FB_DB_URL = 'https://ilk-deneme-307a9-default-rtdb.europe-west1.firebasedatabase.app';
-const PROFILE_STORAGE_KEY = 'roketi_indir_pilot_profile_v1';
+const PROFILE_STORAGE_KEY = 'roketi_indir_pilot_profile_v2';
 
 const leaderboardModal = document.getElementById('leaderboardModal');
 const profileModal = document.getElementById('profileModal');
@@ -2138,100 +2166,215 @@ async function ensureValidToken() {
   return playerProfile.idToken;
 }
 
-async function authenticateWithGoogleEmail(email) {
-  const rawInput = String(email || '').trim().toLowerCase();
-  const cleanEmail = rawInput.includes('@') ? rawInput : `${rawInput}@gmail.com`;
+let authMode = 'login'; // 'login' | 'register'
+const tabLogin = document.getElementById('tabLogin');
+const tabRegister = document.getElementById('tabRegister');
+const authModalTitle = document.getElementById('authModalTitle');
+const authModalHint = document.getElementById('authModalHint');
+const lblUsername = document.getElementById('lblUsername');
+const renameBox = document.getElementById('renameBox');
+const inpRenameEmail = document.getElementById('inpRenameEmail');
+const inpNewUsername = document.getElementById('inpNewUsername');
+const renameStatus = document.getElementById('renameStatus');
+
+function setAuthMode(mode) {
+  authMode = mode;
+  authStatus.textContent = '';
+  if (mode === 'login') {
+    tabLogin.classList.add('active');
+    tabRegister.classList.remove('active');
+    authModalTitle.textContent = 'Hesap Girişi';
+    authModalHint.textContent = 'Kayıtlı e-posta adresinizi ve o hesaba ait kullanıcı adınızı girin.';
+    lblUsername.textContent = 'Hesaba kayıtlı kullanıcı adı';
+    inpUsername.placeholder = 'Kayıtlı kullanıcı adınız';
+    btnSaveProfile.textContent = 'GİRİŞ YAP';
+  } else {
+    tabRegister.classList.add('active');
+    tabLogin.classList.remove('active');
+    authModalTitle.textContent = 'Yeni Hesap Oluştur';
+    authModalHint.textContent = 'E-posta adresinizi bağlayın ve benzersiz bir kullanıcı adı belirleyin.';
+    lblUsername.textContent = 'Yeni kullanıcı adı (2-16 karakter)';
+    inpUsername.placeholder = 'Örn: KaptanAydin';
+    btnSaveProfile.textContent = 'HESAP OLUŞTUR';
+  }
+}
+tabLogin.addEventListener('click', () => setAuthMode('login'));
+tabRegister.addEventListener('click', () => setAuthMode('register'));
+
+function isValidEmailFormat(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(email || '').trim());
+}
+
+function isBannedUsername(name) {
+  const s = normalizeUsernameKey(name).replace(/_/g, '');
+  const banned = ['amk','aq','sik','sokuk','orospu','oc','pic','yarrak','yarak','got','tasak','tassak','amcik','amkayiran','kaltak','kahpe','ibne','gavat','pezevenk','fuck','shit','bitch','dick','pussy'];
+  return banned.some(w => w.length >= 3 ? s.includes(w) : s === w);
+}
+
+// Buluttan bir UID'nin kayıtlı kullanıcı adını ve bu oyundaki skorunu getirir
+async function fetchUserBoundProfile(uid) {
+  let boundUsername = '';
+  let gameScore = 0;
+  let gameLevel = 1;
+  try {
+    const uRes = await fetch(`${FB_DB_URL}/users/${encodeURIComponent(uid)}.json`);
+    if (uRes.ok) {
+      const uData = await uRes.json();
+      if (uData && uData.username) boundUsername = uData.username;
+    }
+  } catch (e) {}
+  try {
+    const sRes = await fetch(`${FB_DB_URL}/scores/${encodeURIComponent(uid)}.json`);
+    if (sRes.ok) {
+      const sData = await sRes.json();
+      if (sData) {
+        if (!boundUsername && sData.username) boundUsername = sData.username;
+        gameScore = Number(sData.score) || 0;
+        gameLevel = Number(sData.level) || 1;
+      }
+    }
+  } catch (e) {}
+  return { boundUsername, boundKey: normalizeUsernameKey(boundUsername), gameScore, gameLevel };
+}
+
+// 1. GİRİŞ YAP (Sadece mevcut ve e-posta <-> kullanıcı adı eşleşmesi doğru olan hesaba girer, asla kullanıcı adı değiştirmez)
+async function loginExistingAccount(email, enteredUsername) {
+  const cleanEmail = String(email || '').trim().toLowerCase();
+  const enteredKey = normalizeUsernameKey(enteredUsername);
   const authEmail = deriveAuthEmail(cleanEmail);
   const pwd = deriveAccountSecret(cleanEmail);
 
-  // 1. Mevcut Roketi İndir Google/Play profiliyle giriş yapmayı dene
+  const res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FB_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: authEmail, password: pwd, returnSecureToken: true })
+  });
+
+  if (!res.ok) {
+    throw new Error('Bu e-posta adresiyle kayıtlı bir hesap bulunamadı! Yeni hesap için "Kayıt Ol" sekmesini kullanın.');
+  }
+
+  const data = await res.json();
+  const uid = data.localId;
+  const bound = await fetchUserBoundProfile(uid);
+
+  if (!bound.boundUsername) {
+    throw new Error('Bu e-posta adresiyle tamamlanmış bir profil bulunamadı! "Kayıt Ol" sekmesinden kayıt olun.');
+  }
+
+  // KRİTİK GÜVENLİK KONTROLÜ: Girilen kullanıcı adı bu e-posta hesabının kayıtlı kullanıcı adıyla birebir aynı mı?
+  if (bound.boundKey !== enteredKey) {
+    throw new Error('Hatalı giriş! Girdiğiniz kullanıcı adı bu e-posta hesabıyla eşleşmiyor.');
+  }
+
+  // Oturumu aç ve yalnızca bu hesabın kendi rekorunu yükle
+  playerProfile.uid = uid;
+  playerProfile.idToken = data.idToken;
+  playerProfile.refreshToken = data.refreshToken;
+  playerProfile.email = cleanEmail;
+  playerProfile.username = bound.boundUsername;
+  playerProfile.usernameKey = bound.boundKey;
+  playerProfile.maxLevel = bound.gameLevel || 1;
+  bestScore = bound.gameScore || 0;
+  saveBestScore(bestScore);
+  elBest.textContent = bestScore;
+  refreshRecordUI();
+  saveProfileLocal();
+  return playerProfile;
+}
+
+// 2. KAYIT OL (Sadece yeni e-posta ve boşta olan kullanıcı adı ile yeni hesap açar, mevcut hesabı asla ezmez)
+async function registerNewAccount(email, newUsername) {
+  const cleanEmail = String(email || '').trim().toLowerCase();
+  const unameVal = String(newUsername || '').trim();
+  const uKey = normalizeUsernameKey(unameVal);
+  const authEmail = deriveAuthEmail(cleanEmail);
+  const pwd = deriveAccountSecret(cleanEmail);
+
+  // A) Kullanıcı adı başkası tarafından alınmış mı kontrol et
+  const checkRes = await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(uKey)}.json`);
+  const checkData = checkRes.ok ? await checkRes.json() : null;
+  if (checkData && checkData.uid) {
+    throw new Error(`"${unameVal}" kullanıcı adı başka bir oyuncu tarafından kullanılıyor! Başka bir ad seçin.`);
+  }
+
+  // B) Bu e-posta adresi zaten kayıtlı mı kontrol et
   let res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FB_API_KEY}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: authEmail, password: pwd, returnSecureToken: true })
   });
 
-  // 2. İlk kez giriş yapıyorsa otomatik oluştur
-  if (!res.ok) {
+  if (res.ok) {
+    const existingAuth = await res.json();
+    const bound = await fetchUserBoundProfile(existingAuth.localId);
+    if (bound.boundUsername) {
+      throw new Error('Bu e-posta adresi zaten kayıtlı! Lütfen "Giriş Yap" sekmesinden kendi kullanıcı adınızla giriş yapın.');
+    }
+  } else {
     res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: authEmail, password: pwd, returnSecureToken: true })
     });
-  }
-
-  // 3. Yedek güvenlik: Herhangi bir durumda anonim oturum aç (kullanıcıyı asla engelleme)
-  if (!res.ok) {
-    res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_API_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ returnSecureToken: true })
-    });
-  }
-
-  if (!res.ok) {
-    throw new Error('Sunucuya bağlanılamadı. İnternet bağlantınızı kontrol edin.');
+    if (!res.ok) {
+      throw new Error('Hesap oluşturulamadı. Lütfen e-posta adresinizi kontrol edin.');
+    }
   }
 
   const data = await res.json();
-  const isAccountSwitch = Boolean(playerProfile.uid && playerProfile.uid !== data.localId);
-  playerProfile.uid = data.localId;
-  playerProfile.idToken = data.idToken;
+  const uid = data.localId;
+  const token = data.idToken;
+
+  // Kullanıcı adını rezerve et
+  const claimRes = await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(uKey)}.json?auth=${encodeURIComponent(token)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ uid, updatedAt: Date.now() })
+  });
+  if (!claimRes.ok) {
+    throw new Error('Bu kullanıcı adı şu an kullanılamıyor, başka bir ad deneyin.');
+  }
+
+  // /users/{uid} altına e-posta <-> kullanıcı adı bağını kilitle
+  await fetch(`${FB_DB_URL}/users/${encodeURIComponent(uid)}.json?auth=${encodeURIComponent(token)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: unameVal, usernameKey: uKey, updatedAt: Date.now() })
+  });
+
+  // Yeni hesap olduğu için önceki hesabın cihazdaki rekorunu sıfırla
+  playerProfile.uid = uid;
+  playerProfile.idToken = token;
   playerProfile.refreshToken = data.refreshToken;
   playerProfile.email = cleanEmail;
-  if (isAccountSwitch) {
-    // Farklı bir hesaba geçildiyse önceki hesabın cihazdaki rekorunu yeni hesaba aktarma!
-    playerProfile.username = '';
-    playerProfile.usernameKey = '';
-    playerProfile.maxLevel = 1;
-    bestScore = 0;
-    saveBestScore(0);
-    elBest.textContent = 0;
-    refreshRecordUI();
-  }
+  playerProfile.username = unameVal;
+  playerProfile.usernameKey = uKey;
+  playerProfile.maxLevel = 1;
+  bestScore = 0;
+  saveBestScore(0);
+  elBest.textContent = 0;
+  refreshRecordUI();
   saveProfileLocal();
-
-  // Bu Google hesabına ait bulutta kayıtlı kullanıcı adı ve rekor var mı kontrol et
-  try {
-    const profRes = await fetch(`${FB_DB_URL}/scores/${encodeURIComponent(playerProfile.uid)}.json`);
-    if (profRes.ok) {
-      const existing = await profRes.json();
-      if (existing && existing.username) {
-        playerProfile.username = existing.username;
-        playerProfile.usernameKey = normalizeUsernameKey(existing.username);
-        if (isAccountSwitch || (existing.score || 0) > bestScore) {
-          bestScore = existing.score || 0;
-          saveBestScore(bestScore);
-          elBest.textContent = bestScore;
-          refreshRecordUI();
-        }
-        if (isAccountSwitch || (existing.level || 1) > (playerProfile.maxLevel || 1)) {
-          playerProfile.maxLevel = existing.level || 1;
-        }
-        saveProfileLocal();
-      }
-    }
-  } catch (e) {}
-
   return playerProfile;
 }
 
 function updateProfileBarUI() {
   const ppName = document.getElementById('ppName');
-  const linkTxt = document.getElementById('btnLinkGoogleTxt');
+  const ppBadge = document.getElementById('ppBadge');
   if (playerProfile.username) {
     uiPilotName.textContent = playerProfile.username;
     ppName.textContent = playerProfile.username;
+    if (ppBadge) ppBadge.textContent = '🔒 Doğrulanmış';
   } else {
     uiPilotName.textContent = 'Giriş yap';
-    ppName.textContent = 'Pilot';
+    ppName.textContent = 'Giriş yapılmadı';
+    if (ppBadge) ppBadge.textContent = 'Misafir';
   }
   if (playerProfile.email) {
     uiPilotSub.textContent = playerProfile.email;
-    linkTxt.textContent = 'Google hesabını değiştir';
   } else {
-    uiPilotSub.textContent = 'Google hesabı bağlı değil';
-    linkTxt.textContent = 'Google hesabı bağla';
+    uiPilotSub.textContent = 'Google / E-posta bağlı değil';
   }
 }
 
@@ -2243,10 +2386,6 @@ function setConnectedEmailUI(email) {
     connectedAcctBox.style.display = 'flex';
     manualEmailBox.style.display = 'none';
     btnPickGoogle.style.display = 'none';
-    if (!inpUsername.value.trim()) {
-      const suggested = clean.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '').slice(0, 14);
-      if (suggested.length >= 3) inpUsername.value = suggested;
-    }
   } else {
     connectedAcctBox.style.display = 'none';
     manualEmailBox.style.display = 'block';
@@ -2260,26 +2399,15 @@ window.onNativeGoogleAccount = async function(email) {
   if (!email) return;
   setConnectedEmailUI(email);
   authStatus.style.color = 'var(--ui-accent)';
-  authStatus.textContent = 'Google / Play hesabı bağlandı! Bilgiler kontrol ediliyor...';
-  try {
-    await authenticateWithGoogleEmail(email);
-    if (playerProfile.username) {
-      inpUsername.value = playerProfile.username;
-      authStatus.textContent = `Hoş geldin ${playerProfile.username}! Kayıtlı profilin yüklendi.`;
-    } else {
-      authStatus.textContent = 'Hesap bağlandı! Şimdi kullanıcı adını belirle.';
-    }
-    updateProfileBarUI();
-  } catch (e) {
-    authStatus.style.color = '#c4796c';
-    authStatus.textContent = e.message || 'Bağlantı hatası.';
-  }
+  authStatus.textContent = authMode === 'login'
+    ? 'Google hesabı seçildi. Şimdi bu hesaba kayıtlı kullanıcı adınızı girip Giriş Yap\'a basın.'
+    : 'Google hesabı seçildi. Şimdi yeni kullanıcı adınızı belirleyip Hesap Oluştur\'a basın.';
 };
 
 window.onNativeGoogleAccountCancel = function() {
   btnPickGoogleTxt.textContent = 'Google hesabı seç';
   authStatus.style.color = 'var(--ui-muted)';
-  authStatus.textContent = 'E-posta adresinizi aşağıya yazarak da giriş yapabilirsiniz.';
+  authStatus.textContent = 'E-posta adresinizi aşağıya yazarak da devam edebilirsiniz.';
 };
 
 btnPickGoogle.addEventListener('click', () => {
@@ -2289,12 +2417,13 @@ btnPickGoogle.addEventListener('click', () => {
   } else {
     inpEmail.focus();
     authStatus.style.color = 'var(--ui-muted)';
-    authStatus.textContent = 'Google / Play e-posta adresinizi ve kullanıcı adınızı girin.';
+    authStatus.textContent = 'E-posta adresinizi ve kullanıcı adınızı aşağıya girin.';
   }
 });
 
 btnChangeAcct.addEventListener('click', () => {
   setConnectedEmailUI('');
+  inpUsername.value = '';
   if (window.AndroidGoogleAuth && typeof window.AndroidGoogleAuth.pickGoogleAccount === 'function') {
     window.AndroidGoogleAuth.pickGoogleAccount();
   } else {
@@ -2302,42 +2431,149 @@ btnChangeAcct.addEventListener('click', () => {
   }
 });
 
-function openProfileModal(isMandatory = false) {
-  authStatus.textContent = '';
-  inpUsername.value = playerProfile.username || '';
-  if (playerProfile.email) {
-    setConnectedEmailUI(playerProfile.email);
-  } else {
-    setConnectedEmailUI('');
-  }
-  btnCloseProfile.style.display = (!isMandatory && playerProfile.username) ? 'flex' : 'none';
+function openProfileModal(isMandatory = false, defaultMode = 'login') {
+  setAuthMode(defaultMode);
+  inpUsername.value = '';
+  setConnectedEmailUI('');
+  btnCloseProfile.style.display = (!isMandatory && playerProfile.username) ? 'grid' : 'none';
   profileModal.style.display = 'flex';
 }
 
-// Sol üst profil butonu -> Profil paneli
+// Sol üst profil butonu -> Giriş yapılmamışsa doğrudan Giriş ekranı, giriş yapılmışsa Profil paneli
 const profilePanel = document.getElementById('profilePanel');
 const settingsPanel = document.getElementById('settingsPanel');
 const legalModal = document.getElementById('legalModal');
 
 document.getElementById('btnOpenProfile').addEventListener('click', () => {
+  if (!playerProfile.uid || !playerProfile.username) {
+    openProfileModal(false, 'login');
+    return;
+  }
   updateProfileBarUI();
+  renameBox.style.display = 'none';
   profilePanel.style.display = 'flex';
 });
+
+// Güvenli Kullanıcı Adı Değiştirme (Yalnızca oturum açıkken, kayıtlı e-posta doğrulamasıyla)
 document.getElementById('btnEditName').addEventListener('click', () => {
-  profilePanel.style.display = 'none';
-  openProfileModal(false);
-  setTimeout(() => inpUsername.focus(), 50);
+  const isVisible = renameBox.style.display === 'block';
+  renameBox.style.display = isVisible ? 'none' : 'block';
+  inpRenameEmail.value = '';
+  inpNewUsername.value = playerProfile.username || '';
+  renameStatus.textContent = '';
+  if (!isVisible) setTimeout(() => inpRenameEmail.focus(), 50);
 });
-document.getElementById('btnLinkGoogle').addEventListener('click', () => {
-  profilePanel.style.display = 'none';
-  openProfileModal(false);
-  setConnectedEmailUI('');
-  if (window.AndroidGoogleAuth && typeof window.AndroidGoogleAuth.pickGoogleAccount === 'function') {
-    btnPickGoogleTxt.textContent = 'Hesap seçiliyor...';
-    window.AndroidGoogleAuth.pickGoogleAccount();
-  } else {
-    setTimeout(() => inpEmail.focus(), 50);
+document.getElementById('btnCancelRename').addEventListener('click', () => {
+  renameBox.style.display = 'none';
+});
+document.getElementById('btnConfirmRename').addEventListener('click', async () => {
+  const verifyEmail = inpRenameEmail.value.trim().toLowerCase();
+  const newUname = inpNewUsername.value.trim();
+  const newUKey = normalizeUsernameKey(newUname);
+
+  if (!verifyEmail || verifyEmail !== (playerProfile.email || '').toLowerCase()) {
+    renameStatus.style.color = '#c4796c';
+    renameStatus.textContent = 'Güvenlik doğrulaması başarısız: Kayıtlı e-posta adresinizi doğru girin!';
+    return;
   }
+  if (newUname.length < 2 || newUname.length > 16 || newUKey.length < 2) {
+    renameStatus.style.color = '#c4796c';
+    renameStatus.textContent = 'Yeni kullanıcı adı 2 ile 16 karakter arasında olmalıdır!';
+    return;
+  }
+  if (isBannedUsername(newUname)) {
+    renameStatus.style.color = '#c4796c';
+    renameStatus.textContent = 'Bu kullanıcı adı topluluk kurallarına uygun değil!';
+    return;
+  }
+  if (newUKey === playerProfile.usernameKey && newUname === playerProfile.username) {
+    renameBox.style.display = 'none';
+    return;
+  }
+
+  const btnConfirm = document.getElementById('btnConfirmRename');
+  btnConfirm.disabled = true;
+  renameStatus.style.color = 'var(--ui-muted)';
+  renameStatus.textContent = 'Kontrol ediliyor...';
+
+  try {
+    const token = await ensureValidToken();
+    const checkRes = await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(newUKey)}.json`);
+    const checkData = checkRes.ok ? await checkRes.json() : null;
+    if (checkData && checkData.uid && checkData.uid !== playerProfile.uid) {
+      renameStatus.style.color = '#c4796c';
+      renameStatus.textContent = `"${newUname}" başka bir oyuncu tarafından kullanılıyor!`;
+      btnConfirm.disabled = false;
+      return;
+    }
+
+    const oldUKey = playerProfile.usernameKey;
+    const claimRes = await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(newUKey)}.json?auth=${encodeURIComponent(token)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: playerProfile.uid, updatedAt: Date.now() })
+    });
+    if (!claimRes.ok) throw new Error('Kullanıcı adı güncellenemedi.');
+
+    if (oldUKey && oldUKey !== newUKey) {
+      try {
+        await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(oldUKey)}.json?auth=${encodeURIComponent(token)}`, { method: 'DELETE' });
+      } catch (e) {}
+    }
+
+    await fetch(`${FB_DB_URL}/users/${encodeURIComponent(playerProfile.uid)}.json?auth=${encodeURIComponent(token)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: newUname, usernameKey: newUKey, updatedAt: Date.now() })
+    });
+
+    // Tüm oyunların skor tablolarında da yeni kullanıcı adını güncelle
+    for (const node of ['scores', 'scores_ayna', 'scores_halka', 'scores_yorunge']) {
+      try {
+        const sRes = await fetch(`${FB_DB_URL}/${node}/${encodeURIComponent(playerProfile.uid)}.json`);
+        if (sRes.ok) {
+          const sData = await sRes.json();
+          if (sData && typeof sData.score === 'number') {
+            await fetch(`${FB_DB_URL}/${node}/${encodeURIComponent(playerProfile.uid)}.json?auth=${encodeURIComponent(token)}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username: newUname, score: sData.score, level: sData.level || 1, updatedAt: Date.now() })
+            });
+          }
+        }
+      } catch (e) {}
+    }
+
+    playerProfile.username = newUname;
+    playerProfile.usernameKey = newUKey;
+    saveProfileLocal();
+    updateProfileBarUI();
+    await syncScoreToCloud(bestScore, Math.max(level, playerProfile.maxLevel || 1));
+    await fetchLeaderboard(false);
+
+    renameStatus.style.color = 'var(--ui-accent)';
+    renameStatus.textContent = 'Kullanıcı adınız güncellendi!';
+    setTimeout(() => { renameBox.style.display = 'none'; }, 700);
+  } catch (err) {
+    renameStatus.style.color = '#c4796c';
+    renameStatus.textContent = err.message || 'Güncelleme hatası.';
+  } finally {
+    btnConfirm.disabled = false;
+  }
+});
+
+// Çıkış Yap / Başka Hesaba Geç
+document.getElementById('btnLinkGoogle').addEventListener('click', () => {
+  playerProfile = { uid: '', idToken: '', refreshToken: '', email: '', username: '', usernameKey: '', maxLevel: 1 };
+  bestScore = 0;
+  saveBestScore(0);
+  elBest.textContent = 0;
+  refreshRecordUI();
+  saveProfileLocal();
+  updateProfileBarUI();
+  profilePanel.style.display = 'none';
+  openProfileModal(true, 'login');
+  fetchLeaderboard(false);
 });
 
 // Gizlilik / Topluluk metinleri
@@ -2472,14 +2708,15 @@ btnCloseProfile.addEventListener('click', () => {
   profileModal.style.display = 'none';
 });
 
-function isBannedUsername(name) {
-  const s = normalizeUsernameKey(name).replace(/_/g, '');
-  const banned = ['amk','aq','sik','sokuk','orospu','oc','pic','yarrak','yarak','got','tasak','tassak','amcik','amkayiran','kaltak','kahpe','ibne','gavat','pezevenk','fuck','shit','bitch','dick','pussy'];
-  return banned.some(w => w.length >= 3 ? s.includes(w) : s === w);
-}
-
 btnSaveProfile.addEventListener('click', async () => {
+  const emailVal = inpEmail.value.trim().toLowerCase();
   const unameVal = inpUsername.value.trim();
+
+  if (!isValidEmailFormat(emailVal)) {
+    authStatus.style.color = '#c4796c';
+    authStatus.textContent = 'Lütfen geçerli bir e-posta adresi girin (örn: kullanici@gmail.com)!';
+    return;
+  }
   if (unameVal.length < 2 || unameVal.length > 16) {
     authStatus.style.color = '#c4796c';
     authStatus.textContent = 'Kullanıcı adı 2 ile 16 karakter arasında olmalıdır!';
@@ -2491,68 +2728,35 @@ btnSaveProfile.addEventListener('click', async () => {
     authStatus.textContent = 'Kullanıcı adı geçerli harf veya rakam içermelidir!';
     return;
   }
-  if (isBannedUsername(unameVal)) {
+  if (authMode === 'register' && isBannedUsername(unameVal)) {
     authStatus.style.color = '#c4796c';
     authStatus.textContent = 'Bu kullanıcı adı topluluk kurallarına uygun değil!';
     return;
   }
-  const prevUid = playerProfile.uid;
-  const prevUKey = playerProfile.usernameKey;
-  const rawEmail = inpEmail.value.trim().toLowerCase();
-  const emailVal = rawEmail ? (rawEmail.includes('@') ? rawEmail : `${rawEmail}@gmail.com`) : `${uKey}@gmail.com`;
 
   btnSaveProfile.disabled = true;
-  btnSaveProfile.textContent = 'KAYDEDİLİYOR';
+  btnSaveProfile.textContent = authMode === 'login' ? 'DOĞRULANIYOR...' : 'OLUŞTURULUYOR...';
   authStatus.style.color = 'var(--ui-muted)';
-  authStatus.textContent = 'Google / Play profili ve kullanıcı adı kontrol ediliyor...';
+  authStatus.textContent = authMode === 'login'
+    ? 'E-posta ve kullanıcı adı eşleşmesi doğrulanıyor...'
+    : 'Yeni hesap ve kullanıcı adı kontrol ediliyor...';
 
   try {
-    await authenticateWithGoogleEmail(emailVal);
-    const token = await ensureValidToken();
-
-    // Kullanıcı adı başkası tarafından alınmış mı kontrol et
-    const checkRes = await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(uKey)}.json`);
-    const checkData = checkRes.ok ? await checkRes.json() : null;
-    if (checkData && checkData.uid && checkData.uid !== playerProfile.uid) {
-      authStatus.style.color = '#c4796c';
-      authStatus.textContent = `"${unameVal}" kullanıcı adı başka bir pilot tarafından alınmış!`;
-      btnSaveProfile.disabled = false;
-      btnSaveProfile.textContent = 'KAYDET';
-      return;
+    if (authMode === 'login') {
+      await loginExistingAccount(emailVal, unameVal);
+    } else {
+      await registerNewAccount(emailVal, unameVal);
+      await syncScoreToCloud(bestScore, Math.max(level, playerProfile.maxLevel || 1));
     }
-
-    // Aynı hesapta kullanıcı adı değiştirildiyse eski kullanıcı adını boşa çıkar
-    if (prevUid && prevUid === playerProfile.uid && prevUKey && prevUKey !== uKey) {
-      try {
-        await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(prevUKey)}.json?auth=${encodeURIComponent(token)}`, { method: 'DELETE' });
-      } catch (e) {}
-    }
-
-    // Kullanıcı adını rezerve et
-    const claimRes = await fetch(`${FB_DB_URL}/usernames/${encodeURIComponent(uKey)}.json?auth=${encodeURIComponent(token)}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid: playerProfile.uid, updatedAt: Date.now() })
-    });
-    if (!claimRes.ok) {
-      throw new Error('Bu kullanıcı adı şu an kullanılamıyor, başka bir ad deneyin.');
-    }
-
-    playerProfile.username = unameVal;
-    playerProfile.usernameKey = uKey;
-    saveProfileLocal();
     updateProfileBarUI();
-
-    await syncScoreToCloud(bestScore, Math.max(level, playerProfile.maxLevel || 1));
     await fetchLeaderboard(false);
-
     profileModal.style.display = 'none';
   } catch (err) {
     authStatus.style.color = '#c4796c';
-    authStatus.textContent = err.message || 'Bağlantı hatası oluştu.';
+    authStatus.textContent = err.message || 'İşlem başarısız oldu.';
   } finally {
     btnSaveProfile.disabled = false;
-    btnSaveProfile.textContent = 'KAYDET';
+    btnSaveProfile.textContent = authMode === 'login' ? 'GİRİŞ YAP' : 'HESAP OLUŞTUR';
   }
 });
 
@@ -2568,7 +2772,7 @@ async function syncScoreToCloud(bestVal, maxLvl) {
       const curRes = await fetch(`${FB_DB_URL}/scores/${encodeURIComponent(playerProfile.uid)}.json`);
       if (curRes.ok) {
         const curData = await curRes.json();
-        if (curData) {
+        if (curData) { if (curData.username && curData.username !== playerProfile.username) { playerProfile.username = curData.username; playerProfile.usernameKey = normalizeUsernameKey(curData.username); saveProfileLocal(); updateProfileBarUI(); }
           if ((curData.score || 0) > finalScore) {
             finalScore = curData.score;
             bestScore = finalScore;
